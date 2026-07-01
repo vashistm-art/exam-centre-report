@@ -42,17 +42,17 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .topbar{display:flex;justify-content:space-between;align-items:center;padding:13px 24px;border-bottom:1px solid var(--border);background:var(--card);position:sticky;top:0;z-index:50}
 .topbar-title{font-size:15px;font-weight:600;color:var(--text)}
 .topbar-right{display:flex;align-items:center;gap:12px}
-.datetime .tdate{font-size:11px;color:var(--muted);font-weight:500;text-align:right}
-.datetime .ttime{font-size:13px;font-weight:700;color:var(--accent);text-align:right}
+.datetime .tdate{font-size:13px;color:var(--muted);font-weight:600;text-align:right}
+.datetime .ttime{font-size:17px;font-weight:700;color:var(--accent);text-align:right}
 .theme-btn{background:var(--card);border:1px solid var(--border);border-radius:8px;width:32px;height:32px;cursor:pointer;font-size:15px;display:flex;align-items:center;justify-content:center}
 .btn-logout{height:32px;padding:0 12px;background:none;border:1px solid var(--border);border-radius:8px;color:var(--muted);font-size:12px;cursor:pointer}
 .btn-logout:hover{border-color:#ef4444;color:#ef4444}
-.content{padding:24px;flex:1}
+.content{padding:24px 32px;flex:1;max-width:900px;width:100%}
 .page{display:none}
 .page.active{display:block}
 
 /* Forms */
-.form-card{background:var(--card);border-radius:14px;border:1px solid var(--border);padding:2rem;max-width:580px;box-shadow:0 2px 12px var(--shadow)}
+.form-card{background:var(--card);border-radius:14px;border:1px solid var(--border);padding:2rem;max-width:100%;box-shadow:0 2px 12px var(--shadow)}
 .form-card h2{font-size:17px;font-weight:600;color:var(--text);margin-bottom:4px}
 .form-card .sub{font-size:13px;color:var(--muted);margin-bottom:1.5rem}
 .field{margin-bottom:1.25rem}
@@ -128,7 +128,7 @@ tr:hover td{background:var(--input-bg)}
 .drive-link-box{display:block;padding:12px 14px;background:var(--input-bg);border:1px solid var(--border);border-radius:8px;color:var(--accent);font-size:14px;text-decoration:none;margin-bottom:8px}
 .drive-link-box:hover{border-color:var(--accent)}
 
-@media(max-width:640px){.sidebar{width:56px}.logo-text,.nav-item span,.role-badge{display:none}.main{margin-left:56px}.nav-item{justify-content:center}.slot-grid{grid-template-columns:1fr}}
+@media(max-width:640px){.sidebar{width:56px}.logo-text,.nav-item span,.role-badge{display:none}.main{margin-left:56px}.nav-item{justify-content:center}.slot-grid{grid-template-columns:1fr}.content{padding:16px}.form-card{padding:1.25rem}.topbar{padding:10px 14px}}
 </style>
 </head>
 <body>
@@ -137,7 +137,7 @@ tr:hover td{background:var(--input-bg)}
 <div class="login-screen" id="loginScreen">
   <button class="login-theme theme-btn" onclick="toggleTheme()" id="loginThemeBtn">☀️</button>
   <div class="login-card">
-    <div class="login-logo">📍</div>
+    <div class="login-logo">🖥️</div>
     <h1>CT Exam Ops</h1>
 
     <!-- Step 1: Role selection -->
@@ -147,7 +147,7 @@ tr:hover td{background:var(--input-bg)}
         🧑‍💼 &nbsp; Login as Coordinator
       </button>
       <button class="btn-login" onclick="showAdminPass()" style="background:#1a2744;border:1.5px solid #3b82f6;color:#93c5fd">
-        👑 &nbsp; Login as Admin
+        🔐 &nbsp; Login as Admin
       </button>
       <p style="font-size:11px;color:var(--muted);margin-top:16px">Coordinators: Attendance &amp; UMC forms only.<br>Admins: Full access including Dashboard &amp; Drive.</p>
     </div>
@@ -173,7 +173,7 @@ tr:hover td{background:var(--input-bg)}
   <!-- Sidebar -->
   <div class="sidebar">
     <div class="sidebar-logo">
-      <div class="logo-icon">📍</div>
+      <div class="logo-icon">🖥️</div>
       <span class="logo-text">CT Exam Ops</span>
     </div>
     <nav class="sidebar-nav" id="sidebarNav">
@@ -322,15 +322,31 @@ tr:hover td{background:var(--input-bg)}
 </div>
 
 <script>
+// Auto-restore session on page load
+window.addEventListener('load', () => {
+  const savedRole = sessionStorage.getItem('ctRole');
+  const savedTheme = sessionStorage.getItem('ctTheme');
+  if (savedTheme) {
+    isDark = savedTheme === 'dark';
+    document.documentElement.setAttribute('data-theme', savedTheme);
+    const icon = isDark ? '☀️' : '🌙';
+    document.getElementById('themeBtn').textContent = icon;
+    document.getElementById('loginThemeBtn').textContent = icon;
+  }
+  if (savedRole) {
+    startApp(savedRole);
+  }
+});
+
 const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzGOlJgDPbkfo-HszzKPITZ-o3V7iRXM6BPHoTk8fU5phvpwLLEBJpJZ4E4gnIhr-oKGA/exec";
 const PASSWORDS = { coord: "CT@Coord2026", admin: "CT@Admin2026" };
 
-let currentRole = null;
-let isDark = true;
+let currentRole = sessionStorage.getItem('ctRole') || null;
+let isDark = sessionStorage.getItem('ctTheme') !== 'light';
 let files = {att:[], umc1:[], umc2:[]};
 let slots = {att:'', umc:''};
 let lastFolder = {att:'', umc:''};
-let submissions = [];
+let submissions = JSON.parse(sessionStorage.getItem('ctSubmissions') || '[]');
 
 // Clock
 function updateClock() {
@@ -346,6 +362,7 @@ updateClock(); setInterval(updateClock, 1000);
 function toggleTheme() {
   isDark = !isDark;
   document.documentElement.setAttribute('data-theme', isDark ? 'dark' : 'light');
+  sessionStorage.setItem('ctTheme', isDark ? 'dark' : 'light');
   const icon = isDark ? '☀️' : '🌙';
   document.getElementById('themeBtn').textContent = icon;
   document.getElementById('loginThemeBtn').textContent = icon;
@@ -378,9 +395,10 @@ function doAdminLogin() {
 
 function startApp(role) {
   currentRole = role;
+  sessionStorage.setItem('ctRole', role);
   document.getElementById('loginScreen').style.display = 'none';
   document.getElementById('app').style.display = 'flex';
-  document.getElementById('roleBadge').textContent = role === 'admin' ? '👑 Admin' : '🧑‍💼 Coordinator';
+  document.getElementById('roleBadge').textContent = role === 'admin' ? '🔐 Admin' : '🧑‍💼 Coordinator';
   buildSidebar(role);
   // Show first available page
   if (role === 'admin') showPage('dashboard');
@@ -389,6 +407,7 @@ function startApp(role) {
 
 function logout() {
   currentRole = null;
+  sessionStorage.removeItem('ctRole');
   document.getElementById('loginScreen').style.display = 'flex';
   document.getElementById('app').style.display = 'none';
   document.getElementById('loginPass').value = '';
@@ -503,6 +522,7 @@ async function submitForm(form) {
     }
 
     submissions.unshift({type:form==='umc'?'UMC':'Attendance',city,date,slot,files:formFiles.length,time:new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit',hour12:true})});
+    sessionStorage.setItem('ctSubmissions', JSON.stringify(submissions));
     updateDashboard();
 
     setTimeout(()=>{
