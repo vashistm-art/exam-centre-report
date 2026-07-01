@@ -221,7 +221,10 @@ tr:hover td{background:var(--input-bg)}
           <div class="stat-card"><div class="stat-num" id="stat-cities">0</div><div class="stat-label">Cities Covered</div></div>
         </div>
         <div class="table-card">
-          <h3>Recent submissions</h3>
+          <h3 style="display:flex;justify-content:space-between;align-items:center">
+            Recent submissions
+            <button onclick="fetchDashboard()" style="font-size:12px;padding:4px 10px;border-radius:6px;border:1px solid var(--border);background:var(--input-bg);color:var(--muted);cursor:pointer">🔄 Refresh</button>
+          </h3>
           <div class="table-wrap">
             <div class="empty" id="dash-empty">Loading submissions...</div>
             <table id="dash-table" style="display:none">
@@ -560,25 +563,69 @@ async function submitForm(form) {
 function setProgress(form,pct){const el=document.getElementById(form+'-progress-fill');if(el)el.style.width=pct+'%';}
 
 // Dashboard - fetch from Sheets via JSONP
-function fetchDashboard() {
+async function fetchDashboard() {
   document.getElementById('dash-empty').textContent='Loading submissions...';
   document.getElementById('dash-empty').style.display='block';
   document.getElementById('dash-table').style.display='none';
-  const cbName='dashCB_'+Date.now();
-  const script=document.createElement('script');
-  window[cbName]=function(result){
-    delete window[cbName];
-    if(document.head.contains(script)) document.head.removeChild(script);
-    if(result&&result.status==='success'&&result.data) renderDashboard(result.data);
-    else document.getElementById('dash-empty').textContent='No submissions yet.';
-  };
-  script.onerror=function(){
-    delete window[cbName];
-    document.getElementById('dash-empty').textContent='Could not load. Please try again.';
-  };
-  script.src=SCRIPT_URL+'?action=getSubmissions&callback='+cbName;
-  document.head.appendChild(script);
-  setTimeout(function(){if(window[cbName]){delete window[cbName];document.getElementById('dash-empty').textContent='Timed out. Please refresh.';}},15000);
+  document.getElementById('stat-total').textContent='...';
+  document.getElementById('stat-att').textContent='...';
+  document.getElementById('stat-umc').textContent='...';
+  document.getElementById('stat-cities').textContent='...';
+
+  try {
+    const res = await fetch(SCRIPT_URL + '?action=getSubmissions', {
+      method: 'GET',
+      redirect: 'follow'
+    });
+    const text = await res.text();
+    const result = JSON.parse(text);
+    if(result && result.status === 'success' && result.data) {
+      renderDashboard(result.data);
+    } else {
+      document.getElementById('dash-empty').textContent = 'No submissions yet.';
+      document.getElementById('stat-total').textContent = '0';
+      document.getElementById('stat-att').textContent = '0';
+      document.getElementById('stat-umc').textContent = '0';
+      document.getElementById('stat-cities').textContent = '0';
+    }
+  } catch(e) {
+    // Fallback to JSONP if fetch fails due to CORS
+    const cbName = 'dashCB_' + Date.now();
+    const script = document.createElement('script');
+    window[cbName] = function(result) {
+      delete window[cbName];
+      if(document.head.contains(script)) document.head.removeChild(script);
+      if(result && result.status === 'success' && result.data) {
+        renderDashboard(result.data);
+      } else {
+        document.getElementById('dash-empty').textContent = 'No submissions yet.';
+        document.getElementById('stat-total').textContent = '0';
+        document.getElementById('stat-att').textContent = '0';
+        document.getElementById('stat-umc').textContent = '0';
+        document.getElementById('stat-cities').textContent = '0';
+      }
+    };
+    script.onerror = function() {
+      delete window[cbName];
+      document.getElementById('dash-empty').textContent = 'Could not load. Please try again.';
+      document.getElementById('stat-total').textContent = '0';
+      document.getElementById('stat-att').textContent = '0';
+      document.getElementById('stat-umc').textContent = '0';
+      document.getElementById('stat-cities').textContent = '0';
+    };
+    script.src = SCRIPT_URL + '?action=getSubmissions&callback=' + cbName;
+    document.head.appendChild(script);
+    setTimeout(function() {
+      if(window[cbName]) {
+        delete window[cbName];
+        document.getElementById('dash-empty').textContent = 'Timed out. Click Dashboard to retry.';
+        document.getElementById('stat-total').textContent = '0';
+        document.getElementById('stat-att').textContent = '0';
+        document.getElementById('stat-umc').textContent = '0';
+        document.getElementById('stat-cities').textContent = '0';
+      }
+    }, 20000);
+  }
 }
 
 function renderDashboard(rows) {
@@ -595,7 +642,11 @@ function renderDashboard(rows) {
     const tb=r.type==='UMC'?'badge-umc':'badge-att';
     const sb=r.slot==='AN'?'badge-an':'badge-fn';
     const tr=document.createElement('tr');
-    tr.innerHTML=`<td><span class="badge ${tb}">${r.type||'Attendance'}</span></td><td>${r.city||''}</td><td>${r.date||''}</td><td><span class="badge ${sb}">${r.slot||''}</span></td><td>${r.files||''}</td><td>${r.time||''}</td>`;
+    const rawDate = r.date || '';
+    const fmtDate = rawDate.includes('T') ? rawDate.split('T')[0] : rawDate;
+    const rawTime = r.time || '';
+    const fmtTime = rawTime.includes('GMT') ? new Date(rawTime).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit',hour12:true}) : rawTime;
+    tr.innerHTML=`<td><span class="badge ${tb}">${r.type||'Attendance'}</span></td><td>${r.city||''}</td><td>${fmtDate}</td><td><span class="badge ${sb}">${r.slot||''}</span></td><td>${r.files||''}</td><td>${fmtTime}</td>`;
     tbody.appendChild(tr);
   });
   const has=rows.length>0;
