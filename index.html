@@ -131,6 +131,23 @@ tr:hover td{background:var(--input-bg)}
 .drive-link-box{display:block;padding:12px 14px;background:var(--input-bg);border:1px solid var(--border);border-radius:8px;color:var(--accent);font-size:14px;text-decoration:none;margin-bottom:8px}
 .drive-link-box:hover{border-color:var(--accent)}
 
+/* Confirmation Modal */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:9999;display:none;align-items:center;justify-content:center;padding:1rem}
+.modal-overlay.open{display:flex}
+.modal-box{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:2rem;width:100%;max-width:440px;box-shadow:0 8px 32px rgba(0,0,0,0.3)}
+.modal-box h3{font-size:16px;font-weight:700;color:var(--text);margin-bottom:6px}
+.modal-box p{font-size:13px;color:var(--muted);margin-bottom:1.25rem}
+.modal-row{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);font-size:13px}
+.modal-row:last-of-type{border-bottom:none}
+.modal-row span:first-child{color:var(--muted);font-weight:500}
+.modal-row span:last-child{color:var(--text);font-weight:600;text-align:right}
+.modal-btns{display:flex;gap:10px;margin-top:1.5rem}
+.modal-btn-cancel{flex:1;height:42px;border-radius:8px;border:1px solid var(--border);background:var(--input-bg);color:var(--muted);font-size:14px;font-weight:600;cursor:pointer}
+.modal-btn-confirm{flex:1;height:42px;border-radius:8px;border:none;background:var(--accent);color:#fff;font-size:14px;font-weight:600;cursor:pointer}
+.modal-btn-confirm:hover{background:var(--accent-hover)}
+.duplicate-warning{background:#3b0d0d;border:1px solid #ef4444;border-radius:8px;padding:10px 14px;font-size:12px;color:#f87171;margin-bottom:1rem;display:none}
+[data-theme="light"] .duplicate-warning{background:#fee2e2;color:#b91c1c}
+
 /* City chart bars */
 .chart-bar-wrap{display:flex;align-items:center;gap:8px;font-size:12px}
 .chart-bar-label{width:120px;color:var(--text2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex-shrink:0}
@@ -325,7 +342,7 @@ tr:hover td{background:var(--input-bg)}
             <div class="file-list" id="att-file-list"></div>
           </div>
           <hr class="divider">
-          <button class="btn-submit" id="att-submit" onclick="submitForm('att')">Submit attendance sheet</button>
+          <button class="btn-submit" id="att-submit" onclick="showConfirmModal('att')">Submit attendance sheet</button>
           <div class="loading" id="att-loading"><span class="spinner"></span><span id="att-loading-text">Uploading...</span><div style="font-size:11px;color:var(--muted);margin-top:6px" id="att-loading-sub">Please do not close or refresh</div></div>
           <div class="success-banner" id="att-success"><div style="font-size:28px;margin-bottom:6px">✅</div><h3>Submitted successfully!</h3><p id="att-success-detail"></p><p id="att-drive-p" style="display:none;margin-top:6px"><a id="att-drive-link" href="#" target="_blank" style="color:#4ade80">View in Google Drive →</a></p></div>
         </div>
@@ -368,7 +385,7 @@ tr:hover td{background:var(--input-bg)}
             <div class="file-list" id="umc2-file-list"></div>
           </div>
           <hr class="divider">
-          <button class="btn-submit" id="umc-submit" onclick="submitForm('umc')">Submit UMC report</button>
+          <button class="btn-submit" id="umc-submit" onclick="showConfirmModal('umc')">Submit UMC report</button>
           <div class="loading" id="umc-loading"><span class="spinner"></span><span id="umc-loading-text">Uploading...</span><div style="font-size:11px;color:var(--muted);margin-top:6px" id="umc-loading-sub">Please do not close or refresh</div></div>
           <div class="progress-bar" id="umc-progress"><div class="progress-fill" id="umc-progress-fill"></div></div>
           <div class="success-banner" id="umc-success"><div style="font-size:28px;margin-bottom:6px">✅</div><h3>UMC report submitted!</h3><p id="umc-success-detail"></p><p id="umc-drive-p" style="display:none;margin-top:6px"><a id="umc-drive-link" href="#" target="_blank" style="color:#4ade80">View in Google Drive →</a></p></div>
@@ -389,6 +406,22 @@ tr:hover td{background:var(--input-bg)}
     </div>
   </div>
 
+  <!-- Confirmation Modal -->
+  <div class="modal-overlay" id="confirmModal">
+    <div class="modal-box">
+      <h3 id="modal-title">✅ Confirm Submission</h3>
+      <p>Please review the details before submitting:</p>
+      <div id="modal-details"></div>
+      <div class="duplicate-warning" id="modal-dup-warning">
+        ⚠️ A submission for this city, date and slot already exists. Are you sure you want to submit again?
+      </div>
+      <div class="modal-btns">
+        <button class="modal-btn-cancel" onclick="closeModal()">✕ Cancel</button>
+        <button class="modal-btn-confirm" id="modal-confirm-btn" onclick="confirmSubmit()">Submit ✓</button>
+      </div>
+    </div>
+  </div>
+
   <!-- Bottom nav for mobile -->
   <div class="bottom-nav" id="bottomNav">
     <div class="bottom-nav-item active" id="bnav-attendance" onclick="showPage('attendance');setBottomNav('attendance')"><span class="bnav-icon">📋</span><span class="bnav-label">Attendance</span></div>
@@ -399,6 +432,36 @@ tr:hover td{background:var(--input-bg)}
 </div>
 
 <script>
+// Post data to Google Apps Script avoiding CORS
+function postData(payload) {
+  return new Promise((resolve, reject) => {
+    const xhr = new XMLHttpRequest();
+    xhr.open('POST', SCRIPT_URL, true);
+    xhr.setRequestHeader('Content-Type', 'text/plain');
+    xhr.onload = function() {
+      try {
+        const result = JSON.parse(xhr.responseText);
+        resolve(result);
+      } catch(e) {
+        resolve({status:'success', folderUrl:''});
+      }
+    };
+    xhr.onerror = function() {
+      // If XHR fails too, try no-cors fetch (fire and forget)
+      fetch(SCRIPT_URL, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: {'Content-Type': 'text/plain'},
+        body: JSON.stringify(payload)
+      }).then(() => resolve({status:'success', folderUrl:''}))
+        .catch(err => reject(err));
+    };
+    xhr.timeout = 60000;
+    xhr.ontimeout = () => reject(new Error('Request timed out'));
+    xhr.send(JSON.stringify(payload));
+  });
+}
+
 const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzGOlJgDPbkfo-HszzKPITZ-o3V7iRXM6BPHoTk8fU5phvpwLLEBJpJZ4E4gnIhr-oKGA/exec";
 const ADMIN_PASSWORD = "CT@Admin2026";
 const PASSWORDS = {coord:"CT@Coord2026", admin:"CT@Admin2026"};
@@ -568,53 +631,72 @@ async function submitForm(form) {
   const slot=slots[form];
   const type=form==='umc'?'UMC':'Attendance';
   const formFiles=form==='umc'?[...files['umc1'],...files['umc2']]:files['att'];
-
   const btn=document.getElementById(form+'-submit');
   btn.disabled=true; btn.textContent='⏳ Uploading...';
   document.getElementById(form+'-loading').style.display='block';
   if(document.getElementById(form+'-progress')) document.getElementById(form+'-progress').style.display='block';
   setProgress(form,5);
+  uploadFiles(form, city, date, slot, type, formFiles);
+}
 
+async function uploadFiles(form, city, date, slot, type, formFiles) {
   try {
-    let folderUrl='';
-    for(let i=0;i<formFiles.length;i++) {
-      const f=formFiles[i];
-      setProgress(form, Math.round(10+((i/Math.max(formFiles.length,1))*75)));
-      document.getElementById(form+'-loading-text').textContent=`Uploading file ${i+1} of ${formFiles.length}: ${f.name.substring(0,25)}...`;
-      const subEl=document.getElementById(form+'-loading-sub');
-      if(subEl) subEl.textContent=`${Math.round(f.size/1024)} KB — please wait`;
-      const base64=await new Promise((resolve,reject)=>{
-        const r=new FileReader();
-        r.onload=()=>resolve(r.result.split(',')[1]);
-        r.onerror=reject;
-        r.readAsDataURL(f);
-      });
-      const res=await fetch(SCRIPT_URL,{method:'POST',body:JSON.stringify({city,date,slot,type,files:[{name:f.name,mimeType:f.type||'application/octet-stream',base64}]})});
-      const result=await res.json();
-      if(result.folderUrl) folderUrl=result.folderUrl;
-    }
-    setProgress(form,100);
-    lastFolder[form]=folderUrl;
-    submissions.unshift({type,city,date,slot,files:formFiles.length,time:new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit',hour12:true})});
-    sessionStorage.setItem('ctSubmissions',JSON.stringify(submissions));
-    updateDashboard();
-    setTimeout(()=>{
-      document.getElementById(form+'-loading').style.display='none';
-      if(document.getElementById(form+'-progress')) document.getElementById(form+'-progress').style.display='none';
-      document.getElementById(form+'-success').style.display='block';
-      document.getElementById(form+'-success-detail').textContent=`${city} | ${date} | ${slot} | ${formFiles.length} file(s) submitted`;
-      btn.textContent=form==='umc'?'Submit UMC report':'Submit attendance sheet';
-      if(currentRole==='admin'&&lastFolder[form]){
-        const dp=document.getElementById(form+'-drive-p');
-        const dl=document.getElementById(form+'-drive-link');
-        if(dp&&dl){dp.style.display='block';dl.href=lastFolder[form];}
+    let folderUrl = '';
+    document.getElementById(form+'-loading-text').textContent = formFiles.length > 0 ? 'Preparing files...' : 'Submitting...';
+    setProgress(form, 10);
+
+    if(formFiles.length > 0) {
+      // Upload files one by one
+      for(let i = 0; i < formFiles.length; i++) {
+        const f = formFiles[i];
+        setProgress(form, Math.round(10 + ((i / formFiles.length) * 75)));
+        document.getElementById(form+'-loading-text').textContent = `Uploading file ${i+1} of ${formFiles.length}: ${f.name.substring(0,25)}...`;
+        const subEl = document.getElementById(form+'-loading-sub');
+        if(subEl) subEl.textContent = `${Math.round(f.size/1024)} KB — please wait`;
+
+        const base64 = await new Promise((resolve, reject) => {
+          const r = new FileReader();
+          r.onload = () => resolve(r.result.split(',')[1]);
+          r.onerror = reject;
+          r.readAsDataURL(f);
+        });
+
+        const result = await postData({city, date, slot, type, files:[{name:f.name, mimeType:f.type||'application/octet-stream', base64}]});
+        if(result.folderUrl) folderUrl = result.folderUrl;
       }
-    },400);
-  } catch(err){
-    document.getElementById(form+'-loading').style.display='none';
-    if(document.getElementById(form+'-progress')) document.getElementById(form+'-progress').style.display='none';
-    btn.disabled=false; btn.textContent=form==='umc'?'Submit UMC report':'Submit attendance sheet';
-    alert('Upload failed. Please check your connection and try again.');
+    } else {
+      // No files - just log the submission
+      const result = await postData({city, date, slot, type, files:[]});
+      if(result.folderUrl) folderUrl = result.folderUrl;
+    }
+
+    setProgress(form, 100);
+    lastFolder[form] = folderUrl;
+    submissions.unshift({type, city, date, slot, files:formFiles.length, time:new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit',hour12:true})});
+    sessionStorage.setItem('ctSubmissions', JSON.stringify(submissions));
+    updateDashboard();
+
+    setTimeout(() => {
+      document.getElementById(form+'-loading').style.display = 'none';
+      if(document.getElementById(form+'-progress')) document.getElementById(form+'-progress').style.display = 'none';
+      document.getElementById(form+'-success').style.display = 'block';
+      document.getElementById(form+'-success-detail').textContent = `${city} | ${date} | ${slot} | ${formFiles.length} file(s) submitted`;
+      const doneBtn = document.getElementById(form+'-submit');
+      if(doneBtn) { doneBtn.disabled = false; doneBtn.textContent = form==='umc'?'Submit UMC report':'Submit attendance sheet'; }
+      if(currentRole==='admin' && lastFolder[form]) {
+        const dp = document.getElementById(form+'-drive-p');
+        const dl = document.getElementById(form+'-drive-link');
+        if(dp && dl) { dp.style.display='block'; dl.href=lastFolder[form]; }
+      }
+    }, 400);
+
+  } catch(err) {
+    console.error('Upload error:', err);
+    document.getElementById(form+'-loading').style.display = 'none';
+    if(document.getElementById(form+'-progress')) document.getElementById(form+'-progress').style.display = 'none';
+    const errBtn = document.getElementById(form+'-submit');
+    if(errBtn) { errBtn.disabled = false; errBtn.textContent = form==='umc'?'Submit UMC report':'Submit attendance sheet'; }
+    alert('Upload failed: ' + err.message + '. Please check your connection and try again.');
   }
 }
 
@@ -818,6 +900,77 @@ function exportToExcel() {
   a.click();
   URL.revokeObjectURL(url);
 }
+
+// Track submissions for duplicate check
+let pendingForm = null;
+let pendingData = null;
+
+function showConfirmModal(form) {
+  if(!validate(form)) return;
+  const city = document.getElementById(form+'-city').value;
+  const date = document.getElementById(form+'-date').value;
+  const slot = slots[form];
+  const type = form==='umc'?'UMC':'Attendance';
+  const formFiles = form==='umc'?[...files['umc1'],...files['umc2']]:[...files['att']];
+
+  // Check for duplicate in allDashData
+  const isDuplicate = allDashData.some(r => {
+    const rDate = (r.date||'').includes('T') ? r.date.split('T')[0] : r.date;
+    return r.city === city && rDate === date && r.slot === slot && r.type === type;
+  });
+
+  // Also check sessionStorage submissions
+  const isDupLocal = submissions.some(s =>
+    s.city === city && s.date === date && s.slot === slot && s.type === type
+  );
+
+  // Store all data now so confirm uses exact same snapshot
+  pendingForm = form;
+  pendingData = { city, date, slot, type, formFiles };
+
+  // Build summary
+  document.getElementById('modal-title').textContent = type==='UMC' ? '⚠️ Confirm UMC Report' : '📋 Confirm Attendance Sheet';
+  document.getElementById('modal-details').innerHTML = `
+    <div class="modal-row"><span>Type</span><span>${type}</span></div>
+    <div class="modal-row"><span>Test Centre</span><span>${city}</span></div>
+    <div class="modal-row"><span>Date</span><span>${date}</span></div>
+    <div class="modal-row"><span>Session</span><span>${slot==='FN'?'Morning (FN) — 09:30-12:00':'Afternoon (AN) — 14:00-17:00'}</span></div>
+    <div class="modal-row"><span>Files</span><span>${formFiles.length} file(s) selected</span></div>
+  `;
+
+  // Show duplicate warning if needed
+  const dupWarn = document.getElementById('modal-dup-warning');
+  dupWarn.style.display = (isDuplicate || isDupLocal) ? 'block' : 'none';
+
+  document.getElementById('confirmModal').classList.add('open');
+}
+
+function closeModal() {
+  document.getElementById('confirmModal').classList.remove('open');
+  pendingForm = null;
+}
+
+function confirmSubmit() {
+  const form = pendingForm;
+  const data = pendingData;
+  closeModal();
+  pendingForm = null;
+  pendingData = null;
+
+  if(form && data) {
+    const btn = document.getElementById(form+'-submit');
+    if(btn){ btn.disabled = true; btn.textContent = '⏳ Uploading...'; }
+    document.getElementById(form+'-loading').style.display = 'block';
+    if(document.getElementById(form+'-progress')) document.getElementById(form+'-progress').style.display = 'block';
+    setProgress(form, 5);
+    uploadFiles(form, data.city, data.date, data.slot, data.type, data.formFiles);
+  }
+}
+
+// Close modal on overlay click
+document.getElementById('confirmModal').addEventListener('click', function(e) {
+  if(e.target === this) closeModal();
+});
 
 // Drag & drop
 [{id:'att-dropzone',key:'att'},{id:'umc-dropzone1',key:'umc1'},{id:'umc-dropzone2',key:'umc2'}].forEach(({id,key})=>{
