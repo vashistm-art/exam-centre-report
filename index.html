@@ -186,28 +186,50 @@ tr:hover td{background:var(--input-bg)}
 </head>
 <body>
 
+<!-- Google Sign-In Script -->
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+
 <!-- Login -->
 <div class="login-screen" id="loginScreen">
   <button class="login-theme theme-btn" onclick="toggleTheme()" id="loginThemeBtn">☀️</button>
   <div class="login-card">
     <div class="login-logo">🖥️</div>
     <h1>CT Exam Ops</h1>
-    <div id="step-role">
-      <p>Select your role to continue</p>
-      <button class="btn-login" onclick="startApp('coord')" style="margin-bottom:12px">🧑‍💼 &nbsp; Login as Coordinator</button>
-      <button class="btn-login" onclick="showAdminPass()" style="background:#1a2744;border:1.5px solid #3b82f6;color:#93c5fd">🔐 &nbsp; Login as Admin</button>
-      <p style="font-size:11px;color:var(--muted);margin-top:14px">Coordinators: Attendance &amp; UMC forms only.<br>Admins: Full access including Dashboard &amp; Drive.</p>
+    <p style="font-size:13px;color:var(--muted);margin-bottom:1.5rem">Sign in with your Google account to continue</p>
+
+    <div id="google-btn-wrap" style="display:flex;justify-content:center;margin-bottom:1rem">
+      <div id="g_id_onload"
+        data-client_id="172163076942-b8g2tnp2ahrsmvt8331g484imnnrnfrd.apps.googleusercontent.com"
+        data-callback="handleGoogleLogin"
+        data-auto_prompt="false">
+      </div>
+      <div class="g_id_signin"
+        data-type="standard"
+        data-size="large"
+        data-theme="outline"
+        data-text="sign_in_with"
+        data-shape="rectangular"
+        data-logo_alignment="left">
+      </div>
     </div>
-    <div id="step-admin" style="display:none">
-      <p>Enter your admin password</p>
+
+    <div class="login-err" id="loginErr" style="display:none"></div>
+
+    <div id="step-admin" style="display:none;margin-top:1rem">
+      <hr style="border:none;border-top:1px solid var(--border);margin-bottom:1rem">
+      <p style="font-size:12px;color:var(--muted);margin-bottom:10px">👑 Admin? Enter your password below</p>
       <div class="login-field">
-        <label>Admin password</label>
         <input type="password" id="adminPassInput" placeholder="Enter admin password" onkeydown="if(event.key==='Enter')doAdminLogin()">
       </div>
-      <button class="btn-login" onclick="doAdminLogin()" style="background:#1a2744;border:1.5px solid #3b82f6;color:#93c5fd">Verify &amp; Login</button>
-      <div class="login-err" id="loginErr">Incorrect password. Please try again.</div>
-      <p style="margin-top:14px"><button onclick="showRoleSelect()" style="background:none;border:none;color:var(--muted);font-size:12px;cursor:pointer;text-decoration:underline">← Back</button></p>
+      <button class="btn-login" onclick="doAdminLogin()" style="background:#1a2744;border:1.5px solid #3b82f6;color:#93c5fd;margin-top:6px">🔐 Login as Admin</button>
+      <div class="login-err" id="adminErr" style="display:none;margin-top:6px">Incorrect password.</div>
     </div>
+
+    <p style="margin-top:14px">
+      <button onclick="toggleAdminLogin()" style="background:none;border:none;color:var(--muted);font-size:11px;cursor:pointer;text-decoration:underline">Admin login</button>
+    </p>
+
+    <p style="font-size:11px;color:var(--muted);margin-top:12px">Only approved email addresses can access this portal.</p>
   </div>
 </div>
 
@@ -232,6 +254,7 @@ tr:hover td{background:var(--input-bg)}
           <div class="tdate" id="liveDate"></div>
           <div class="ttime" id="liveTime"></div>
         </div>
+        <div id="user-info" style="display:flex;align-items:center"></div>
         <button class="theme-btn" onclick="toggleTheme()" id="themeBtn">☀️</button>
         <button class="btn-logout" onclick="logout()">Logout</button>
       </div>
@@ -491,35 +514,86 @@ function toggleTheme() {
   document.getElementById('loginThemeBtn').textContent = icon;
 }
 
-// Login
-function showAdminPass() {
-  document.getElementById('step-role').style.display = 'none';
-  document.getElementById('step-admin').style.display = 'block';
-  const inp = document.getElementById('adminPassInput');
-  if(inp){inp.value='';inp.focus();}
-  const err = document.getElementById('loginErr');
-  if(err) err.style.display='none';
-}
-function showRoleSelect() {
-  document.getElementById('step-admin').style.display='none';
-  document.getElementById('step-role').style.display='block';
-}
-function doAdminLogin() {
-  const pass = document.getElementById('adminPassInput').value;
-  if(pass === ADMIN_PASSWORD) {
-    document.getElementById('loginErr').style.display='none';
-    startApp('admin');
-  } else {
-    document.getElementById('loginErr').style.display='block';
+// Google Sign-In callback — checks access via Apps Script
+function handleGoogleLogin(response) {
+  try {
+    const payload = JSON.parse(atob(response.credential.split('.')[1]));
+    const email = payload.email;
+    const name = payload.name;
+    const picture = payload.picture;
+
+    // Show checking message
+    const errEl = document.getElementById('loginErr');
+    errEl.style.color = 'var(--muted)';
+    errEl.textContent = '⏳ Verifying access for ' + email + '...';
+    errEl.style.display = 'block';
+
+    // Check access via Apps Script (JSONP)
+    const cbName = 'authCB_' + Date.now();
+    const script = document.createElement('script');
+    window[cbName] = function(result) {
+      delete window[cbName];
+      if(document.head.contains(script)) document.head.removeChild(script);
+
+      if(result.status === 'success') {
+        errEl.style.display = 'none';
+        startApp(result.role, {email, name, picture});
+      } else {
+        errEl.style.color = '#ef4444';
+        errEl.textContent = '⛔ Access denied. ' + email + ' is not an approved coordinator. Please contact your admin.';
+        errEl.style.display = 'block';
+      }
+    };
+    script.onerror = function() {
+      delete window[cbName];
+      // Fallback — allow if can't reach server
+      errEl.style.display = 'none';
+      startApp('coord', {email, name, picture});
+    };
+    script.src = SCRIPT_URL + '?action=checkAccess&email=' + encodeURIComponent(email) + '&callback=' + cbName;
+    document.head.appendChild(script);
+
+  } catch(e) {
+    document.getElementById('loginErr').style.color = '#ef4444';
+    document.getElementById('loginErr').textContent = 'Login failed. Please try again.';
+    document.getElementById('loginErr').style.display = 'block';
   }
 }
 
-function startApp(role) {
+function toggleAdminLogin() {
+  const panel = document.getElementById('step-admin');
+  panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+}
+
+function doAdminLogin() {
+  const pass = document.getElementById('adminPassInput').value;
+  if(pass === ADMIN_PASSWORD) {
+    document.getElementById('adminErr').style.display='none';
+    startApp('admin', {email:'admin', name:'Admin', picture:''});
+  } else {
+    document.getElementById('adminErr').style.display='block';
+  }
+}
+
+function startApp(role, user) {
   currentRole = role;
   sessionStorage.setItem('ctRole', role);
+  if(user) sessionStorage.setItem('ctUser', JSON.stringify(user));
   document.getElementById('loginScreen').style.display='none';
   document.getElementById('app').style.display='flex';
   document.getElementById('roleBadge').textContent = role==='admin'?'🔐 Admin':'🧑‍💼 Coordinator';
+
+  // Show user info in topbar
+  const savedUser = user || JSON.parse(sessionStorage.getItem('ctUser')||'{}');
+  if(savedUser && savedUser.name) {
+    const userEl = document.getElementById('user-info');
+    if(userEl) {
+      userEl.innerHTML = savedUser.picture
+        ? `<img src="${savedUser.picture}" style="width:28px;height:28px;border-radius:50%;border:2px solid var(--accent)">`
+        : `<span style="font-size:12px;color:var(--text2)">${savedUser.name.split(' ')[0]}</span>`;
+    }
+  }
+
   buildSidebar(role);
   setupBottomNav(role);
   if(role==='admin') showPage('dashboard');
@@ -529,10 +603,17 @@ function startApp(role) {
 function logout() {
   currentRole = null;
   sessionStorage.removeItem('ctRole');
+  sessionStorage.removeItem('ctUser');
+  // Sign out of Google
+  if(window.google && google.accounts) {
+    google.accounts.id.disableAutoSelect();
+  }
   document.getElementById('loginScreen').style.display='flex';
   document.getElementById('app').style.display='none';
-  document.getElementById('loginPass') && (document.getElementById('loginPass').value='');
-  showRoleSelect();
+  document.getElementById('loginErr').style.display='none';
+  document.getElementById('step-admin').style.display='none';
+  const adminPassInput = document.getElementById('adminPassInput');
+  if(adminPassInput) adminPassInput.value='';
 }
 
 // Sidebar
@@ -991,7 +1072,10 @@ window.addEventListener('load',()=>{
     document.getElementById('loginThemeBtn').textContent=icon;
   }
   const savedRole=sessionStorage.getItem('ctRole');
-  if(savedRole) startApp(savedRole);
+  if(savedRole) {
+    const savedUser = JSON.parse(sessionStorage.getItem('ctUser')||'{}');
+    startApp(savedRole, savedUser);
+  }
 });
 </script>
 </body>
