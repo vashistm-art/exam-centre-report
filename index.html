@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CT Exam Ops</title>
+<style>
+:root{--bg:#0f1117;--sidebar:#161b2e;--sidebar-border:#1e2540;--card:#1e2030;--border:#2d3148;--text:#e2e8f0;--text2:#cbd5e1;--muted:#64748b;--input-bg:#1a1f35;--input-border:#3d4466;--file-bg:#1a1f35;--upload-bg:#161a2e;--accent:#6366f1;--accent-hover:#4f46e5;--accent-bg:#1e1b4b;--shadow:rgba(0,0,0,0.3)}
+[data-theme="light"]{--bg:#f5f6fa;--sidebar:#fff;--sidebar-border:#e5e7eb;--card:#fff;--border:#e5e7eb;--text:#1a1a2e;--text2:#374151;--muted:#6b7280;--input-bg:#fff;--input-border:#d1d5db;--file-bg:#f9fafb;--upload-bg:#fafafa;--accent:#4f46e5;--accent-hover:#4338ca;--accent-bg:#eef2ff;--shadow:rgba(0,0,0,0.06)}
+*{box-sizing:border-box;margin:0;padding:0;transition:background 0.2s,color 0.2s,border-color 0.2s}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);min-height:100vh;display:flex}
+
+/* Login screen */
+.login-screen{position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;z-index:999;padding:1rem}
+.login-card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:2.5rem 2rem;width:100%;max-width:400px;box-shadow:0 8px 32px var(--shadow);text-align:center}
+.login-logo{width:56px;height:56px;background:var(--accent);border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:26px;margin:0 auto 1rem}
+.login-card h1{font-size:20px;font-weight:700;color:var(--text);margin-bottom:4px}
+.login-card p{font-size:13px;color:var(--muted);margin-bottom:1.75rem}
+.login-field{text-align:left;margin-bottom:1rem}
+.login-field label{display:block;font-size:13px;font-weight:600;color:var(--text2);margin-bottom:6px}
+.login-field input{width:100%;height:44px;border-radius:8px;border:1px solid var(--input-border);background:var(--input-bg);color:var(--text);font-size:14px;padding:0 14px;outline:none}
+.login-field input:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(99,102,241,0.15)}
+.btn-login{width:100%;height:44px;background:var(--accent);color:#fff;border:none;border-radius:8px;font-size:15px;font-weight:600;cursor:pointer;margin-top:0.5rem}
+.btn-login:hover{background:var(--accent-hover)}
+.login-err{font-size:12px;color:#ef4444;margin-top:8px;display:none;text-align:center}
+.login-theme{position:absolute;top:16px;right:16px;background:var(--card);border:1px solid var(--border);border-radius:8px;width:34px;height:34px;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center}
+
+/* App layout */
+.app{display:none;width:100%;min-height:100vh}
+.sidebar{width:220px;min-height:100vh;background:var(--sidebar);border-right:1px solid var(--sidebar-border);display:flex;flex-direction:column;position:fixed;top:0;left:0;height:100vh;z-index:100}
+.sidebar-logo{display:flex;align-items:center;gap:10px;padding:18px 16px;border-bottom:1px solid var(--sidebar-border)}
+.logo-icon{width:34px;height:34px;background:var(--accent);border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0}
+.logo-text{font-size:16px;font-weight:700;color:var(--text)}
+.sidebar-nav{padding:12px 8px;flex:1}
+.nav-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:8px;cursor:pointer;margin-bottom:4px;color:var(--muted);font-size:14px;font-weight:500;transition:all 0.15s}
+.nav-item:hover{background:var(--input-bg);color:var(--text)}
+.nav-item.active{background:var(--accent);color:#fff}
+.nav-item .nav-icon{font-size:17px;flex-shrink:0}
+.sidebar-bottom{padding:12px 8px;border-top:1px solid var(--sidebar-border)}
+.role-badge{display:inline-block;font-size:11px;font-weight:600;padding:3px 8px;border-radius:5px;margin:0 8px 12px 12px;background:var(--accent-bg);color:var(--accent)}
+.main{margin-left:220px;flex:1;display:flex;flex-direction:column;min-height:100vh}
+.topbar{display:flex;justify-content:space-between;align-items:center;padding:13px 24px;border-bottom:1px solid var(--border);background:var(--card);position:sticky;top:0;z-index:50}
+.topbar-title{font-size:15px;font-weight:600;color:var(--text)}
+.topbar-right{display:flex;align-items:center;gap:12px}
+.datetime .tdate{font-size:11px;color:var(--muted);font-weight:500;text-align:right}
+.datetime .ttime{font-size:13px;font-weight:700;color:var(--accent);text-align:right}
+.theme-btn{background:var(--card);border:1px solid var(--border);border-radius:8px;width:32px;height:32px;cursor:pointer;font-size:15px;display:flex;align-items:center;justify-content:center}
+.btn-logout{height:32px;padding:0 12px;background:none;border:1px solid var(--border);border-radius:8px;color:var(--muted);font-size:12px;cursor:pointer}
+.btn-logout:hover{border-color:#ef4444;color:#ef4444}
+.content{padding:24px;flex:1}
+.page{display:none}
+.page.active{display:block}
+
+/* Forms */
+.form-card{background:var(--card);border-radius:14px;border:1px solid var(--border);padding:2rem;max-width:580px;box-shadow:0 2px 12px var(--shadow)}
+.form-card h2{font-size:17px;font-weight:600;color:var(--text);margin-bottom:4px}
+.form-card .sub{font-size:13px;color:var(--muted);margin-bottom:1.5rem}
+.field{margin-bottom:1.25rem}
+label.field-label{display:block;font-size:13px;font-weight:600;color:var(--text2);margin-bottom:6px}
+select,input[type=date]{width:100%;height:42px;border-radius:8px;border:1px solid var(--input-border);background:var(--input-bg);color:var(--text);font-size:14px;padding:0 12px;outline:none}
+select{appearance:none;-webkit-appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;background-color:var(--input-bg)}
+select:focus,input[type=date]:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(99,102,241,0.15);outline:none}
+input[type=date]{cursor:pointer;position:relative}
+input[type=date]::-webkit-calendar-picker-indicator{position:absolute;left:0;top:0;width:100%;height:100%;margin:0;padding:0;cursor:pointer;opacity:0}
+.slot-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.slot-card{border:1.5px solid var(--border);border-radius:10px;padding:14px;cursor:pointer;background:var(--card);transition:all 0.15s;position:relative}
+.slot-card:hover{border-color:#a5b4fc}
+.slot-card.selected{border-color:var(--accent);background:var(--accent-bg)}
+.slot-card input{position:absolute;opacity:0;width:0;height:0}
+.slot-icon{font-size:20px;margin-bottom:6px}
+.slot-name{font-size:13px;font-weight:600;color:var(--text)}
+.slot-code{display:inline-block;font-size:11px;font-weight:600;padding:2px 7px;border-radius:4px;background:var(--accent-bg);color:var(--accent);margin:3px 0}
+.slot-time{font-size:12px;color:var(--muted);margin-top:2px}
+.upload-area{border:1.5px dashed var(--input-border);border-radius:10px;padding:1.5rem;text-align:center;cursor:pointer;background:var(--upload-bg);position:relative;transition:all 0.15s}
+.upload-area:hover,.upload-area.dragover{border-color:var(--accent);background:var(--accent-bg)}
+.upload-area input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+.upload-icon{font-size:24px;margin-bottom:6px}
+.upload-text{font-size:13px;color:var(--text2);font-weight:500}
+.upload-hint{font-size:11px;color:var(--muted);margin-top:3px}
+.file-list{margin-top:8px;display:flex;flex-direction:column;gap:5px}
+.file-item{display:flex;align-items:center;gap:8px;padding:8px 10px;background:var(--file-bg);border:1px solid var(--border);border-radius:8px;font-size:12px}
+.file-name{flex:1;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.file-size{color:var(--muted);flex-shrink:0}
+.file-remove{cursor:pointer;color:var(--muted);flex-shrink:0}
+.file-remove:hover{color:#ef4444}
+.divider{border:none;border-top:1px solid var(--border);margin:1.5rem 0}
+.btn-submit{width:100%;height:44px;background:var(--accent);color:#fff;border:none;border-radius:8px;font-size:15px;font-weight:600;cursor:pointer}
+.btn-submit:hover{background:var(--accent-hover)}
+.btn-submit:disabled{opacity:0.5;cursor:not-allowed}
+.err{font-size:12px;color:#ef4444;margin-top:4px;display:none}
+.required{color:#ef4444;margin-left:2px}
+.progress-bar{height:4px;background:var(--border);border-radius:4px;margin-top:8px;display:none}
+.progress-fill{height:100%;background:var(--accent);border-radius:4px;width:0%;transition:width 0.3s}
+.success-banner{display:none;background:#052e16;border:1px solid #166534;border-radius:10px;padding:1.25rem;text-align:center;margin-top:1rem}
+[data-theme="light"] .success-banner{background:#ecfdf5;border-color:#6ee7b7}
+.success-banner h3{font-size:15px;font-weight:600;color:#4ade80;margin-bottom:4px}
+[data-theme="light"] .success-banner h3{color:#065f46}
+.success-banner p{font-size:13px;color:#86efac}
+[data-theme="light"] .success-banner p{color:#047857}
+.loading{display:none;text-align:center;padding:1rem;font-size:14px;color:var(--muted)}
+.spinner{display:inline-block;width:16px;height:16px;border:2px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin 0.7s linear infinite;vertical-align:middle;margin-right:6px}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* Dashboard */
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:14px;margin-bottom:24px}
+.stat-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:1.25rem;text-align:center}
+.stat-num{font-size:28px;font-weight:700;color:var(--accent)}
+.stat-label{font-size:12px;color:var(--muted);margin-top:4px}
+.table-card{background:var(--card);border:1px solid var(--border);border-radius:12px;overflow:hidden}
+.table-card h3{font-size:14px;font-weight:600;color:var(--text);padding:14px 16px;border-bottom:1px solid var(--border)}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{text-align:left;padding:10px 16px;color:var(--muted);font-weight:600;font-size:11px;text-transform:uppercase;letter-spacing:0.05em;border-bottom:1px solid var(--border)}
+td{padding:10px 16px;color:var(--text2);border-bottom:1px solid var(--border)}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:var(--input-bg)}
+.badge{display:inline-block;font-size:11px;padding:2px 8px;border-radius:4px;font-weight:600}
+.badge-fn{background:#1e3a5f;color:#60a5fa}
+.badge-an{background:#3b1f5e;color:#c084fc}
+[data-theme="light"] .badge-fn{background:#dbeafe;color:#1d4ed8}
+[data-theme="light"] .badge-an{background:#f3e8ff;color:#7c3aed}
+.badge-att{background:#052e16;color:#4ade80}
+.badge-umc{background:#3b0d0d;color:#f87171}
+[data-theme="light"] .badge-att{background:#dcfce7;color:#15803d}
+[data-theme="light"] .badge-umc{background:#fee2e2;color:#b91c1c}
+.empty{text-align:center;padding:2rem;color:var(--muted);font-size:13px}
+
+/* Admin drive links */
+.drive-link-box{display:block;padding:12px 14px;background:var(--input-bg);border:1px solid var(--border);border-radius:8px;color:var(--accent);font-size:14px;text-decoration:none;margin-bottom:8px}
+.drive-link-box:hover{border-color:var(--accent)}
+
+@media(max-width:640px){.sidebar{width:56px}.logo-text,.nav-item span,.role-badge{display:none}.main{margin-left:56px}.nav-item{justify-content:center}.slot-grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<!-- Login Screen -->
+<div class="login-screen" id="loginScreen">
+  <button class="login-theme theme-btn" onclick="toggleTheme()" id="loginThemeBtn">☀️</button>
+  <div class="login-card">
+    <div class="login-logo">📍</div>
+    <h1>CT Exam Ops</h1>
+
+    <!-- Step 1: Role selection -->
+    <div id="step-role">
+      <p style="font-size:13px;color:var(--muted);margin-bottom:1.5rem">Select your role to continue</p>
+      <button class="btn-login" onclick="startApp('coord')" style="margin-bottom:12px">
+        🧑‍💼 &nbsp; Login as Coordinator
+      </button>
+      <button class="btn-login" onclick="showAdminPass()" style="background:#1a2744;border:1.5px solid #3b82f6;color:#93c5fd">
+        👑 &nbsp; Login as Admin
+      </button>
+      <p style="font-size:11px;color:var(--muted);margin-top:16px">Coordinators: Attendance &amp; UMC forms only.<br>Admins: Full access including Dashboard &amp; Drive.</p>
+    </div>
+
+    <!-- Step 2: Admin password -->
+    <div id="step-admin" style="display:none">
+      <p style="font-size:13px;color:var(--muted);margin-bottom:1.5rem">Enter your admin password</p>
+      <div class="login-field">
+        <label>Admin password</label>
+        <input type="password" id="adminPassInput" placeholder="Enter admin password" onkeydown="if(event.key==='Enter')doAdminLogin()">
+      </div>
+      <button class="btn-login" onclick="doAdminLogin()" style="background:#1a2744;border:1.5px solid #3b82f6;color:#93c5fd;margin-top:4px">
+        Verify & Login
+      </button>
+      <div class="login-err" id="loginErr">Incorrect password. Please try again.</div>
+      <p style="margin-top:14px"><button onclick="showRoleSelect()" style="background:none;border:none;color:var(--muted);font-size:12px;cursor:pointer;text-decoration:underline">← Back</button></p>
+    </div>
+  </div>
+</div>
+
+<!-- App -->
+<div class="app" id="app">
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-icon">📍</div>
+      <span class="logo-text">CT Exam Ops</span>
+    </div>
+    <nav class="sidebar-nav" id="sidebarNav">
+      <!-- Injected by JS based on role -->
+    </nav>
+    <div class="sidebar-bottom">
+      <div class="role-badge" id="roleBadge"></div>
+    </div>
+  </div>
+
+  <!-- Main -->
+  <div class="main">
+    <div class="topbar">
+      <div class="topbar-title" id="pageTitle">Dashboard</div>
+      <div class="topbar-right">
+        <div class="datetime">
+          <div class="tdate" id="liveDate"></div>
+          <div class="ttime" id="liveTime"></div>
+        </div>
+        <button class="theme-btn" onclick="toggleTheme()" id="themeBtn">☀️</button>
+        <button class="btn-logout" onclick="logout()">Logout</button>
+      </div>
+    </div>
+
+    <div class="content">
+
+      <!-- Dashboard (admin only) -->
+      <div class="page" id="page-dashboard">
+        <div class="stats-grid">
+          <div class="stat-card"><div class="stat-num" id="stat-total">0</div><div class="stat-label">Total Submissions</div></div>
+          <div class="stat-card"><div class="stat-num" id="stat-att">0</div><div class="stat-label">Attendance Sheets</div></div>
+          <div class="stat-card"><div class="stat-num" id="stat-umc">0</div><div class="stat-label">UMC Reports</div></div>
+          <div class="stat-card"><div class="stat-num" id="stat-cities">0</div><div class="stat-label">Cities Covered</div></div>
+        </div>
+        <div class="table-card">
+          <h3>Recent submissions</h3>
+          <div class="empty" id="dash-empty">No submissions yet.</div>
+          <table id="dash-table" style="display:none">
+            <thead><tr><th>Type</th><th>City</th><th>Date</th><th>Slot</th><th>Files</th><th>Time</th></tr></thead>
+            <tbody id="dash-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Attendance Form -->
+      <div class="page" id="page-attendance">
+        <div class="form-card">
+          <h2>📋 Attendance Sheet</h2>
+          <p class="sub">Submit attendance documents for your exam centre.</p>
+          <div class="field">
+            <label class="field-label" for="att-city">Test centre <span class="required">*</span></label>
+            <select id="att-city"><option value="">— Select test centre —</option>
+              <option>Ahmedabad</option><option>Bangalore North</option><option>Bangalore South</option><option>Bhubaneswar</option><option>Chandigarh</option><option>Chennai - West</option><option>Coimbatore</option><option>Delhi</option><option>Ernakulam</option><option>Guwahati</option><option>Hosur</option><option>Hyderabad</option><option>Indore</option><option>Jaipur</option><option>Kolkata</option><option>Lucknow</option><option>Madurai</option><option>Mumbai - East</option><option>Mumbai - West</option><option>Nagpur</option><option>Noida</option><option>Patna</option><option>Pondicherry</option><option>Pune</option><option>Salem</option><option>Thiruvananthapuram</option><option>Tirupati</option><option>Vijayawada</option><option>Visakhapatnam</option><option>VIT Chennai</option><option>VIT Vellore</option>
+            </select>
+            <div class="err" id="att-err-city">Please select a test centre.</div>
+          </div>
+          <div class="field">
+            <label class="field-label" for="att-date">Date <span class="required">*</span></label>
+            <input type="date" id="att-date" />
+            <div class="err" id="att-err-date">Please select a date.</div>
+          </div>
+          <div class="field">
+            <label class="field-label">Session <span class="required">*</span></label>
+            <div class="slot-grid">
+              <label class="slot-card" id="att-card-fn" onclick="selectSlot('att','FN')"><input type="radio" name="att-slot" value="FN"><div class="slot-icon">🌅</div><div class="slot-name">Morning session</div><span class="slot-code">FN</span><div class="slot-time">09:30 – 12:00 Hrs</div></label>
+              <label class="slot-card" id="att-card-an" onclick="selectSlot('att','AN')"><input type="radio" name="att-slot" value="AN"><div class="slot-icon">☀️</div><div class="slot-name">Afternoon session</div><span class="slot-code">AN</span><div class="slot-time">14:00 – 17:00 Hrs</div></label>
+            </div>
+            <div class="err" id="att-err-slot">Please select a session.</div>
+          </div>
+          <div class="field">
+            <label class="field-label">Upload attendance sheet</label>
+            <div class="upload-area" id="att-dropzone"><input type="file" id="att-file" multiple accept=".pdf,.xlsx,.xls,.doc,.docx,.jpg,.jpeg,.png" onchange="handleFiles('att',this.files)"><div class="upload-icon">📁</div><div class="upload-text">Click to browse or drag & drop</div><div class="upload-hint">PDF, Excel, Word, JPG, PNG</div></div>
+            <div class="progress-bar" id="att-progress"><div class="progress-fill" id="att-progress-fill"></div></div>
+            <div class="file-list" id="att-file-list"></div>
+          </div>
+          <hr class="divider">
+          <button class="btn-submit" id="att-submit" onclick="submitForm('att')">Submit attendance sheet</button>
+          <div class="loading" id="att-loading"><span class="spinner"></span><span id="att-loading-text">Uploading...</span></div>
+          <div class="success-banner" id="att-success"><div style="font-size:28px;margin-bottom:6px">✅</div><h3>Submitted successfully!</h3><p id="att-success-detail"></p><p id="att-drive-p" style="display:none;margin-top:6px"><a id="att-drive-link" href="#" target="_blank" style="color:#4ade80">View in Google Drive →</a></p></div>
+        </div>
+      </div>
+
+      <!-- UMC Form -->
+      <div class="page" id="page-umc">
+        <div class="form-card">
+          <h2>⚠️ UMC Form</h2>
+          <p class="sub">Report an Unfair Means Case at your exam centre.</p>
+          <div class="field">
+            <label class="field-label" for="umc-city">Test centre <span class="required">*</span></label>
+            <select id="umc-city"><option value="">— Select test centre —</option>
+              <option>Ahmedabad</option><option>Bangalore North</option><option>Bangalore South</option><option>Bhubaneswar</option><option>Chandigarh</option><option>Chennai - West</option><option>Coimbatore</option><option>Delhi</option><option>Ernakulam</option><option>Guwahati</option><option>Hosur</option><option>Hyderabad</option><option>Indore</option><option>Jaipur</option><option>Kolkata</option><option>Lucknow</option><option>Madurai</option><option>Mumbai - East</option><option>Mumbai - West</option><option>Nagpur</option><option>Noida</option><option>Patna</option><option>Pondicherry</option><option>Pune</option><option>Salem</option><option>Thiruvananthapuram</option><option>Tirupati</option><option>Vijayawada</option><option>Visakhapatnam</option><option>VIT Chennai</option><option>VIT Vellore</option>
+            </select>
+            <div class="err" id="umc-err-city">Please select a test centre.</div>
+          </div>
+          <div class="field">
+            <label class="field-label" for="umc-date">Date <span class="required">*</span></label>
+            <input type="date" id="umc-date" />
+            <div class="err" id="umc-err-date">Please select a date.</div>
+          </div>
+          <div class="field">
+            <label class="field-label">Session <span class="required">*</span></label>
+            <div class="slot-grid">
+              <label class="slot-card" id="umc-card-fn" onclick="selectSlot('umc','FN')"><input type="radio" name="umc-slot" value="FN"><div class="slot-icon">🌅</div><div class="slot-name">Morning session</div><span class="slot-code">FN</span><div class="slot-time">09:30 – 12:00 Hrs</div></label>
+              <label class="slot-card" id="umc-card-an" onclick="selectSlot('umc','AN')"><input type="radio" name="umc-slot" value="AN"><div class="slot-icon">☀️</div><div class="slot-name">Afternoon session</div><span class="slot-code">AN</span><div class="slot-time">14:00 – 17:00 Hrs</div></label>
+            </div>
+            <div class="err" id="umc-err-slot">Please select a session.</div>
+          </div>
+          <div class="field">
+            <label class="field-label">Upload UMC form <span class="required">*</span></label>
+            <div class="upload-area" id="umc-dropzone1"><input type="file" id="umc-file1" multiple accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" onchange="handleFiles('umc1',this.files)"><div class="upload-icon">📄</div><div class="upload-text">Click to browse or drag & drop</div><div class="upload-hint">PDF, Word, JPG, PNG</div></div>
+            <div class="file-list" id="umc1-file-list"></div>
+            <div class="err" id="umc-err-form">Please upload the UMC form.</div>
+          </div>
+          <div class="field">
+            <label class="field-label">Upload proof of UMC</label>
+            <div class="upload-area" id="umc-dropzone2"><input type="file" id="umc-file2" multiple accept=".pdf,.jpg,.jpeg,.png,.mp4,.mov" onchange="handleFiles('umc2',this.files)"><div class="upload-icon">🖼️</div><div class="upload-text">Click to browse or drag & drop</div><div class="upload-hint">PDF, JPG, PNG, Video</div></div>
+            <div class="file-list" id="umc2-file-list"></div>
+          </div>
+          <hr class="divider">
+          <button class="btn-submit" id="umc-submit" onclick="submitForm('umc')">Submit UMC report</button>
+          <div class="loading" id="umc-loading"><span class="spinner"></span><span id="umc-loading-text">Uploading...</span></div>
+          <div class="progress-bar" id="umc-progress"><div class="progress-fill" id="umc-progress-fill"></div></div>
+          <div class="success-banner" id="umc-success"><div style="font-size:28px;margin-bottom:6px">✅</div><h3>UMC report submitted!</h3><p id="umc-success-detail"></p><p id="umc-drive-p" style="display:none;margin-top:6px"><a id="umc-drive-link" href="#" target="_blank" style="color:#4ade80">View in Google Drive →</a></p></div>
+        </div>
+      </div>
+
+      <!-- Admin Page (admin only) -->
+      <div class="page" id="page-admin">
+        <div class="form-card">
+          <h2>🔒 Admin Panel</h2>
+          <p class="sub">Quick access to submissions and Drive folder.</p>
+          <a class="drive-link-box" href="https://docs.google.com/spreadsheets/d/1LsXTBiPwytEd8dWtQe3vFlbfVO-h9TH1oxtU9WlZFW0/edit" target="_blank">📊 Open Submissions Log →</a>
+          <a class="drive-link-box" href="https://drive.google.com/drive/folders/1OtI5E0C_AkL2TiRKx6QDIrdxc4Bl5eT7" target="_blank">📁 Open Google Drive Folder →</a>
+          <div style="margin-top:1rem;padding:12px 14px;background:var(--input-bg);border-radius:8px;font-size:13px;color:var(--muted)">
+            <strong style="color:var(--text2)">Last submission folder links</strong><br><br>
+            <span style="font-size:12px">Attendance:</span><br>
+            <a id="admin-att-link" href="#" target="_blank" style="color:var(--accent);font-size:12px">— no submission yet —</a><br><br>
+            <span style="font-size:12px">UMC:</span><br>
+            <a id="admin-umc-link" href="#" target="_blank" style="color:var(--accent);font-size:12px">— no submission yet —</a>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzGOlJgDPbkfo-HszzKPITZ-o3V7iRXM6BPHoTk8fU5phvpwLLEBJpJZ4E4gnIhr-oKGA/exec";
+const PASSWORDS = { coord: "CT@Coord2026", admin: "CT@Admin2026" };
+
+let currentRole = null;
+let isDark = true;
+let files = {att:[], umc1:[], umc2:[]};
+let slots = {att:'', umc:''};
+let lastFolder = {att:'', umc:''};
+let submissions = [];
+
+// Clock
+function updateClock() {
+  const now = new Date();
+  const d = now.toLocaleDateString('en-IN',{weekday:'short',day:'2-digit',month:'short',year:'numeric'});
+  const t = now.toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:true});
+  document.getElementById('liveDate').textContent = d;
+  document.getElementById('liveTime').textContent = t;
+}
+updateClock(); setInterval(updateClock, 1000);
+
+// Theme
+function toggleTheme() {
+  isDark = !isDark;
+  document.documentElement.setAttribute('data-theme', isDark ? 'dark' : 'light');
+  const icon = isDark ? '☀️' : '🌙';
+  document.getElementById('themeBtn').textContent = icon;
+  document.getElementById('loginThemeBtn').textContent = icon;
+}
+
+// Login
+function showAdminPass() {
+  document.getElementById('step-role').style.display = 'none';
+  document.getElementById('step-admin').style.display = 'block';
+  const inp = document.getElementById('adminPassInput');
+  if(inp) { inp.value = ''; inp.focus(); }
+  const err = document.getElementById('loginErr');
+  if(err) err.style.display = 'none';
+}
+
+function showRoleSelect() {
+  document.getElementById('step-admin').style.display = 'none';
+  document.getElementById('step-role').style.display = 'block';
+}
+
+function doAdminLogin() {
+  const pass = document.getElementById('adminPassInput').value;
+  if (pass === PASSWORDS.admin) {
+    document.getElementById('loginErr').style.display = 'none';
+    startApp('admin');
+  } else {
+    document.getElementById('loginErr').style.display = 'block';
+  }
+}
+
+function startApp(role) {
+  currentRole = role;
+  document.getElementById('loginScreen').style.display = 'none';
+  document.getElementById('app').style.display = 'flex';
+  document.getElementById('roleBadge').textContent = role === 'admin' ? '👑 Admin' : '🧑‍💼 Coordinator';
+  buildSidebar(role);
+  // Show first available page
+  if (role === 'admin') showPage('dashboard');
+  else showPage('attendance');
+}
+
+function logout() {
+  currentRole = null;
+  document.getElementById('loginScreen').style.display = 'flex';
+  document.getElementById('app').style.display = 'none';
+  document.getElementById('loginPass').value = '';
+  document.getElementById('loginErr').style.display = 'none';
+}
+
+// Build sidebar based on role
+function buildSidebar(role) {
+  const nav = document.getElementById('sidebarNav');
+  nav.innerHTML = '';
+  const items = role === 'admin'
+    ? [{id:'dashboard',icon:'📊',label:'Dashboard'},{id:'attendance',icon:'📋',label:'Attendance Sheet'},{id:'umc',icon:'⚠️',label:'UMC Form'},{id:'admin',icon:'🔒',label:'Admin Panel'}]
+    : [{id:'attendance',icon:'📋',label:'Attendance Sheet'},{id:'umc',icon:'⚠️',label:'UMC Form'}];
+  items.forEach(item => {
+    const div = document.createElement('div');
+    div.className = 'nav-item';
+    div.id = 'nav-'+item.id;
+    div.innerHTML = `<span class="nav-icon">${item.icon}</span><span>${item.label}</span>`;
+    div.onclick = () => showPage(item.id, div);
+    nav.appendChild(div);
+  });
+}
+
+const pageTitles = {dashboard:'Dashboard', attendance:'Attendance Sheet', umc:'UMC Form', admin:'Admin Panel'};
+function showPage(id, el) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('page-'+id).classList.add('active');
+  const navEl = el || document.getElementById('nav-'+id);
+  if(navEl) navEl.classList.add('active');
+  document.getElementById('pageTitle').textContent = pageTitles[id];
+}
+
+// Slot
+function selectSlot(form, val) {
+  slots[form] = val;
+  document.getElementById(form+'-card-fn').classList.toggle('selected', val==='FN');
+  document.getElementById(form+'-card-an').classList.toggle('selected', val==='AN');
+  document.getElementById(form+'-err-slot').style.display='none';
+}
+
+// Files
+function handleFiles(key, newFiles) {
+  for(let f of newFiles) { if(!files[key].find(x=>x.name===f.name)) files[key].push(f); }
+  renderFiles(key);
+}
+function renderFiles(key) {
+  const list = document.getElementById(key+'-file-list');
+  list.innerHTML='';
+  files[key].forEach((f,i)=>{
+    const ext=f.name.split('.').pop().toLowerCase();
+    const icons={pdf:'📄',xlsx:'📊',xls:'📊',doc:'📝',docx:'📝',jpg:'🖼️',jpeg:'🖼️',png:'🖼️',mp4:'🎥',mov:'🎥'};
+    const div=document.createElement('div');
+    div.className='file-item';
+    div.innerHTML=`<span>${icons[ext]||'📎'}</span><span class="file-name">${f.name}</span><span class="file-size">${(f.size/1024).toFixed(0)} KB</span><span class="file-remove" onclick="removeFile('${key}',${i})">✕</span>`;
+    list.appendChild(div);
+  });
+}
+function removeFile(key,i){files[key].splice(i,1);renderFiles(key);}
+
+// Validate
+function validate(form) {
+  let ok=true;
+  const city=document.getElementById(form+'-city').value;
+  const date=document.getElementById(form+'-date').value;
+  const slot=slots[form];
+  document.getElementById(form+'-err-city').style.display=city?'none':'block';
+  document.getElementById(form+'-err-date').style.display=date?'none':'block';
+  document.getElementById(form+'-err-slot').style.display=slot?'none':'block';
+  if(!city||!date||!slot) ok=false;
+  if(form==='umc'){
+    const e=document.getElementById('umc-err-form');
+    if(files['umc1'].length===0){e.style.display='block';ok=false;}else{e.style.display='none';}
+  }
+  return ok;
+}
+
+// Submit
+async function submitForm(form) {
+  if(!validate(form)) return;
+  const city=document.getElementById(form+'-city').value;
+  const date=document.getElementById(form+'-date').value;
+  const slot=slots[form];
+  const formFiles=form==='umc'?[...files['umc1'],...files['umc2']]:files['att'];
+
+  document.getElementById(form+'-submit').disabled=true;
+  document.getElementById(form+'-loading').style.display='block';
+  if(document.getElementById(form+'-progress')) document.getElementById(form+'-progress').style.display='block';
+  document.getElementById(form+'-loading-text').textContent='Preparing files...';
+  setProgress(form,20);
+
+  const fileData=await Promise.all(formFiles.map(f=>new Promise(resolve=>{
+    const r=new FileReader();
+    r.onload=()=>resolve({name:f.name,mimeType:f.type||'application/octet-stream',base64:r.result.split(',')[1]});
+    r.readAsDataURL(f);
+  })));
+
+  setProgress(form,50);
+  document.getElementById(form+'-loading-text').textContent='Uploading to Google Drive...';
+
+  try {
+    const res=await fetch(SCRIPT_URL,{method:'POST',body:JSON.stringify({city,date,slot,type:form==='umc'?'UMC':'Attendance',files:fileData})});
+    setProgress(form,90);
+    const result=await res.json();
+    setProgress(form,100);
+    lastFolder[form]=result.folderUrl||'';
+
+    // Update admin links
+    if(lastFolder[form]){
+      const adminLink=document.getElementById('admin-'+form+'-link');
+      if(adminLink){adminLink.href=lastFolder[form];adminLink.textContent=city+' — '+date+' — '+slot;}
+    }
+
+    submissions.unshift({type:form==='umc'?'UMC':'Attendance',city,date,slot,files:formFiles.length,time:new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit',hour12:true})});
+    updateDashboard();
+
+    setTimeout(()=>{
+      document.getElementById(form+'-loading').style.display='none';
+      if(document.getElementById(form+'-progress')) document.getElementById(form+'-progress').style.display='none';
+      document.getElementById(form+'-success').style.display='block';
+      document.getElementById(form+'-success-detail').textContent=`${city} | ${date} | ${slot} | ${formFiles.length} file(s) submitted`;
+      // Show Drive link only to admin
+      if(currentRole==='admin' && lastFolder[form]){
+        const dp=document.getElementById(form+'-drive-p');
+        const dl=document.getElementById(form+'-drive-link');
+        if(dp&&dl){dp.style.display='block';dl.href=lastFolder[form];}
+      }
+    },400);
+  } catch(err){
+    document.getElementById(form+'-loading').style.display='none';
+    document.getElementById(form+'-submit').disabled=false;
+    alert('Something went wrong. Please try again.');
+  }
+}
+
+function setProgress(form,pct){const el=document.getElementById(form+'-progress-fill');if(el)el.style.width=pct+'%';}
+
+// Dashboard
+function updateDashboard(){
+  const att=submissions.filter(s=>s.type==='Attendance').length;
+  const umc=submissions.filter(s=>s.type==='UMC').length;
+  const cities=[...new Set(submissions.map(s=>s.city))].length;
+  document.getElementById('stat-total').textContent=submissions.length;
+  document.getElementById('stat-att').textContent=att;
+  document.getElementById('stat-umc').textContent=umc;
+  document.getElementById('stat-cities').textContent=cities;
+  const tbody=document.getElementById('dash-tbody');
+  tbody.innerHTML='';
+  submissions.slice(0,10).forEach(s=>{
+    const tb=s.type==='Attendance'?'badge-att':'badge-umc';
+    const sb=s.slot==='FN'?'badge-fn':'badge-an';
+    const tr=document.createElement('tr');
+    tr.innerHTML=`<td><span class="badge ${tb}">${s.type}</span></td><td>${s.city}</td><td>${s.date}</td><td><span class="badge ${sb}">${s.slot}</span></td><td>${s.files}</td><td>${s.time}</td>`;
+    tbody.appendChild(tr);
+  });
+  const has=submissions.length>0;
+  document.getElementById('dash-empty').style.display=has?'none':'block';
+  document.getElementById('dash-table').style.display=has?'table':'none';
+}
+
+// Drag & drop
+[{id:'att-dropzone',key:'att'},{id:'umc-dropzone1',key:'umc1'},{id:'umc-dropzone2',key:'umc2'}].forEach(({id,key})=>{
+  const dz=document.getElementById(id);
+  dz.addEventListener('dragover',e=>{e.preventDefault();dz.classList.add('dragover');});
+  dz.addEventListener('dragleave',()=>dz.classList.remove('dragover'));
+  dz.addEventListener('drop',e=>{e.preventDefault();dz.classList.remove('dragover');handleFiles(key,e.dataTransfer.files);});
+});
+</script>
+</body>
+</html>
