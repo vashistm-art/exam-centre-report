@@ -60,7 +60,7 @@ label.field-label{display:block;font-size:13px;font-weight:600;color:var(--text2
 select,input[type=date]{width:100%;height:42px;border-radius:8px;border:1px solid var(--input-border);background:var(--input-bg);color:var(--text);font-size:14px;padding:0 12px;outline:none}
 select{appearance:none;-webkit-appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;background-color:var(--input-bg)}
 select:focus,input[type=date]:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(99,102,241,0.15);outline:none}
-input[type=date]{cursor:pointer;position:relative}
+input[type=date]{cursor:pointer;position:relative;min-height:42px;-webkit-appearance:none}
 input[type=date]::-webkit-calendar-picker-indicator{position:absolute;left:0;top:0;width:100%;height:100%;margin:0;padding:0;cursor:pointer;opacity:0}
 .slot-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .slot-card{border:1.5px solid var(--border);border-radius:10px;padding:14px;cursor:pointer;background:var(--card);transition:all 0.15s;position:relative}
@@ -128,7 +128,54 @@ tr:hover td{background:var(--input-bg)}
 .drive-link-box{display:block;padding:12px 14px;background:var(--input-bg);border:1px solid var(--border);border-radius:8px;color:var(--accent);font-size:14px;text-decoration:none;margin-bottom:8px}
 .drive-link-box:hover{border-color:var(--accent)}
 
-@media(max-width:640px){.sidebar{width:56px}.logo-text,.nav-item span,.role-badge{display:none}.main{margin-left:56px}.nav-item{justify-content:center}.slot-grid{grid-template-columns:1fr}.content{padding:16px}.form-card{padding:1.25rem}.topbar{padding:10px 14px}}
+/* Bottom navigation for mobile */
+.bottom-nav{display:none;position:fixed;bottom:0;left:0;right:0;background:var(--sidebar);border-top:1px solid var(--sidebar-border);z-index:200;padding:6px 0 10px}
+.bottom-nav-item{display:flex;flex-direction:column;align-items:center;flex:1;padding:6px 4px;cursor:pointer;color:var(--muted);transition:color 0.15s}
+.bottom-nav-item.active{color:var(--accent)}
+.bnav-icon{font-size:20px;margin-bottom:2px}
+.bnav-label{font-size:10px;font-weight:600}
+@media(max-width:768px){
+  .bottom-nav{display:flex}
+  .main{padding-bottom:70px}
+  .sidebar{display:none!important}
+  .menu-btn{display:none!important}
+}
+@media(min-width:769px){
+  .bottom-nav{display:none!important}
+  .main{padding-bottom:0}
+}
+
+/* Force view modes */
+body.force-mobile .sidebar{display:none!important}
+body.force-mobile .bottom-nav{display:flex!important}
+body.force-mobile .main{margin-left:0;padding-bottom:70px}
+body.force-mobile .menu-btn{display:none!important}
+body.force-mobile .content{padding:16px}
+body.force-mobile .form-card{padding:1.25rem}
+body.force-mobile .slot-grid{grid-template-columns:1fr}
+body.force-mobile .topbar{padding:10px 14px}
+body.force-desktop .sidebar{width:220px;transform:none!important;box-shadow:none}
+body.force-desktop .sidebar.open{transform:none}
+body.force-desktop .main{margin-left:220px}
+body.force-desktop .menu-btn{display:none!important}
+body.force-desktop .logo-text{display:block!important}
+body.force-desktop .nav-item span{display:block!important}
+body.force-desktop .role-badge{display:block!important}
+body.force-desktop .slot-grid{grid-template-columns:1fr 1fr}
+
+@media(max-width:768px){
+  .sidebar{width:200px;transform:translateX(-100%);transition:transform 0.25s;box-shadow:4px 0 20px rgba(0,0,0,0.3)}
+  .sidebar.open{transform:translateX(0)}
+  .main{margin-left:0}
+  .topbar{padding:10px 14px}
+  .content{padding:16px}
+  .form-card{padding:1.25rem}
+  .slot-grid{grid-template-columns:1fr}
+  .menu-btn{display:flex!important}
+  .overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:99}
+  .overlay.open{display:block}
+}
+@media(min-width:769px){.menu-btn{display:none!important}}
 </style>
 </head>
 <body>
@@ -194,6 +241,7 @@ tr:hover td{background:var(--input-bg)}
           <div class="ttime" id="liveTime"></div>
         </div>
         <button class="theme-btn" onclick="toggleTheme()" id="themeBtn">☀️</button>
+        <button class="theme-btn" onclick="toggleView()" id="viewBtn" title="Toggle mobile/desktop view">🖥️</button>
         <button class="btn-logout" onclick="logout()">Logout</button>
       </div>
     </div>
@@ -251,7 +299,10 @@ tr:hover td{background:var(--input-bg)}
           </div>
           <hr class="divider">
           <button class="btn-submit" id="att-submit" onclick="submitForm('att')">Submit attendance sheet</button>
-          <div class="loading" id="att-loading"><span class="spinner"></span><span id="att-loading-text">Uploading...</span></div>
+          <div class="loading" id="att-loading">
+            <span class="spinner"></span><span id="att-loading-text">Uploading...</span>
+            <div style="margin-top:8px;font-size:11px;color:var(--muted)" id="att-loading-sub">Please do not close or refresh this page</div>
+          </div>
           <div class="success-banner" id="att-success"><div style="font-size:28px;margin-bottom:6px">✅</div><h3>Submitted successfully!</h3><p id="att-success-detail"></p><p id="att-drive-p" style="display:none;margin-top:6px"><a id="att-drive-link" href="#" target="_blank" style="color:#4ade80">View in Google Drive →</a></p></div>
         </div>
       </div>
@@ -294,7 +345,10 @@ tr:hover td{background:var(--input-bg)}
           </div>
           <hr class="divider">
           <button class="btn-submit" id="umc-submit" onclick="submitForm('umc')">Submit UMC report</button>
-          <div class="loading" id="umc-loading"><span class="spinner"></span><span id="umc-loading-text">Uploading...</span></div>
+          <div class="loading" id="umc-loading">
+            <span class="spinner"></span><span id="umc-loading-text">Uploading...</span>
+            <div style="margin-top:8px;font-size:11px;color:var(--muted)" id="umc-loading-sub">Please do not close or refresh this page</div>
+          </div>
           <div class="progress-bar" id="umc-progress"><div class="progress-fill" id="umc-progress-fill"></div></div>
           <div class="success-banner" id="umc-success"><div style="font-size:28px;margin-bottom:6px">✅</div><h3>UMC report submitted!</h3><p id="umc-success-detail"></p><p id="umc-drive-p" style="display:none;margin-top:6px"><a id="umc-drive-link" href="#" target="_blank" style="color:#4ade80">View in Google Drive →</a></p></div>
         </div>
@@ -335,6 +389,11 @@ window.addEventListener('load', () => {
   }
   if (savedRole) {
     startApp(savedRole);
+  }
+  const savedView = sessionStorage.getItem('ctView');
+  if (savedView) {
+    isMobileView = savedView === 'mobile';
+    applyView();
   }
 });
 
@@ -400,6 +459,7 @@ function startApp(role) {
   document.getElementById('app').style.display = 'flex';
   document.getElementById('roleBadge').textContent = role === 'admin' ? '🔐 Admin' : '🧑‍💼 Coordinator';
   buildSidebar(role);
+  setupBottomNav(role);
   // Show first available page
   if (role === 'admin') showPage('dashboard');
   else showPage('attendance');
@@ -419,7 +479,7 @@ function buildSidebar(role) {
   const nav = document.getElementById('sidebarNav');
   nav.innerHTML = '';
   const items = role === 'admin'
-    ? [{id:'dashboard',icon:'📊',label:'Dashboard'},{id:'attendance',icon:'📋',label:'Attendance Sheet'},{id:'umc',icon:'⚠️',label:'UMC Form'},{id:'admin',icon:'🔒',label:'Admin Panel'}]
+    ? [{id:'dashboard',icon:'📊',label:'Dashboard'},{id:'attendance',icon:'📋',label:'Attendance Sheet'},{id:'umc',icon:'⚠️',label:'UMC Form'},{id:'admin',icon:'🔐',label:'Admin Panel'}]
     : [{id:'attendance',icon:'📋',label:'Attendance Sheet'},{id:'umc',icon:'⚠️',label:'UMC Form'}];
   items.forEach(item => {
     const div = document.createElement('div');
@@ -439,6 +499,54 @@ function showPage(id, el) {
   const navEl = el || document.getElementById('nav-'+id);
   if(navEl) navEl.classList.add('active');
   document.getElementById('pageTitle').textContent = pageTitles[id];
+  if(id === 'dashboard') fetchDashboard();
+  closeSidebar();
+  setBottomNav(id);
+}
+
+let isMobileView = window.innerWidth <= 768;
+
+function toggleView() {
+  isMobileView = !isMobileView;
+  applyView();
+  sessionStorage.setItem('ctView', isMobileView ? 'mobile' : 'desktop');
+}
+
+function applyView() {
+  const btn = document.getElementById('viewBtn');
+  if (isMobileView) {
+    document.body.classList.add('force-mobile');
+    document.body.classList.remove('force-desktop');
+    btn.textContent = '🖥️';
+    btn.title = 'Switch to desktop view';
+  } else {
+    document.body.classList.add('force-desktop');
+    document.body.classList.remove('force-mobile');
+    btn.textContent = '📱';
+    btn.title = 'Switch to mobile view';
+  }
+}
+
+function setBottomNav(id) {
+  document.querySelectorAll('.bottom-nav-item').forEach(b => b.classList.remove('active'));
+  const el = document.getElementById('bnav-'+id);
+  if(el) el.classList.add('active');
+}
+
+function setupBottomNav(role) {
+  if(role === 'admin') {
+    document.getElementById('bnav-dashboard').style.display = 'flex';
+    document.getElementById('bnav-admin').style.display = 'flex';
+  }
+}
+
+function toggleSidebar() {
+  document.querySelector('.sidebar').classList.toggle('open');
+  document.getElementById('overlay').classList.toggle('open');
+}
+function closeSidebar() {
+  document.querySelector('.sidebar').classList.remove('open');
+  document.getElementById('overlay').classList.remove('open');
 }
 
 // Slot
@@ -493,7 +601,9 @@ async function submitForm(form) {
   const slot=slots[form];
   const formFiles=form==='umc'?[...files['umc1'],...files['umc2']]:files['att'];
 
-  document.getElementById(form+'-submit').disabled=true;
+  const btn = document.getElementById(form+'-submit');
+  btn.disabled=true;
+  btn.textContent='⏳ Uploading...';
   document.getElementById(form+'-loading').style.display='block';
   if(document.getElementById(form+'-progress')) document.getElementById(form+'-progress').style.display='block';
   document.getElementById(form+'-loading-text').textContent='Preparing files...';
@@ -507,6 +617,8 @@ async function submitForm(form) {
 
   setProgress(form,50);
   document.getElementById(form+'-loading-text').textContent='Uploading to Google Drive...';
+  const subEl = document.getElementById(form+'-loading-sub');
+  if(subEl) subEl.textContent = fileData.length + ' file(s) uploading — this may take 10–30 seconds for large files';
 
   try {
     const res=await fetch(SCRIPT_URL,{method:'POST',body:JSON.stringify({city,date,slot,type:form==='umc'?'UMC':'Attendance',files:fileData})});
@@ -530,6 +642,8 @@ async function submitForm(form) {
       if(document.getElementById(form+'-progress')) document.getElementById(form+'-progress').style.display='none';
       document.getElementById(form+'-success').style.display='block';
       document.getElementById(form+'-success-detail').textContent=`${city} | ${date} | ${slot} | ${formFiles.length} file(s) submitted`;
+      const doneBtn = document.getElementById(form+'-submit');
+      doneBtn.textContent = form==='umc' ? 'Submit UMC report' : 'Submit attendance sheet';
       // Show Drive link only to admin
       if(currentRole==='admin' && lastFolder[form]){
         const dp=document.getElementById(form+'-drive-p');
@@ -539,15 +653,56 @@ async function submitForm(form) {
     },400);
   } catch(err){
     document.getElementById(form+'-loading').style.display='none';
-    document.getElementById(form+'-submit').disabled=false;
-    alert('Something went wrong. Please try again.');
+    if(document.getElementById(form+'-progress')) document.getElementById(form+'-progress').style.display='none';
+    const errBtn = document.getElementById(form+'-submit');
+    errBtn.disabled=false;
+    errBtn.textContent = form==='umc' ? 'Submit UMC report' : 'Submit attendance sheet';
+    alert('Something went wrong. Please check your connection and try again.');
   }
 }
 
 function setProgress(form,pct){const el=document.getElementById(form+'-progress-fill');if(el)el.style.width=pct+'%';}
 
 // Dashboard
-function updateDashboard(){
+async function fetchDashboard() {
+  try {
+    document.getElementById('dash-empty').textContent = 'Loading submissions...';
+    const res = await fetch(SCRIPT_URL + '?action=getSubmissions');
+    const result = await res.json();
+    if(result.status === 'success' && result.data) {
+      renderDashboard(result.data);
+    } else {
+      document.getElementById('dash-empty').textContent = 'No submissions yet.';
+    }
+  } catch(e) {
+    document.getElementById('dash-empty').textContent = 'Could not load submissions. Please try again.';
+  }
+}
+
+function renderDashboard(rows) {
+  const att = rows.filter(r=>r.type==='Attendance').length;
+  const umc = rows.filter(r=>r.type==='UMC').length;
+  const cities = [...new Set(rows.map(r=>r.city))].length;
+  document.getElementById('stat-total').textContent = rows.length;
+  document.getElementById('stat-att').textContent = att;
+  document.getElementById('stat-umc').textContent = umc;
+  document.getElementById('stat-cities').textContent = cities;
+  const tbody = document.getElementById('dash-tbody');
+  tbody.innerHTML = '';
+  rows.slice(0,20).forEach(r => {
+    const tb = r.type==='UMC' ? 'badge-umc' : 'badge-att';
+    const sb = r.slot==='AN' ? 'badge-an' : 'badge-fn';
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td><span class="badge ${tb}">${r.type||'Attendance'}</span></td><td>${r.city||''}</td><td>${r.date||''}</td><td><span class="badge ${sb}">${r.slot||''}</span></td><td>${r.files||''}</td><td>${r.time||''}</td>`;
+    tbody.appendChild(tr);
+  });
+  const has = rows.length > 0;
+  document.getElementById('dash-empty').style.display = has ? 'none' : 'block';
+  document.getElementById('dash-table').style.display = has ? 'table' : 'none';
+}
+
+function updateDashboard() {
+  // Also update local after submit
   const att=submissions.filter(s=>s.type==='Attendance').length;
   const umc=submissions.filter(s=>s.type==='UMC').length;
   const cities=[...new Set(submissions.map(s=>s.city))].length;
@@ -557,9 +712,9 @@ function updateDashboard(){
   document.getElementById('stat-cities').textContent=cities;
   const tbody=document.getElementById('dash-tbody');
   tbody.innerHTML='';
-  submissions.slice(0,10).forEach(s=>{
-    const tb=s.type==='Attendance'?'badge-att':'badge-umc';
-    const sb=s.slot==='FN'?'badge-fn':'badge-an';
+  submissions.slice(0,20).forEach(s=>{
+    const tb=s.type==='UMC'?'badge-umc':'badge-att';
+    const sb=s.slot==='AN'?'badge-an':'badge-fn';
     const tr=document.createElement('tr');
     tr.innerHTML=`<td><span class="badge ${tb}">${s.type}</span></td><td>${s.city}</td><td>${s.date}</td><td><span class="badge ${sb}">${s.slot}</span></td><td>${s.files}</td><td>${s.time}</td>`;
     tbody.appendChild(tr);
