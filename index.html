@@ -131,6 +131,14 @@ tr:hover td{background:var(--input-bg)}
 .drive-link-box{display:block;padding:12px 14px;background:var(--input-bg);border:1px solid var(--border);border-radius:8px;color:var(--accent);font-size:14px;text-decoration:none;margin-bottom:8px}
 .drive-link-box:hover{border-color:var(--accent)}
 
+/* City chart bars */
+.chart-bar-wrap{display:flex;align-items:center;gap:8px;font-size:12px}
+.chart-bar-label{width:120px;color:var(--text2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex-shrink:0}
+.chart-bar-track{flex:1;height:10px;background:var(--border);border-radius:5px;overflow:hidden}
+.chart-bar-fill{height:100%;background:var(--accent);border-radius:5px;transition:width 0.4s}
+.chart-bar-val{width:24px;text-align:right;color:var(--muted);flex-shrink:0}
+.missing-badge{font-size:11px;padding:3px 8px;border-radius:5px;background:var(--file-bg);border:1px solid var(--border);color:var(--muted)}
+
 /* Bottom nav for mobile */
 .bottom-nav{display:none;position:fixed;bottom:0;left:0;right:0;background:var(--sidebar);border-top:1px solid var(--sidebar-border);z-index:999;padding:6px 0 env(safe-area-inset-bottom,8px)}
 .bottom-nav-item{display:flex;flex-direction:column;align-items:center;flex:1;padding:6px 4px;cursor:pointer;color:var(--muted)}
@@ -140,6 +148,8 @@ tr:hover td{background:var(--input-bg)}
 
 /* Responsive */
 @media(max-width:768px){
+  #chart-section{grid-template-columns:1fr!important}
+
   .sidebar{display:none!important}
   .main{margin-left:0!important;width:100%!important;padding-bottom:75px}
   .bottom-nav{display:flex!important}
@@ -214,16 +224,64 @@ tr:hover td{background:var(--input-bg)}
 
       <!-- Dashboard -->
       <div class="page" id="page-dashboard">
+        <!-- Stats -->
         <div class="stats-grid">
           <div class="stat-card"><div class="stat-num" id="stat-total">0</div><div class="stat-label">Total Submissions</div></div>
           <div class="stat-card"><div class="stat-num" id="stat-att">0</div><div class="stat-label">Attendance Sheets</div></div>
           <div class="stat-card"><div class="stat-num" id="stat-umc">0</div><div class="stat-label">UMC Reports</div></div>
           <div class="stat-card"><div class="stat-num" id="stat-cities">0</div><div class="stat-label">Cities Covered</div></div>
         </div>
+
+        <!-- Filters -->
+        <div class="table-card" style="margin-bottom:16px;padding:14px 16px">
+          <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end">
+            <div style="flex:1;min-width:130px">
+              <label style="font-size:11px;font-weight:600;color:var(--muted);display:block;margin-bottom:4px">FROM DATE</label>
+              <input type="date" id="filter-from" style="width:100%;height:36px;border-radius:7px;border:1px solid var(--input-border);background:var(--input-bg);color:var(--text);font-size:13px;padding:0 10px;outline:none" onchange="applyFilters()">
+            </div>
+            <div style="flex:1;min-width:130px">
+              <label style="font-size:11px;font-weight:600;color:var(--muted);display:block;margin-bottom:4px">TO DATE</label>
+              <input type="date" id="filter-to" style="width:100%;height:36px;border-radius:7px;border:1px solid var(--input-border);background:var(--input-bg);color:var(--text);font-size:13px;padding:0 10px;outline:none" onchange="applyFilters()">
+            </div>
+            <div style="flex:1;min-width:130px">
+              <label style="font-size:11px;font-weight:600;color:var(--muted);display:block;margin-bottom:4px">CITY</label>
+              <select id="filter-city" style="width:100%;height:36px;border-radius:7px;border:1px solid var(--input-border);background:var(--input-bg);color:var(--text);font-size:13px;padding:0 10px;outline:none;appearance:none" onchange="applyFilters()">
+                <option value="">All Cities</option>
+                <option>Ahmedabad</option><option>Bangalore North</option><option>Bangalore South</option><option>Bhubaneswar</option><option>Chandigarh</option><option>Chennai - West</option><option>Coimbatore</option><option>Delhi</option><option>Ernakulam</option><option>Guwahati</option><option>Hosur</option><option>Hyderabad</option><option>Indore</option><option>Jaipur</option><option>Kolkata</option><option>Lucknow</option><option>Madurai</option><option>Mumbai - East</option><option>Mumbai - West</option><option>Nagpur</option><option>Noida</option><option>Patna</option><option>Pondicherry</option><option>Pune</option><option>Salem</option><option>Thiruvananthapuram</option><option>Tirupati</option><option>Vijayawada</option><option>Visakhapatnam</option><option>VIT Chennai</option><option>VIT Vellore</option>
+              </select>
+            </div>
+            <div style="flex:1;min-width:110px">
+              <label style="font-size:11px;font-weight:600;color:var(--muted);display:block;margin-bottom:4px">TYPE</label>
+              <select id="filter-type" style="width:100%;height:36px;border-radius:7px;border:1px solid var(--input-border);background:var(--input-bg);color:var(--text);font-size:13px;padding:0 10px;outline:none;appearance:none" onchange="applyFilters()">
+                <option value="">All Types</option>
+                <option>Attendance</option>
+                <option>UMC</option>
+              </select>
+            </div>
+            <div style="display:flex;gap:8px;flex-shrink:0">
+              <button onclick="clearFilters()" style="height:36px;padding:0 12px;border-radius:7px;border:1px solid var(--border);background:var(--input-bg);color:var(--muted);font-size:12px;cursor:pointer">✕ Clear</button>
+              <button onclick="fetchDashboard()" style="height:36px;padding:0 12px;border-radius:7px;border:1px solid var(--border);background:var(--input-bg);color:var(--muted);font-size:12px;cursor:pointer">🔄 Refresh</button>
+              <button onclick="exportToExcel()" style="height:36px;padding:0 12px;border-radius:7px;border:none;background:var(--accent);color:#fff;font-size:12px;font-weight:600;cursor:pointer">⬇ Export</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- City-wise chart -->
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px" id="chart-section">
+          <div class="table-card" style="padding:16px">
+            <h3 style="font-size:13px;margin-bottom:12px">📊 Submissions by city</h3>
+            <div id="city-chart" style="display:flex;flex-direction:column;gap:6px"></div>
+          </div>
+          <div class="table-card" style="padding:16px">
+            <h3 style="font-size:13px;margin-bottom:12px">🔴 Cities not yet submitted</h3>
+            <div id="missing-cities" style="display:flex;flex-wrap:wrap;gap:6px"></div>
+          </div>
+        </div>
+
+        <!-- Submissions table -->
         <div class="table-card">
-          <h3 style="display:flex;justify-content:space-between;align-items:center">
-            Recent submissions
-            <button onclick="fetchDashboard()" style="font-size:12px;padding:4px 10px;border-radius:6px;border:1px solid var(--border);background:var(--input-bg);color:var(--muted);cursor:pointer">🔄 Refresh</button>
+          <h3 style="display:flex;justify-content:space-between;align-items:center;padding:14px 16px;border-bottom:1px solid var(--border)">
+            <span>Recent submissions <span id="filter-count" style="font-size:11px;color:var(--muted);font-weight:400"></span></span>
           </h3>
           <div class="table-wrap">
             <div class="empty" id="dash-empty">Loading submissions...</div>
@@ -628,7 +686,15 @@ async function fetchDashboard() {
   }
 }
 
-function renderDashboard(rows) {
+function renderDashboard(rows, isFiltered) {
+  if(!isFiltered) {
+    allDashData = rows;
+    renderCityChart(rows);
+    renderMissingCities(rows);
+  } else {
+    renderCityChart(rows);
+  }
+
   const att=rows.filter(r=>r.type==='Attendance').length;
   const umc=rows.filter(r=>r.type==='UMC').length;
   const cities=[...new Set(rows.map(r=>r.city))].length;
@@ -636,9 +702,13 @@ function renderDashboard(rows) {
   document.getElementById('stat-att').textContent=att;
   document.getElementById('stat-umc').textContent=umc;
   document.getElementById('stat-cities').textContent=cities;
+
+  const countEl = document.getElementById('filter-count');
+  if(countEl) countEl.textContent = rows.length > 0 ? `(${rows.length} records)` : '';
+
   const tbody=document.getElementById('dash-tbody');
   tbody.innerHTML='';
-  rows.slice(0,20).forEach(r=>{
+  rows.slice(0,50).forEach(r=>{
     const tb=r.type==='UMC'?'badge-umc':'badge-att';
     const sb=r.slot==='AN'?'badge-an':'badge-fn';
     const tr=document.createElement('tr');
@@ -662,6 +732,91 @@ function updateDashboard() {
   document.getElementById('stat-att').textContent=att;
   document.getElementById('stat-umc').textContent=umc;
   document.getElementById('stat-cities').textContent=cities;
+}
+
+let allDashData = [];
+const ALL_CITIES = ['Ahmedabad','Bangalore North','Bangalore South','Bhubaneswar','Chandigarh','Chennai - West','Coimbatore','Delhi','Ernakulam','Guwahati','Hosur','Hyderabad','Indore','Jaipur','Kolkata','Lucknow','Madurai','Mumbai - East','Mumbai - West','Nagpur','Noida','Patna','Pondicherry','Pune','Salem','Thiruvananthapuram','Tirupati','Vijayawada','Visakhapatnam','VIT Chennai','VIT Vellore'];
+
+function applyFilters() {
+  const fromDate = document.getElementById('filter-from').value;
+  const toDate = document.getElementById('filter-to').value;
+  const city = document.getElementById('filter-city').value;
+  const type = document.getElementById('filter-type').value;
+
+  let filtered = allDashData.filter(r => {
+    const rDate = (r.date||'').includes('T') ? r.date.split('T')[0] : r.date;
+    if(fromDate && rDate < fromDate) return false;
+    if(toDate && rDate > toDate) return false;
+    if(city && r.city !== city) return false;
+    if(type && r.type !== type) return false;
+    return true;
+  });
+
+  renderDashboard(filtered, true);
+}
+
+function clearFilters() {
+  document.getElementById('filter-from').value='';
+  document.getElementById('filter-to').value='';
+  document.getElementById('filter-city').value='';
+  document.getElementById('filter-type').value='';
+  renderDashboard(allDashData, true);
+}
+
+function renderCityChart(rows) {
+  const cityCounts = {};
+  rows.forEach(r => { cityCounts[r.city] = (cityCounts[r.city]||0) + 1; });
+  const sorted = Object.entries(cityCounts).sort((a,b)=>b[1]-a[1]).slice(0,10);
+  const max = sorted.length ? sorted[0][1] : 1;
+  const chart = document.getElementById('city-chart');
+  if(!sorted.length){chart.innerHTML='<div style="color:var(--muted);font-size:12px">No data yet</div>';return;}
+  chart.innerHTML = sorted.map(([city,count])=>`
+    <div class="chart-bar-wrap">
+      <span class="chart-bar-label" title="${city}">${city}</span>
+      <div class="chart-bar-track"><div class="chart-bar-fill" style="width:${Math.round((count/max)*100)}%"></div></div>
+      <span class="chart-bar-val">${count}</span>
+    </div>`).join('');
+}
+
+function renderMissingCities(rows) {
+  const submitted = new Set(rows.map(r=>r.city));
+  const missing = ALL_CITIES.filter(c=>!submitted.has(c));
+  const el = document.getElementById('missing-cities');
+  if(!missing.length){el.innerHTML='<span style="color:#4ade80;font-size:12px">✅ All cities have submitted!</span>';return;}
+  el.innerHTML = missing.map(c=>`<span class="missing-badge">${c}</span>`).join('');
+}
+
+function exportToExcel() {
+  const fromDate = document.getElementById('filter-from').value;
+  const toDate = document.getElementById('filter-to').value;
+  const city = document.getElementById('filter-city').value;
+  const type = document.getElementById('filter-type').value;
+
+  let data = allDashData.filter(r => {
+    const rDate = (r.date||'').includes('T') ? r.date.split('T')[0] : r.date;
+    if(fromDate && rDate < fromDate) return false;
+    if(toDate && rDate > toDate) return false;
+    if(city && r.city !== city) return false;
+    if(type && r.type !== type) return false;
+    return true;
+  });
+
+  const headers = ['Type','City','Date','Slot','Files','Time'];
+  const rows = data.map(r=>{
+    const d = (r.date||'').includes('T')?r.date.split('T')[0]:r.date;
+    return [r.type||'',r.city||'',d,r.slot||'',r.files||'',r.time||''];
+  });
+
+  let csv = headers.join(',') + '\n';
+  rows.forEach(row=>{ csv += row.map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(',') + '\n'; });
+
+  const blob = new Blob([csv],{type:'text/csv'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'CT_Exam_Ops_Submissions_'+new Date().toISOString().split('T')[0]+'.csv';
+  a.click();
+  URL.revokeObjectURL(url);
 }
 
 // Drag & drop
