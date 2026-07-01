@@ -48,10 +48,13 @@
   .success-banner .s-icon{font-size:28px;margin-bottom:6px}
   .success-banner h3{font-size:15px;font-weight:600;color:#065f46;margin-bottom:4px}
   .success-banner p{font-size:13px;color:#047857}
+  .success-banner a{color:#047857;font-weight:600;text-decoration:underline}
   .loading{display:none;text-align:center;padding:1rem;font-size:14px;color:#6b7280}
   .spinner{display:inline-block;width:18px;height:18px;border:2px solid #e5e7eb;border-top-color:#4f46e5;border-radius:50%;animation:spin 0.7s linear infinite;vertical-align:middle;margin-right:8px}
   @keyframes spin{to{transform:rotate(360deg)}}
   .required{color:#ef4444;margin-left:2px}
+  .progress-bar{height:4px;background:#e5e7eb;border-radius:4px;margin-top:10px;display:none}
+  .progress-fill{height:100%;background:#4f46e5;border-radius:4px;width:0%;transition:width 0.3s}
   @media(max-width:480px){.slot-grid{grid-template-columns:1fr}.card{padding:1.25rem}}
 </style>
 </head>
@@ -138,6 +141,7 @@
       <div class="upload-text">Click to browse or drag & drop files here</div>
       <div class="upload-hint">Accepted: PDF, Excel, Word, JPG, PNG</div>
     </div>
+    <div class="progress-bar" id="progressBar"><div class="progress-fill" id="progressFill"></div></div>
     <div class="file-list" id="fileList"></div>
   </div>
 
@@ -148,18 +152,21 @@
   </button>
 
   <div class="loading" id="loadingMsg">
-    <span class="spinner"></span> Submitting your report, please wait...
+    <span class="spinner"></span> <span id="loadingText">Uploading files to Google Drive...</span>
   </div>
 
   <div class="success-banner" id="successMsg">
     <div class="s-icon">✅</div>
     <h3>Report submitted successfully!</h3>
-    <p id="successDetail">Your documents have been uploaded.</p>
+    <p id="successDetail"></p>
+    <p style="margin-top:8px"><a id="driveLink" href="#" target="_blank">View folder in Google Drive →</a></p>
   </div>
 
 </div>
 
 <script>
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzGOlJgDPbkfo-HszzKPITZ-o3V7iRXM6BPHoTk8fU5phvpwLLEBJpJZ4E4gnIhr-oKGA/exec";
+
 let selectedFiles = [];
 let selectedSlot = '';
 
@@ -207,22 +214,66 @@ function validate() {
   return ok;
 }
 
-function submitForm() {
+async function submitForm() {
   if (!validate()) return;
+
   const city = document.getElementById('city').value;
   const date = document.getElementById('examdate').value;
-  const fileNames = selectedFiles.length ? selectedFiles.map(f => f.name).join(', ') : 'No files attached';
 
   document.getElementById('submitBtn').disabled = true;
   document.getElementById('loadingMsg').style.display = 'block';
+  document.getElementById('progressBar').style.display = 'block';
 
-  // Simulate a short delay for UX, then show success
-  setTimeout(() => {
+  // Convert files to base64
+  document.getElementById('loadingText').textContent = 'Preparing files...';
+  setProgress(20);
+
+  const fileData = await Promise.all(selectedFiles.map(f => {
+    return new Promise((resolve) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve({
+        name: f.name,
+        mimeType: f.type || 'application/octet-stream',
+        base64: reader.result.split(',')[1]
+      });
+      reader.readAsDataURL(f);
+    });
+  }));
+
+  setProgress(50);
+  document.getElementById('loadingText').textContent = 'Uploading to Google Drive...';
+
+  try {
+    const response = await fetch(SCRIPT_URL, {
+      method: 'POST',
+      body: JSON.stringify({ city, date, slot: selectedSlot, files: fileData })
+    });
+
+    setProgress(90);
+    const result = await response.json();
+    setProgress(100);
+
+    setTimeout(() => {
+      document.getElementById('loadingMsg').style.display = 'none';
+      document.getElementById('progressBar').style.display = 'none';
+      document.getElementById('successMsg').style.display = 'block';
+      document.getElementById('successDetail').textContent =
+        `City: ${city} | Date: ${date} | Slot: ${selectedSlot} | ${fileData.length} file(s) saved to Drive`;
+      if (result.folderUrl) {
+        document.getElementById('driveLink').href = result.folderUrl;
+      }
+    }, 400);
+
+  } catch (err) {
     document.getElementById('loadingMsg').style.display = 'none';
-    document.getElementById('successMsg').style.display = 'block';
-    document.getElementById('successDetail').textContent =
-      `City: ${city} | Date: ${date} | Slot: ${selectedSlot} | Files: ${fileNames}`;
-  }, 1500);
+    document.getElementById('progressBar').style.display = 'none';
+    document.getElementById('submitBtn').disabled = false;
+    alert('Something went wrong. Please check your connection and try again.');
+  }
+}
+
+function setProgress(pct) {
+  document.getElementById('progressFill').style.width = pct + '%';
 }
 
 // Drag and drop
