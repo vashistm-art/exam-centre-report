@@ -1,12 +1,12 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="dark">
+<html lang="en" data-theme="light">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>CT Exam Ops</title>
 <style>
-:root{--bg:#0f1117;--sidebar:#161b2e;--sidebar-border:#1e2540;--card:#1e2030;--border:#2d3148;--text:#e2e8f0;--text2:#cbd5e1;--muted:#64748b;--input-bg:#1a1f35;--input-border:#3d4466;--file-bg:#1a1f35;--upload-bg:#161a2e;--accent:#6366f1;--accent-hover:#4f46e5;--accent-bg:#1e1b4b;--shadow:rgba(0,0,0,0.3)}
-[data-theme="light"]{--bg:#f5f6fa;--sidebar:#fff;--sidebar-border:#e5e7eb;--card:#fff;--border:#e5e7eb;--text:#1a1a2e;--text2:#374151;--muted:#6b7280;--input-bg:#fff;--input-border:#d1d5db;--file-bg:#f9fafb;--upload-bg:#fafafa;--accent:#4f46e5;--accent-hover:#4338ca;--accent-bg:#eef2ff;--shadow:rgba(0,0,0,0.06)}
+:root{--bg:#fffbf0;--sidebar:#fef9f0;--sidebar-border:#fde68a;--card:#fdf6e8;--border:#fcd34d;--text:#1c1508;--text2:#3d2e0a;--muted:#92773a;--input-bg:#fffbf0;--input-border:#fcd34d;--file-bg:#fef9f0;--upload-bg:#fef9f0;--accent:#d97706;--accent-hover:#b45309;--accent-bg:#fef3c7;--shadow:rgba(180,120,0,0.1)}
+[data-theme="dark"]{--bg:#0f1117;--sidebar:#161b2e;--sidebar-border:#1e2540;--card:#1e2030;--border:#2d3148;--text:#e2e8f0;--text2:#cbd5e1;--muted:#64748b;--input-bg:#1a1f35;--input-border:#3d4466;--file-bg:#1a1f35;--upload-bg:#161a2e;--accent:#f59e0b;--accent-hover:#d97706;--accent-bg:#1a1506;--shadow:rgba(0,0,0,0.3)}
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);min-height:100vh;display:flex;overflow-x:hidden;width:100%}
 
@@ -96,12 +96,12 @@ input[type=date]::-webkit-calendar-picker-indicator{position:absolute;left:0;top
 .loading{display:none;text-align:center;padding:1rem;font-size:14px;color:var(--muted)}
 .spinner{display:inline-block;width:16px;height:16px;border:2px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin 0.7s linear infinite;vertical-align:middle;margin-right:6px}
 @keyframes spin{to{transform:rotate(360deg)}}
-.success-banner{display:none;border-radius:10px;padding:1.25rem;text-align:center;margin-top:1rem;background:#052e16;border:1px solid #166534}
-[data-theme="light"] .success-banner{background:#ecfdf5;border-color:#6ee7b7}
-.success-banner h3{font-size:15px;font-weight:600;color:#4ade80;margin-bottom:4px}
-[data-theme="light"] .success-banner h3{color:#065f46}
-.success-banner p{font-size:13px;color:#86efac}
-[data-theme="light"] .success-banner p{color:#047857}
+.success-banner{display:none;border-radius:10px;padding:1.25rem;text-align:center;margin-top:1rem;background:#ecfdf5;border:1px solid #6ee7b7}
+[data-theme="dark"] .success-banner{background:#052e16;border-color:#166534}
+.success-banner h3{font-size:15px;font-weight:600;color:#065f46;margin-bottom:4px}
+[data-theme="dark"] .success-banner h3{color:#4ade80}
+.success-banner p{font-size:13px;color:#047857}
+[data-theme="dark"] .success-banner p{color:#86efac}
 
 /* Dashboard */
 .stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:24px}
@@ -117,14 +117,14 @@ td{padding:10px 16px;color:var(--text2);border-bottom:1px solid var(--border)}
 tr:last-child td{border-bottom:none}
 tr:hover td{background:var(--input-bg)}
 .badge{display:inline-block;font-size:11px;padding:2px 8px;border-radius:4px;font-weight:600}
-.badge-fn{background:#1e3a5f;color:#60a5fa}
-.badge-an{background:#3b1f5e;color:#c084fc}
-[data-theme="light"] .badge-fn{background:#dbeafe;color:#1d4ed8}
-[data-theme="light"] .badge-an{background:#f3e8ff;color:#7c3aed}
-.badge-att{background:#052e16;color:#4ade80}
-.badge-umc{background:#3b0d0d;color:#f87171}
-[data-theme="light"] .badge-att{background:#dcfce7;color:#15803d}
-[data-theme="light"] .badge-umc{background:#fee2e2;color:#b91c1c}
+.badge-fn{background:#fde68a;color:#92400e}
+.badge-an{background:#fed7aa;color:#9a3412}
+[data-theme="dark"] .badge-fn{background:#1e3a5f;color:#60a5fa}
+[data-theme="dark"] .badge-an{background:#3b1f5e;color:#c084fc}
+.badge-att{background:#d1fae5;color:#065f46}
+.badge-umc{background:#fee2e2;color:#b91c1c}
+[data-theme="dark"] .badge-att{background:#052e16;color:#4ade80}
+[data-theme="dark"] .badge-umc{background:#3b0d0d;color:#f87171}
 .empty{text-align:center;padding:2rem;color:var(--muted);font-size:13px}
 
 /* Admin */
@@ -145,7 +145,7 @@ tr:hover td{background:var(--input-bg)}
 .modal-btn-cancel{flex:1;height:42px;border-radius:8px;border:1px solid var(--border);background:var(--input-bg);color:var(--muted);font-size:14px;font-weight:600;cursor:pointer}
 .modal-btn-confirm{flex:1;height:42px;border-radius:8px;border:none;background:var(--accent);color:#fff;font-size:14px;font-weight:600;cursor:pointer}
 .modal-btn-confirm:hover{background:var(--accent-hover)}
-.duplicate-warning{background:#3b0d0d;border:1px solid #ef4444;border-radius:8px;padding:10px 14px;font-size:12px;color:#f87171;margin-bottom:1rem;display:none}
+.duplicate-warning{background:#fee2e2;border:1px solid #fca5a5;border-radius:8px;padding:10px 14px;font-size:12px;color:#b91c1c;margin-bottom:1rem;display:none}
 [data-theme="light"] .duplicate-warning{background:#fee2e2;color:#b91c1c}
 
 /* City chart bars */
@@ -154,7 +154,7 @@ tr:hover td{background:var(--input-bg)}
 .chart-bar-track{flex:1;height:10px;background:var(--border);border-radius:5px;overflow:hidden}
 .chart-bar-fill{height:100%;background:var(--accent);border-radius:5px;transition:width 0.4s}
 .chart-bar-val{width:24px;text-align:right;color:var(--muted);flex-shrink:0}
-.missing-badge{font-size:11px;padding:3px 8px;border-radius:5px;background:var(--file-bg);border:1px solid var(--border);color:var(--muted)}
+.missing-badge{font-size:11px;padding:3px 8px;border-radius:5px;background:#fef3c7;border:1px solid #fcd34d;color:#92400e}
 
 /* Bottom nav for mobile */
 .bottom-nav{display:none;position:fixed;bottom:0;left:0;right:0;background:var(--sidebar);border-top:1px solid var(--sidebar-border);z-index:999;padding:6px 0 env(safe-area-inset-bottom,8px)}
@@ -165,6 +165,8 @@ tr:hover td{background:var(--input-bg)}
 
 /* Responsive */
 @media(max-width:768px){
+  #charts-top{grid-template-columns:1fr!important}
+
   #chart-section{grid-template-columns:1fr!important}
 
   .sidebar{display:none!important}
@@ -183,6 +185,7 @@ tr:hover td{background:var(--input-bg)}
   .bottom-nav{display:none!important}
 }
 </style>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 </head>
 <body>
 
@@ -221,7 +224,7 @@ tr:hover td{background:var(--input-bg)}
       <div class="login-field">
         <input type="password" id="adminPassInput" placeholder="Enter admin password" onkeydown="if(event.key==='Enter')doAdminLogin()">
       </div>
-      <button class="btn-login" onclick="doAdminLogin()" style="background:#1a2744;border:1.5px solid #3b82f6;color:#93c5fd;margin-top:6px">🔐 Login as Admin</button>
+      <button class="btn-login" onclick="doAdminLogin()" style="background:#78350f;border:1.5px solid #d97706;color:#fef3c7;margin-top:6px">🔐 Login as Admin</button>
       <div class="login-err" id="adminErr" style="display:none;margin-top:6px">Incorrect password.</div>
     </div>
 
@@ -331,6 +334,42 @@ tr:hover td{background:var(--input-bg)}
             </table>
           </div>
         </div>
+        <!-- City-wise Attendance Report -->
+        <div class="table-card" style="margin-top:16px">
+          <h3 style="display:flex;justify-content:space-between;align-items:center;padding:14px 16px;border-bottom:1px solid var(--border)">
+            <span>📋 City-wise attendance report</span>
+            <div style="display:flex;gap:8px">
+              <select id="report-date-filter" style="height:32px;border-radius:6px;border:1px solid var(--input-border);background:var(--input-bg);color:var(--text);font-size:12px;padding:0 8px;outline:none" onchange="renderAttReport()">
+                <option value="">All dates</option>
+              </select>
+              <select id="report-slot-filter" style="height:32px;border-radius:6px;border:1px solid var(--input-border);background:var(--input-bg);color:var(--text);font-size:12px;padding:0 8px;outline:none" onchange="renderAttReport()">
+                <option value="">All sessions</option>
+                <option value="FN">Morning (FN)</option>
+                <option value="AN">Afternoon (AN)</option>
+              </select>
+              <button onclick="exportAttReport()" style="height:32px;padding:0 12px;border-radius:6px;border:none;background:var(--accent);color:#fff;font-size:12px;font-weight:600;cursor:pointer">⬇ Export</button>
+            </div>
+          </h3>
+          <div class="table-wrap">
+            <div class="empty" id="att-report-empty">Submit attendance sheets with counts to see the report here.</div>
+            <table id="att-report-table" style="display:none">
+              <thead>
+                <tr>
+                  <th>City</th>
+                  <th>Date</th>
+                  <th>Session</th>
+                  <th style="text-align:right">Registered</th>
+                  <th style="text-align:right">Present</th>
+                  <th style="text-align:right">Absent</th>
+                  <th style="text-align:right">Attendance %</th>
+                  <th>Remarks</th>
+                </tr>
+              </thead>
+              <tbody id="att-report-tbody"></tbody>
+              <tfoot id="att-report-tfoot" style="font-weight:600;background:var(--input-bg)"></tfoot>
+            </table>
+          </div>
+        </div>
       </div>
 
       <!-- Attendance Form -->
@@ -358,6 +397,29 @@ tr:hover td{background:var(--input-bg)}
             </div>
             <div class="err" id="att-err-slot">Please select a session.</div>
           </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:1.25rem">
+            <div class="field" style="margin-bottom:0">
+              <label class="field-label" for="att-registered">Total registered <span class="required">*</span></label>
+              <input type="number" id="att-registered" min="0" placeholder="e.g. 30" style="width:100%;height:42px;border-radius:8px;border:1px solid var(--input-border);background:var(--input-bg);color:var(--text);font-size:14px;padding:0 12px;outline:none" oninput="calcAbsent()">
+              <div class="err" id="att-err-registered">Please enter total registered.</div>
+            </div>
+            <div class="field" style="margin-bottom:0">
+              <label class="field-label" for="att-present">Total present <span class="required">*</span></label>
+              <input type="number" id="att-present" min="0" placeholder="e.g. 27" style="width:100%;height:42px;border-radius:8px;border:1px solid var(--input-border);background:var(--input-bg);color:var(--text);font-size:14px;padding:0 12px;outline:none" oninput="calcAbsent()">
+              <div class="err" id="att-err-present">Please enter total present.</div>
+            </div>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:1.25rem">
+            <div style="background:var(--accent-bg);border:1px solid var(--border);border-radius:8px;padding:10px 14px;display:flex;align-items:center;justify-content:space-between">
+              <span style="font-size:13px;font-weight:600;color:var(--text2)">Total absent</span>
+              <span style="font-size:20px;font-weight:700;color:var(--accent)" id="att-absent-display">—</span>
+            </div>
+            <div class="field" style="margin-bottom:0">
+              <label class="field-label" for="att-remarks">Remarks (optional)</label>
+              <input type="text" id="att-remarks" placeholder="Any notes..." style="width:100%;height:42px;border-radius:8px;border:1px solid var(--input-border);background:var(--input-bg);color:var(--text);font-size:14px;padding:0 12px;outline:none">
+            </div>
+          </div>
+
           <div class="field">
             <label class="field-label">Upload attendance sheet</label>
             <div class="upload-area" id="att-dropzone"><input type="file" id="att-file" multiple accept=".pdf,.xlsx,.xls,.doc,.docx,.jpg,.jpeg,.png" onchange="handleFiles('att',this.files)"><div class="upload-icon">📁</div><div class="upload-text">Click to browse or drag &amp; drop</div><div class="upload-hint">PDF, Excel, Word, JPG, PNG</div></div>
@@ -415,14 +477,110 @@ tr:hover td{background:var(--input-bg)}
         </div>
       </div>
 
+      <!-- Reports Page -->
+      <div class="page" id="page-reports">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px" id="charts-top">
+          <!-- Donut chart -->
+          <div class="table-card" style="padding:20px">
+            <h3 style="font-size:14px;font-weight:600;color:var(--text);margin-bottom:16px">🍩 Present vs Absent</h3>
+            <div style="position:relative;height:220px;display:flex;align-items:center;justify-content:center">
+              <canvas id="donutChart"></canvas>
+            </div>
+            <div id="donut-legend" style="display:flex;justify-content:center;gap:16px;margin-top:12px;font-size:12px"></div>
+          </div>
+          <!-- Line chart -->
+          <div class="table-card" style="padding:20px">
+            <h3 style="font-size:14px;font-weight:600;color:var(--text);margin-bottom:16px">📅 Submissions over time</h3>
+            <div style="position:relative;height:220px">
+              <canvas id="lineChart"></canvas>
+            </div>
+          </div>
+        </div>
+        <!-- Bar chart - full width -->
+        <div class="table-card" style="padding:20px">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+            <h3 style="font-size:14px;font-weight:600;color:var(--text)">📊 City-wise attendance %</h3>
+            <div style="display:flex;gap:8px">
+              <select id="bar-slot-filter" style="height:30px;border-radius:6px;border:1px solid var(--input-border);background:var(--input-bg);color:var(--text);font-size:12px;padding:0 8px;outline:none" onchange="renderReports()">
+                <option value="">All sessions</option>
+                <option value="FN">Morning (FN)</option>
+                <option value="AN">Afternoon (AN)</option>
+              </select>
+              <button onclick="exportAttReport()" style="height:30px;padding:0 10px;border-radius:6px;border:none;background:var(--accent);color:#fff;font-size:12px;font-weight:600;cursor:pointer">⬇ Export</button>
+            </div>
+          </div>
+          <div style="position:relative;height:300px">
+            <canvas id="barChart"></canvas>
+          </div>
+        </div>
+        <div class="empty" id="reports-empty" style="margin-top:24px;display:none">No attendance data yet. Submit attendance sheets with counts to see reports.</div>
+      </div>
+
       <!-- Admin Page -->
       <div class="page" id="page-admin">
-        <div class="form-card">
+
+        <!-- Quick Links -->
+        <div class="form-card" style="margin-bottom:16px">
           <h2>🔐 Admin Panel</h2>
           <p class="sub">Quick access to submissions and Drive folders.</p>
           <a class="drive-link-box" href="https://docs.google.com/spreadsheets/d/1LsXTBiPwytEd8dWtQe3vFlbfVO-h9TH1oxtU9WlZFW0/edit" target="_blank">📊 Attendance — Submissions Log →</a>
-          <a class="drive-link-box" href="#" id="umc-log-link" target="_blank">📊 UMC — Submissions Log →</a>
           <a class="drive-link-box" href="https://drive.google.com/drive/folders/1OtI5E0C_AkL2TiRKx6QDIrdxc4Bl5eT7" target="_blank">📁 Open Google Drive Root Folder →</a>
+        </div>
+
+        <!-- Coordinator Management -->
+        <div class="form-card" style="max-width:100%">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+            <h2>🧑‍💼 Manage Coordinators</h2>
+            <button onclick="loadCoordinators()" style="height:32px;padding:0 12px;border-radius:7px;border:1px solid var(--border);background:var(--input-bg);color:var(--muted);font-size:12px;cursor:pointer">🔄 Refresh</button>
+          </div>
+          <p class="sub">Add, remove or toggle access for coordinators.</p>
+
+          <!-- Add New Coordinator -->
+          <div style="background:var(--input-bg);border:1px solid var(--border);border-radius:10px;padding:16px;margin-bottom:16px">
+            <p style="font-size:13px;font-weight:600;color:var(--text2);margin-bottom:12px">➕ Add new coordinator</p>
+            <div style="display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:10px;align-items:end">
+              <div>
+                <label style="font-size:11px;font-weight:600;color:var(--muted);display:block;margin-bottom:4px">FULL NAME</label>
+                <input type="text" id="new-coord-name" placeholder="e.g. Vashist Mamidi" style="width:100%;height:38px;border-radius:7px;border:1px solid var(--input-border);background:var(--card);color:var(--text);font-size:13px;padding:0 10px;outline:none">
+              </div>
+              <div>
+                <label style="font-size:11px;font-weight:600;color:var(--muted);display:block;margin-bottom:4px">EMAIL</label>
+                <input type="email" id="new-coord-email" placeholder="e.g. vashistm@codetantra.in" style="width:100%;height:38px;border-radius:7px;border:1px solid var(--input-border);background:var(--card);color:var(--text);font-size:13px;padding:0 10px;outline:none">
+              </div>
+              <div>
+                <label style="font-size:11px;font-weight:600;color:var(--muted);display:block;margin-bottom:4px">CITY</label>
+                <select id="new-coord-city" style="width:100%;height:38px;border-radius:7px;border:1px solid var(--input-border);background:var(--card);color:var(--text);font-size:13px;padding:0 10px;outline:none;appearance:none">
+                  <option value="">— Select city —</option>
+                  <option>Ahmedabad</option><option>Bangalore North</option><option>Bangalore South</option><option>Bhubaneswar</option><option>Chandigarh</option><option>Chennai - West</option><option>Coimbatore</option><option>Delhi</option><option>Ernakulam</option><option>Guwahati</option><option>Hosur</option><option>Hyderabad</option><option>Indore</option><option>Jaipur</option><option>Kolkata</option><option>Lucknow</option><option>Madurai</option><option>Mumbai - East</option><option>Mumbai - West</option><option>Nagpur</option><option>Noida</option><option>Patna</option><option>Pondicherry</option><option>Pune</option><option>Salem</option><option>Thiruvananthapuram</option><option>Tirupati</option><option>Vijayawada</option><option>Visakhapatnam</option><option>VIT Chennai</option><option>VIT Vellore</option>
+                </select>
+              </div>
+              <button onclick="addCoordinator()" id="add-coord-btn" style="height:38px;padding:0 16px;border-radius:7px;border:none;background:var(--accent);color:#fff;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap">Add →</button>
+            </div>
+            <div id="add-coord-msg" style="font-size:12px;margin-top:8px;display:none"></div>
+          </div>
+
+          <!-- Coordinators List -->
+          <div id="coord-loading" style="text-align:center;padding:2rem;color:var(--muted);font-size:13px">
+            <span class="spinner"></span> Loading coordinators...
+          </div>
+          <div id="coord-list" style="display:none">
+            <div style="overflow-x:auto">
+              <table style="width:100%;border-collapse:collapse;font-size:13px">
+                <thead>
+                  <tr>
+                    <th style="text-align:left;padding:10px 12px;color:var(--muted);font-size:11px;font-weight:600;text-transform:uppercase;border-bottom:1px solid var(--border)">Name</th>
+                    <th style="text-align:left;padding:10px 12px;color:var(--muted);font-size:11px;font-weight:600;text-transform:uppercase;border-bottom:1px solid var(--border)">Email</th>
+                    <th style="text-align:left;padding:10px 12px;color:var(--muted);font-size:11px;font-weight:600;text-transform:uppercase;border-bottom:1px solid var(--border)">City</th>
+                    <th style="text-align:left;padding:10px 12px;color:var(--muted);font-size:11px;font-weight:600;text-transform:uppercase;border-bottom:1px solid var(--border)">Status</th>
+                    <th style="text-align:left;padding:10px 12px;color:var(--muted);font-size:11px;font-weight:600;text-transform:uppercase;border-bottom:1px solid var(--border)">Added On</th>
+                    <th style="text-align:left;padding:10px 12px;color:var(--muted);font-size:11px;font-weight:600;text-transform:uppercase;border-bottom:1px solid var(--border)">Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="coord-tbody"></tbody>
+              </table>
+            </div>
+            <div class="empty" id="coord-empty" style="display:none">No coordinators added yet.</div>
+          </div>
         </div>
       </div>
 
@@ -450,11 +608,362 @@ tr:hover td{background:var(--input-bg)}
     <div class="bottom-nav-item active" id="bnav-attendance" onclick="showPage('attendance');setBottomNav('attendance')"><span class="bnav-icon">📋</span><span class="bnav-label">Attendance</span></div>
     <div class="bottom-nav-item" id="bnav-umc" onclick="showPage('umc');setBottomNav('umc')"><span class="bnav-icon">⚠️</span><span class="bnav-label">UMC</span></div>
     <div class="bottom-nav-item" id="bnav-dashboard" style="display:none" onclick="showPage('dashboard');setBottomNav('dashboard')"><span class="bnav-icon">📊</span><span class="bnav-label">Dashboard</span></div>
+    <div class="bottom-nav-item" id="bnav-reports" style="display:none" onclick="showPage('reports');setBottomNav('reports')"><span class="bnav-icon">📈</span><span class="bnav-label">Reports</span></div>
     <div class="bottom-nav-item" id="bnav-admin" style="display:none" onclick="showPage('admin');setBottomNav('admin')"><span class="bnav-icon">🔐</span><span class="bnav-label">Admin</span></div>
   </div>
 </div>
 
 <script>
+// Calculate absent automatically
+function calcAbsent() {
+  const reg = parseInt(document.getElementById('att-registered').value) || 0;
+  const pre = parseInt(document.getElementById('att-present').value) || 0;
+  const absent = Math.max(0, reg - pre);
+  document.getElementById('att-absent-display').textContent = reg > 0 ? absent : '—';
+}
+
+// Attendance report data store
+let attReportData = [];
+
+function renderAttReport() {
+  const dateFilter = document.getElementById('report-date-filter').value;
+  const slotFilter = document.getElementById('report-slot-filter').value;
+
+  let filtered = attReportData.filter(r => {
+    if(dateFilter && r.date !== dateFilter) return false;
+    if(slotFilter && r.slot !== slotFilter) return false;
+    return true;
+  });
+
+  const tbody = document.getElementById('att-report-tbody');
+  const tfoot = document.getElementById('att-report-tfoot');
+  tbody.innerHTML = '';
+
+  if(!filtered.length) {
+    document.getElementById('att-report-empty').style.display = 'block';
+    document.getElementById('att-report-table').style.display = 'none';
+    return;
+  }
+
+  document.getElementById('att-report-empty').style.display = 'none';
+  document.getElementById('att-report-table').style.display = 'table';
+
+  let totalReg = 0, totalPre = 0, totalAbs = 0;
+
+  filtered.forEach(r => {
+    const pct = r.registered > 0 ? Math.round((r.present/r.registered)*100) : 0;
+    const pctColor = pct >= 80 ? '#065f46' : pct >= 60 ? '#92400e' : '#b91c1c';
+    const pctBg = pct >= 80 ? '#d1fae5' : pct >= 60 ? '#fef3c7' : '#fee2e2';
+    totalReg += r.registered;
+    totalPre += r.present;
+    totalAbs += r.absent;
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td style="font-weight:500">${r.city}</td>
+      <td>${r.date}</td>
+      <td><span class="badge ${r.slot==='FN'?'badge-fn':'badge-an'}">${r.slot}</span></td>
+      <td style="text-align:right">${r.registered}</td>
+      <td style="text-align:right;color:#065f46;font-weight:500">${r.present}</td>
+      <td style="text-align:right;color:#b91c1c;font-weight:500">${r.absent}</td>
+      <td style="text-align:right"><span style="background:${pctBg};color:${pctColor};padding:2px 8px;border-radius:4px;font-size:12px;font-weight:600">${pct}%</span></td>
+      <td style="color:var(--muted);font-size:12px">${r.remarks||'—'}</td>
+    `;
+    tbody.appendChild(tr);
+  });
+
+  // Total row
+  const totalPct = totalReg > 0 ? Math.round((totalPre/totalReg)*100) : 0;
+  tfoot.innerHTML = `<tr>
+    <td colspan="3" style="padding:10px 16px">Total (${filtered.length} cities)</td>
+    <td style="text-align:right;padding:10px 16px">${totalReg}</td>
+    <td style="text-align:right;padding:10px 16px;color:#065f46">${totalPre}</td>
+    <td style="text-align:right;padding:10px 16px;color:#b91c1c">${totalAbs}</td>
+    <td style="text-align:right;padding:10px 16px"><span style="background:#d1fae5;color:#065f46;padding:2px 8px;border-radius:4px;font-size:12px;font-weight:600">${totalPct}%</span></td>
+    <td style="padding:10px 16px"></td>
+  </tr>`;
+}
+
+// Chart instances
+let donutChartInst = null;
+let lineChartInst = null;
+let barChartInst = null;
+
+function renderReports() {
+  if(!attReportData || attReportData.length === 0) {
+    document.getElementById('reports-empty').style.display = 'block';
+    document.getElementById('charts-top').style.display = 'none';
+    return;
+  }
+  document.getElementById('reports-empty').style.display = 'none';
+  document.getElementById('charts-top').style.display = 'grid';
+
+  const slotFilter = document.getElementById('bar-slot-filter') ? document.getElementById('bar-slot-filter').value : '';
+  const filtered = slotFilter ? attReportData.filter(r => r.slot === slotFilter) : attReportData;
+
+  // --- Donut Chart ---
+  const totalPresent = filtered.reduce((s,r) => s + r.present, 0);
+  const totalAbsent = filtered.reduce((s,r) => s + r.absent, 0);
+  const donutCtx = document.getElementById('donutChart').getContext('2d');
+  if(donutChartInst) donutChartInst.destroy();
+  donutChartInst = new Chart(donutCtx, {
+    type: 'doughnut',
+    data: {
+      labels: ['Present', 'Absent'],
+      datasets: [{
+        data: [totalPresent, totalAbsent],
+        backgroundColor: ['#10b981', '#f43f5e'],
+        borderWidth: 0,
+        hoverOffset: 6
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      cutout: '65%',
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            label: ctx => {
+              const total = totalPresent + totalAbsent;
+              const pct = total > 0 ? Math.round((ctx.parsed/total)*100) : 0;
+              return ` ${ctx.label}: ${ctx.parsed} (${pct}%)`;
+            }
+          }
+        }
+      }
+    }
+  });
+  // Legend
+  const total = totalPresent + totalAbsent;
+  document.getElementById('donut-legend').innerHTML = `
+    <span style="display:flex;align-items:center;gap:5px"><span style="width:10px;height:10px;border-radius:50%;background:#10b981;display:inline-block"></span>Present: <b>${totalPresent}</b> (${total>0?Math.round((totalPresent/total)*100):0}%)</span>
+    <span style="display:flex;align-items:center;gap:5px"><span style="width:10px;height:10px;border-radius:50%;background:#f43f5e;display:inline-block"></span>Absent: <b>${totalAbsent}</b> (${total>0?Math.round((totalAbsent/total)*100):0}%)</span>
+  `;
+
+  // --- Line Chart - submissions per day ---
+  const dateCounts = {};
+  allDashData.forEach(r => {
+    const d = (r.date||'').includes('T') ? r.date.split('T')[0] : r.date;
+    if(d) dateCounts[d] = (dateCounts[d]||0) + 1;
+  });
+  const sortedDates = Object.keys(dateCounts).sort();
+  const lineCtx = document.getElementById('lineChart').getContext('2d');
+  if(lineChartInst) lineChartInst.destroy();
+  lineChartInst = new Chart(lineCtx, {
+    type: 'line',
+    data: {
+      labels: sortedDates,
+      datasets: [{
+        label: 'Submissions',
+        data: sortedDates.map(d => dateCounts[d]),
+        borderColor: '#6366f1',
+        backgroundColor: 'rgba(99,102,241,0.1)',
+        borderWidth: 2,
+        pointBackgroundColor: '#6366f1',
+        pointRadius: 4,
+        fill: true,
+        tension: 0.4
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: {
+        y: { beginAtZero: true, ticks: { stepSize: 1, color: '#64748b' }, grid: { color: 'rgba(100,116,139,0.1)' } },
+        x: { ticks: { color: '#64748b', maxRotation: 45 }, grid: { display: false } }
+      }
+    }
+  });
+
+  // --- Bar Chart - city wise attendance % ---
+  const cityData = {};
+  filtered.forEach(r => {
+    if(!cityData[r.city]) cityData[r.city] = {registered:0, present:0};
+    cityData[r.city].registered += r.registered;
+    cityData[r.city].present += r.present;
+  });
+  const cities = Object.keys(cityData);
+  const pcts = cities.map(c => cityData[c].registered > 0 ? Math.round((cityData[c].present/cityData[c].registered)*100) : 0);
+  const barColors = pcts.map(p => p >= 80 ? '#10b981' : p >= 60 ? '#f59e0b' : '#f43f5e');
+
+  const barCtx = document.getElementById('barChart').getContext('2d');
+  if(barChartInst) barChartInst.destroy();
+  barChartInst = new Chart(barCtx, {
+    type: 'bar',
+    data: {
+      labels: cities,
+      datasets: [{
+        label: 'Attendance %',
+        data: pcts,
+        backgroundColor: barColors,
+        borderRadius: 6,
+        borderSkipped: false
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            label: ctx => ` ${ctx.parsed.y}% attendance`
+          }
+        }
+      },
+      scales: {
+        y: {
+          beginAtZero: true,
+          max: 100,
+          ticks: { callback: v => v+'%', color: '#64748b' },
+          grid: { color: 'rgba(100,116,139,0.1)' }
+        },
+        x: { ticks: { color: '#64748b', maxRotation: 45, font:{size:11} }, grid: { display: false } }
+      }
+    }
+  });
+}
+
+// ===== COORDINATOR MANAGEMENT =====
+function loadCoordinators() {
+  document.getElementById('coord-loading').style.display = 'block';
+  document.getElementById('coord-list').style.display = 'none';
+
+  const cbName = 'coordCB_' + Date.now();
+  const script = document.createElement('script');
+  window[cbName] = function(result) {
+    delete window[cbName];
+    if(document.head.contains(script)) document.head.removeChild(script);
+    document.getElementById('coord-loading').style.display = 'none';
+    document.getElementById('coord-list').style.display = 'block';
+    if(result.status === 'success') renderCoordinators(result.data || []);
+    else document.getElementById('coord-empty').style.display = 'block';
+  };
+  script.onerror = function() {
+    delete window[cbName];
+    document.getElementById('coord-loading').style.display = 'none';
+    document.getElementById('coord-list').style.display = 'block';
+    document.getElementById('coord-empty').textContent = 'Could not load. Please try again.';
+    document.getElementById('coord-empty').style.display = 'block';
+  };
+  script.src = SCRIPT_URL + '?action=getCoordinators&callback=' + cbName;
+  document.head.appendChild(script);
+}
+
+function renderCoordinators(data) {
+  const tbody = document.getElementById('coord-tbody');
+  const empty = document.getElementById('coord-empty');
+  tbody.innerHTML = '';
+  if(!data.length) { empty.style.display = 'block'; return; }
+  empty.style.display = 'none';
+  data.forEach((c, i) => {
+    const isActive = (c.status||'').toLowerCase() === 'active';
+    const tr = document.createElement('tr');
+    tr.id = 'coord-row-' + i;
+    tr.innerHTML = `
+      <td style="padding:10px 12px;border-bottom:1px solid var(--border);font-weight:500;color:var(--text)">${c.name||'—'}</td>
+      <td style="padding:10px 12px;border-bottom:1px solid var(--border);color:var(--muted)">${c.email||'—'}</td>
+      <td style="padding:10px 12px;border-bottom:1px solid var(--border);color:var(--text2)">${c.city||'—'}</td>
+      <td style="padding:10px 12px;border-bottom:1px solid var(--border)">
+        <span style="display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:600;padding:3px 10px;border-radius:20px;background:${isActive?'#d1fae5':'#fee2e2'};color:${isActive?'#065f46':'#b91c1c'}">
+          <span style="width:6px;height:6px;border-radius:50%;background:${isActive?'#10b981':'#ef4444'}"></span>
+          ${isActive?'Active':'Inactive'}
+        </span>
+      </td>
+      <td style="padding:10px 12px;border-bottom:1px solid var(--border);color:var(--muted);font-size:12px">${c.addedOn||'—'}</td>
+      <td style="padding:10px 12px;border-bottom:1px solid var(--border)">
+        <div style="display:flex;gap:6px">
+          <button onclick="toggleCoordinator('${c.email}','${isActive?'Inactive':'Active'}',${i})" style="height:28px;padding:0 10px;border-radius:6px;border:1px solid var(--border);background:var(--input-bg);color:var(--text2);font-size:11px;cursor:pointer">${isActive?'Deactivate':'Activate'}</button>
+          <button onclick="removeCoordinator('${c.email}',${i})" style="height:28px;padding:0 10px;border-radius:6px;border:none;background:#fee2e2;color:#b91c1c;font-size:11px;cursor:pointer">Remove</button>
+        </div>
+      </td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+function addCoordinator() {
+  const name = document.getElementById('new-coord-name').value.trim();
+  const email = document.getElementById('new-coord-email').value.trim();
+  const city = document.getElementById('new-coord-city').value;
+  const msg = document.getElementById('add-coord-msg');
+
+  if(!name || !email || !city) {
+    msg.textContent = '⚠️ Please fill in all fields.';
+    msg.style.color = '#b91c1c';
+    msg.style.display = 'block';
+    return;
+  }
+  if(!email.includes('@')) {
+    msg.textContent = '⚠️ Please enter a valid email address.';
+    msg.style.color = '#b91c1c';
+    msg.style.display = 'block';
+    return;
+  }
+
+  const btn = document.getElementById('add-coord-btn');
+  btn.disabled = true; btn.textContent = 'Adding...';
+  msg.textContent = '⏳ Adding coordinator...';
+  msg.style.color = 'var(--muted)';
+  msg.style.display = 'block';
+
+  postData({action:'addCoordinator', name, email, city}).then(result => {
+    btn.disabled = false; btn.textContent = 'Add →';
+    if(result.status === 'success') {
+      msg.textContent = '✅ ' + name + ' added successfully!';
+      msg.style.color = '#065f46';
+      document.getElementById('new-coord-name').value = '';
+      document.getElementById('new-coord-email').value = '';
+      document.getElementById('new-coord-city').value = '';
+      loadCoordinators();
+    } else {
+      msg.textContent = '❌ ' + (result.message || 'Failed to add. Please try again.');
+      msg.style.color = '#b91c1c';
+    }
+  }).catch(() => {
+    btn.disabled = false; btn.textContent = 'Add →';
+    msg.textContent = '❌ Connection error. Please try again.';
+    msg.style.color = '#b91c1c';
+  });
+}
+
+function toggleCoordinator(email, newStatus, rowIdx) {
+  postData({action:'updateCoordinator', email, status:newStatus}).then(result => {
+    if(result.status === 'success') loadCoordinators();
+    else alert('Failed to update status. Please try again.');
+  }).catch(() => alert('Connection error. Please try again.'));
+}
+
+function removeCoordinator(email, rowIdx) {
+  if(!confirm('Are you sure you want to remove ' + email + '?')) return;
+  postData({action:'removeCoordinator', email}).then(result => {
+    if(result.status === 'success') loadCoordinators();
+    else alert('Failed to remove. Please try again.');
+  }).catch(() => alert('Connection error. Please try again.'));
+}
+
+// Load coordinators when admin page is shown
+const origShowPage = showPage;
+function exportAttReport() {
+  if(!attReportData.length) { alert('No attendance data to export.'); return; }
+  const headers = ['City','Date','Session','Registered','Present','Absent','Attendance %','Remarks'];
+  const rows = attReportData.map(r => {
+    const pct = r.registered > 0 ? Math.round((r.present/r.registered)*100) : 0;
+    return [r.city, r.date, r.slot, r.registered, r.present, r.absent, pct+'%', r.remarks||''];
+  });
+  let csv = headers.join(',') + '\n';
+  rows.forEach(row => { csv += row.map(v => '"'+String(v).replace(/"/g,'""')+'"').join(',') + '\n'; });
+  const blob = new Blob([csv], {type:'text/csv'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'CT_Exam_Ops_Attendance_Report_'+new Date().toISOString().split('T')[0]+'.csv';
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
 // Post data to Google Apps Script avoiding CORS
 function postData(payload) {
   return new Promise((resolve, reject) => {
@@ -490,7 +999,7 @@ const ADMIN_PASSWORD = "CT@Admin2026";
 const PASSWORDS = {coord:"CT@Coord2026", admin:"CT@Admin2026"};
 
 let currentRole = sessionStorage.getItem('ctRole') || null;
-let isDark = sessionStorage.getItem('ctTheme') !== 'light';
+let isDark = sessionStorage.getItem('ctTheme') === 'dark';
 let files = {att:[],umc1:[],umc2:[]};
 let slots = {att:'',umc:''};
 let lastFolder = {att:'',umc:''};
@@ -621,7 +1130,7 @@ function buildSidebar(role) {
   const nav = document.getElementById('sidebarNav');
   nav.innerHTML='';
   const items = role==='admin'
-    ? [{id:'dashboard',icon:'📊',label:'Dashboard'},{id:'attendance',icon:'📋',label:'Attendance Sheet'},{id:'umc',icon:'⚠️',label:'UMC Form'},{id:'admin',icon:'🔐',label:'Admin Panel'}]
+    ? [{id:'dashboard',icon:'📊',label:'Dashboard'},{id:'reports',icon:'📈',label:'Reports'},{id:'attendance',icon:'📋',label:'Attendance Sheet'},{id:'umc',icon:'⚠️',label:'UMC Form'},{id:'admin',icon:'🔐',label:'Admin Panel'}]
     : [{id:'attendance',icon:'📋',label:'Attendance Sheet'},{id:'umc',icon:'⚠️',label:'UMC Form'}];
   items.forEach(item => {
     const div = document.createElement('div');
@@ -636,12 +1145,13 @@ function buildSidebar(role) {
 function setupBottomNav(role) {
   if(role==='admin') {
     document.getElementById('bnav-dashboard').style.display='flex';
+    document.getElementById('bnav-reports').style.display='flex';
     document.getElementById('bnav-admin').style.display='flex';
   }
 }
 
 // Pages
-const pageTitles={dashboard:'Dashboard',attendance:'Attendance Sheet',umc:'UMC Form',admin:'Admin Panel'};
+const pageTitles={dashboard:'Dashboard',reports:'Reports',attendance:'Attendance Sheet',umc:'UMC Form',admin:'Admin Panel'};
 function showPage(id) {
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
@@ -696,6 +1206,13 @@ function validate(form) {
   document.getElementById(form+'-err-date').style.display=date?'none':'block';
   document.getElementById(form+'-err-slot').style.display=slot?'none':'block';
   if(!city||!date||!slot) ok=false;
+  if(form==='att'){
+    const reg=document.getElementById('att-registered').value;
+    const pre=document.getElementById('att-present').value;
+    document.getElementById('att-err-registered').style.display=reg?'none':'block';
+    document.getElementById('att-err-present').style.display=pre?'none':'block';
+    if(!reg||!pre) ok=false;
+  }
   if(form==='umc'){
     const e=document.getElementById('umc-err-form');
     if(files['umc1'].length===0){e.style.display='block';ok=false;}
@@ -720,7 +1237,7 @@ async function submitForm(form) {
   uploadFiles(form, city, date, slot, type, formFiles);
 }
 
-async function uploadFiles(form, city, date, slot, type, formFiles) {
+async function uploadFiles(form, city, date, slot, type, formFiles, registered=0, present=0, absent=0, remarks='') {
   try {
     let folderUrl = '';
     document.getElementById(form+'-loading-text').textContent = formFiles.length > 0 ? 'Preparing files...' : 'Submitting...';
@@ -754,6 +1271,18 @@ async function uploadFiles(form, city, date, slot, type, formFiles) {
     setProgress(form, 100);
     lastFolder[form] = folderUrl;
     submissions.unshift({type, city, date, slot, files:formFiles.length, time:new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit',hour12:true})});
+    // Add to attendance report if it's an attendance submission
+    if(type === 'Attendance' && registered > 0) {
+      attReportData.unshift({city, date, slot, registered, present, absent, remarks});
+      // Update date filter options
+      const df = document.getElementById('report-date-filter');
+      if(df && ![...df.options].find(o=>o.value===date)) {
+        const opt = document.createElement('option');
+        opt.value = date; opt.textContent = date;
+        df.appendChild(opt);
+      }
+      renderAttReport();
+    }
     sessionStorage.setItem('ctSubmissions', JSON.stringify(submissions));
     updateDashboard();
 
@@ -854,6 +1383,26 @@ function renderDashboard(rows, isFiltered) {
     allDashData = rows;
     renderCityChart(rows);
     renderMissingCities(rows);
+    // Extract attendance report data from fetched rows
+    attReportData = rows
+      .filter(r => r.type === 'Attendance' && r.registered > 0)
+      .map(r => ({
+        city: r.city,
+        date: (r.date||'').includes('T') ? r.date.split('T')[0] : r.date,
+        slot: r.slot,
+        registered: parseInt(r.registered)||0,
+        present: parseInt(r.present)||0,
+        absent: parseInt(r.absent)||0,
+        remarks: r.remarks||''
+      }));
+    // Populate date filter
+    const df = document.getElementById('report-date-filter');
+    if(df) {
+      const dates = [...new Set(attReportData.map(r=>r.date))].sort().reverse();
+      df.innerHTML = '<option value="">All dates</option>';
+      dates.forEach(d => { const o=document.createElement('option'); o.value=d; o.textContent=d; df.appendChild(o); });
+    }
+    renderAttReport();
   } else {
     renderCityChart(rows);
   }
@@ -1007,15 +1556,31 @@ function showConfirmModal(form) {
 
   // Store all data now so confirm uses exact same snapshot
   pendingForm = form;
-  pendingData = { city, date, slot, type, formFiles };
+  const registered = form==='att' ? parseInt(document.getElementById('att-registered').value)||0 : 0;
+  const present = form==='att' ? parseInt(document.getElementById('att-present').value)||0 : 0;
+  const absent = Math.max(0, registered - present);
+  const remarks = form==='att' ? (document.getElementById('att-remarks').value||'') : '';
+  pendingData = { city, date, slot, type, formFiles, registered, present, absent, remarks };
 
   // Build summary
   document.getElementById('modal-title').textContent = type==='UMC' ? '⚠️ Confirm UMC Report' : '📋 Confirm Attendance Sheet';
+  let extraRows = '';
+  if(form === 'att') {
+    const reg = document.getElementById('att-registered').value || '0';
+    const pre = document.getElementById('att-present').value || '0';
+    const abs = Math.max(0, parseInt(reg) - parseInt(pre));
+    extraRows = `
+      <div class="modal-row"><span>Registered</span><span>${reg}</span></div>
+      <div class="modal-row"><span>Present</span><span style="color:#065f46;font-weight:600">${pre}</span></div>
+      <div class="modal-row"><span>Absent</span><span style="color:#b91c1c;font-weight:600">${abs}</span></div>
+    `;
+  }
   document.getElementById('modal-details').innerHTML = `
     <div class="modal-row"><span>Type</span><span>${type}</span></div>
     <div class="modal-row"><span>Test Centre</span><span>${city}</span></div>
     <div class="modal-row"><span>Date</span><span>${date}</span></div>
     <div class="modal-row"><span>Session</span><span>${slot==='FN'?'Morning (FN) — 09:30-12:00':'Afternoon (AN) — 14:00-17:00'}</span></div>
+    ${extraRows}
     <div class="modal-row"><span>Files</span><span>${formFiles.length} file(s) selected</span></div>
   `;
 
@@ -1044,7 +1609,7 @@ function confirmSubmit() {
     document.getElementById(form+'-loading').style.display = 'block';
     if(document.getElementById(form+'-progress')) document.getElementById(form+'-progress').style.display = 'block';
     setProgress(form, 5);
-    uploadFiles(form, data.city, data.date, data.slot, data.type, data.formFiles);
+    uploadFiles(form, data.city, data.date, data.slot, data.type, data.formFiles, data.registered, data.present, data.absent, data.remarks);
   }
 }
 
