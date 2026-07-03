@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>CT Exam Ops</title>
 <style>
-:root{--bg:#fffbf0;--sidebar:#fef9f0;--sidebar-border:#fde68a;--card:#fdf6e8;--border:#fcd34d;--text:#1c1508;--text2:#3d2e0a;--muted:#92773a;--input-bg:#fffbf0;--input-border:#fcd34d;--file-bg:#fef9f0;--upload-bg:#fef9f0;--accent:#d97706;--accent-hover:#b45309;--accent-bg:#fef3c7;--shadow:rgba(180,120,0,0.1)}
-[data-theme="dark"]{--bg:#0f1117;--sidebar:#161b2e;--sidebar-border:#1e2540;--card:#1e2030;--border:#2d3148;--text:#e2e8f0;--text2:#cbd5e1;--muted:#64748b;--input-bg:#1a1f35;--input-border:#3d4466;--file-bg:#1a1f35;--upload-bg:#161a2e;--accent:#f59e0b;--accent-hover:#d97706;--accent-bg:#1a1506;--shadow:rgba(0,0,0,0.3)}
+:root{--bg:#f0f4f8;--sidebar:#1e293b;--sidebar-border:#334155;--card:#ffffff;--border:#e2e8f0;--text:#0f172a;--text2:#334155;--muted:#64748b;--input-bg:#f8fafc;--input-border:#cbd5e1;--file-bg:#f8fafc;--upload-bg:#f8fafc;--accent:#3b82f6;--accent-hover:#2563eb;--accent-bg:#eff6ff;--shadow:rgba(0,0,0,0.08)}
+[data-theme="dark"]{--bg:#0f1117;--sidebar:#0f172a;--sidebar-border:#1e293b;--card:#1e2030;--border:#2d3148;--text:#e2e8f0;--text2:#cbd5e1;--muted:#64748b;--input-bg:#1a1f35;--input-border:#3d4466;--file-bg:#1a1f35;--upload-bg:#161a2e;--accent:#3b82f6;--accent-hover:#2563eb;--accent-bg:#1e3a5f;--shadow:rgba(0,0,0,0.3)}
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);min-height:100vh;display:flex;overflow-x:hidden;width:100%}
 
@@ -30,16 +30,16 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .sidebar{width:220px;min-height:100vh;background:var(--sidebar);border-right:1px solid var(--sidebar-border);display:flex;flex-direction:column;position:fixed;top:0;left:0;height:100vh;z-index:100;flex-shrink:0}
 .sidebar-logo{display:flex;align-items:center;gap:10px;padding:18px 16px;border-bottom:1px solid var(--sidebar-border)}
 .logo-icon{width:34px;height:34px;background:var(--accent);border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0}
-.logo-text{font-size:16px;font-weight:700;color:var(--text)}
+.logo-text{font-size:16px;font-weight:700;color:#f1f5f9}
 .sidebar-nav{padding:12px 8px;flex:1}
-.nav-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:8px;cursor:pointer;margin-bottom:4px;color:var(--muted);font-size:14px;font-weight:500;transition:all 0.15s}
-.nav-item:hover{background:var(--input-bg);color:var(--text)}
+.nav-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:8px;cursor:pointer;margin-bottom:4px;color:#94a3b8;font-size:14px;font-weight:500;transition:all 0.15s}
+.nav-item:hover{background:#1e293b;color:#f1f5f9}
 .nav-item.active{background:var(--accent);color:#fff}
 .nav-icon{font-size:17px;flex-shrink:0}
 .sidebar-bottom{padding:12px 8px;border-top:1px solid var(--sidebar-border)}
-.role-badge{display:inline-block;font-size:11px;font-weight:600;padding:3px 8px;border-radius:5px;margin:0 8px 12px 12px;background:var(--accent-bg);color:var(--accent)}
+.role-badge{display:inline-block;font-size:11px;font-weight:600;padding:3px 8px;border-radius:5px;margin:0 8px 12px 12px;background:#1e3a5f;color:#93c5fd}
 .main{margin-left:220px;flex:1;display:flex;flex-direction:column;min-height:100vh;width:calc(100% - 220px);overflow-x:hidden}
-.topbar{display:flex;justify-content:space-between;align-items:center;padding:13px 24px;border-bottom:1px solid var(--border);background:var(--card);position:sticky;top:0;z-index:50;width:100%;overflow:hidden}
+.topbar{display:flex;justify-content:space-between;align-items:center;padding:13px 24px;border-bottom:1px solid var(--border);background:var(--card);position:sticky;top:0;z-index:50;width:100%;overflow:visible}
 .topbar-title{font-size:15px;font-weight:600;color:var(--text)}
 .topbar-right{display:flex;align-items:center;gap:8px;flex-shrink:0}
 .datetime .tdate{font-size:13px;color:var(--muted);font-weight:600;text-align:right}
@@ -96,11 +96,11 @@ input[type=date]::-webkit-calendar-picker-indicator{position:absolute;left:0;top
 .loading{display:none;text-align:center;padding:1rem;font-size:14px;color:var(--muted)}
 .spinner{display:inline-block;width:16px;height:16px;border:2px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin 0.7s linear infinite;vertical-align:middle;margin-right:6px}
 @keyframes spin{to{transform:rotate(360deg)}}
-.success-banner{display:none;border-radius:10px;padding:1.25rem;text-align:center;margin-top:1rem;background:#ecfdf5;border:1px solid #6ee7b7}
+.success-banner{display:none;border-radius:10px;padding:1.25rem;text-align:center;margin-top:1rem;background:#eff6ff;border:1px solid #93c5fd}
 [data-theme="dark"] .success-banner{background:#052e16;border-color:#166534}
-.success-banner h3{font-size:15px;font-weight:600;color:#065f46;margin-bottom:4px}
+.success-banner h3{font-size:15px;font-weight:600;color:#1d4ed8;margin-bottom:4px}
 [data-theme="dark"] .success-banner h3{color:#4ade80}
-.success-banner p{font-size:13px;color:#047857}
+.success-banner p{font-size:13px;color:#3b82f6}
 [data-theme="dark"] .success-banner p{color:#86efac}
 
 /* Dashboard */
@@ -117,10 +117,10 @@ td{padding:10px 16px;color:var(--text2);border-bottom:1px solid var(--border)}
 tr:last-child td{border-bottom:none}
 tr:hover td{background:var(--input-bg)}
 .badge{display:inline-block;font-size:11px;padding:2px 8px;border-radius:4px;font-weight:600}
-.badge-fn{background:#fde68a;color:#92400e}
-.badge-an{background:#fed7aa;color:#9a3412}
-[data-theme="dark"] .badge-fn{background:#1e3a5f;color:#60a5fa}
-[data-theme="dark"] .badge-an{background:#3b1f5e;color:#c084fc}
+.badge-fn{background:#dbeafe;color:#1d4ed8}
+.badge-an{background:#f3e8ff;color:#7c3aed}
+[data-theme="dark"] .badge-fn{background:#1e3a5f;color:#93c5fd}
+[data-theme="dark"] .badge-an{background:#2e1065;color:#c084fc}
 .badge-att{background:#d1fae5;color:#065f46}
 .badge-umc{background:#fee2e2;color:#b91c1c}
 [data-theme="dark"] .badge-att{background:#052e16;color:#4ade80}
@@ -145,7 +145,7 @@ tr:hover td{background:var(--input-bg)}
 .modal-btn-cancel{flex:1;height:42px;border-radius:8px;border:1px solid var(--border);background:var(--input-bg);color:var(--muted);font-size:14px;font-weight:600;cursor:pointer}
 .modal-btn-confirm{flex:1;height:42px;border-radius:8px;border:none;background:var(--accent);color:#fff;font-size:14px;font-weight:600;cursor:pointer}
 .modal-btn-confirm:hover{background:var(--accent-hover)}
-.duplicate-warning{background:#fee2e2;border:1px solid #fca5a5;border-radius:8px;padding:10px 14px;font-size:12px;color:#b91c1c;margin-bottom:1rem;display:none}
+.duplicate-warning{background:#fef2f2;border:1px solid #fca5a5;border-radius:8px;padding:10px 14px;font-size:12px;color:#dc2626;margin-bottom:1rem;display:none}
 [data-theme="light"] .duplicate-warning{background:#fee2e2;color:#b91c1c}
 
 /* City chart bars */
@@ -154,7 +154,7 @@ tr:hover td{background:var(--input-bg)}
 .chart-bar-track{flex:1;height:10px;background:var(--border);border-radius:5px;overflow:hidden}
 .chart-bar-fill{height:100%;background:var(--accent);border-radius:5px;transition:width 0.4s}
 .chart-bar-val{width:24px;text-align:right;color:var(--muted);flex-shrink:0}
-.missing-badge{font-size:11px;padding:3px 8px;border-radius:5px;background:#fef3c7;border:1px solid #fcd34d;color:#92400e}
+.missing-badge{font-size:11px;padding:3px 8px;border-radius:5px;background:#eff6ff;border:1px solid #bfdbfe;color:#1d4ed8}
 
 /* Bottom nav for mobile */
 .bottom-nav{display:none;position:fixed;bottom:0;left:0;right:0;background:var(--sidebar);border-top:1px solid var(--sidebar-border);z-index:999;padding:6px 0 env(safe-area-inset-bottom,8px)}
@@ -162,6 +162,18 @@ tr:hover td{background:var(--input-bg)}
 .bottom-nav-item.active{color:var(--accent)}
 .bnav-icon{font-size:22px}
 .bnav-label{font-size:10px;font-weight:600;margin-top:2px}
+
+/* Collapsed sidebar */
+.sidebar.collapsed{width:60px}
+.sidebar.collapsed .logo-text,
+.sidebar.collapsed .nav-item span,
+.sidebar.collapsed .role-badge,
+.sidebar.collapsed #collapse-label{display:none}
+.sidebar.collapsed .nav-item{justify-content:center;padding:10px}
+.sidebar.collapsed .sidebar-logo{justify-content:center;padding:18px 8px}
+.sidebar.collapsed #collapseBtn{justify-content:center}
+.sidebar.collapsed #collapse-icon{transform:scaleX(-1)}
+.main.sidebar-collapsed{margin-left:60px;width:calc(100% - 60px)}
 
 /* Responsive */
 @media(max-width:768px){
@@ -224,7 +236,7 @@ tr:hover td{background:var(--input-bg)}
       <div class="login-field">
         <input type="password" id="adminPassInput" placeholder="Enter admin password" onkeydown="if(event.key==='Enter')doAdminLogin()">
       </div>
-      <button class="btn-login" onclick="doAdminLogin()" style="background:#78350f;border:1.5px solid #d97706;color:#fef3c7;margin-top:6px">🔐 Login as Admin</button>
+      <button class="btn-login" onclick="doAdminLogin()" style="background:#1e3a5f;border:1.5px solid #3b82f6;color:#93c5fd;margin-top:6px">🔐 Login as Admin</button>
       <div class="login-err" id="adminErr" style="display:none;margin-top:6px">Incorrect password.</div>
     </div>
 
@@ -246,6 +258,11 @@ tr:hover td{background:var(--input-bg)}
     <nav class="sidebar-nav" id="sidebarNav"></nav>
     <div class="sidebar-bottom">
       <div class="role-badge" id="roleBadge"></div>
+      <!-- Collapse -->
+      <button onclick="toggleSidebarCollapse()" id="collapseBtn" title="Collapse sidebar" style="width:100%;height:36px;background:none;border:none;border-top:1px solid #334155;color:#94a3b8;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;font-size:12px;padding:0 12px;transition:all 0.15s" onmouseover="this.style.background='#1e293b'" onmouseout="this.style.background='none'">
+        <span id="collapse-icon" style="font-size:18px;transition:transform 0.3s">⮜</span>
+        <span id="collapse-label" style="font-size:12px">Hide panel</span>
+      </button>
     </div>
   </div>
 
@@ -257,9 +274,24 @@ tr:hover td{background:var(--input-bg)}
           <div class="tdate" id="liveDate"></div>
           <div class="ttime" id="liveTime"></div>
         </div>
-        <div id="user-info" style="display:flex;align-items:center"></div>
-        <button class="theme-btn" onclick="toggleTheme()" id="themeBtn">☀️</button>
-        <button class="btn-logout" onclick="logout()">Logout</button>
+        <button class="theme-btn" onclick="toggleTheme()" id="themeBtn">🌙</button>
+        <!-- Avatar button -->
+        <div style="position:relative">
+          <button id="avatarBtn" onclick="toggleProfilePopup(event)" style="width:36px;height:36px;border-radius:50%;background:var(--accent);color:#fff;border:none;cursor:pointer;font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:center">VM</button>
+          <!-- Profile popup -->
+          <div id="profilePopup" style="display:none;position:fixed;right:16px;top:60px;width:260px;background:#1e2030;border:1px solid #2d3148;border-radius:14px;box-shadow:0 8px 32px rgba(0,0,0,0.4);z-index:9999;overflow:hidden">
+            <div style="padding:16px 16px 12px">
+              <div id="popup-name" style="font-size:15px;font-weight:700;color:#f1f5f9;margin-bottom:3px">User</div>
+              <div id="popup-email" style="font-size:12px;color:#94a3b8;margin-bottom:10px">—</div>
+              <div id="popup-role" style="display:inline-block;font-size:11px;font-weight:600;padding:4px 12px;border-radius:20px;background:#1e3a5f;color:#93c5fd">Coordinator</div>
+            </div>
+            <div style="border-top:1px solid #2d3148;padding:6px">
+              <button onclick="logout()" style="width:100%;height:38px;border-radius:8px;border:none;background:none;color:#94a3b8;font-size:13px;cursor:pointer;display:flex;align-items:center;gap:10px;padding:0 12px" onmouseover="this.style.background='#2d3148';this.style.color='#f1f5f9'" onmouseout="this.style.background='none';this.style.color='#94a3b8'">
+                <span style="font-size:15px">↪</span> Sign out
+              </button>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -614,6 +646,77 @@ tr:hover td{background:var(--input-bg)}
 </div>
 
 <script>
+// Sidebar collapse
+let sidebarCollapsed = sessionStorage.getItem('ctSidebarCollapsed') === 'true';
+
+function toggleSidebarCollapse() {
+  sidebarCollapsed = !sidebarCollapsed;
+  sessionStorage.setItem('ctSidebarCollapsed', sidebarCollapsed);
+  applySidebarCollapse();
+}
+
+function applySidebarCollapse() {
+  const sidebar = document.querySelector('.sidebar');
+  const main = document.querySelector('.main');
+  if(sidebarCollapsed) {
+    sidebar.classList.add('collapsed');
+    main.classList.add('sidebar-collapsed');
+  } else {
+    sidebar.classList.remove('collapsed');
+    main.classList.remove('sidebar-collapsed');
+  }
+}
+
+// Avatar and profile popup
+function updateAvatar(user, role) {
+  const initials = user && user.name ? user.name.split(' ').map(w=>w[0]).join('').substring(0,2).toUpperCase() : 'U';
+  const avatarBtn = document.getElementById('avatarBtn');
+  if(avatarBtn) {
+    if(user && user.picture) {
+      avatarBtn.innerHTML = `<img src="${user.picture}" style="width:36px;height:36px;border-radius:50%;object-fit:cover">`;
+      avatarBtn.style.padding = '0';
+      avatarBtn.style.overflow = 'hidden';
+    } else {
+      avatarBtn.textContent = initials;
+    }
+  }
+  // Update popup
+  const popupAvatar = document.getElementById('popup-avatar');
+  if(popupAvatar) {
+    if(user && user.picture) {
+      popupAvatar.innerHTML = `<img src="${user.picture}" style="width:40px;height:40px;border-radius:50%;object-fit:cover">`;
+      popupAvatar.style.padding = '0';
+      popupAvatar.style.overflow = 'hidden';
+    } else {
+      popupAvatar.textContent = initials;
+    }
+  }
+  const nameEl = document.getElementById('popup-name');
+  const emailEl = document.getElementById('popup-email');
+  const roleEl = document.getElementById('popup-role');
+  if(nameEl) nameEl.textContent = user && user.name ? user.name : 'User';
+  if(emailEl) emailEl.textContent = user && user.email ? user.email : '—';
+  if(roleEl) roleEl.textContent = role === 'admin' ? '🔐 Admin' : '🧑‍💼 Coordinator';
+}
+
+function toggleProfilePopup(e) {
+  if(e) { e.stopPropagation(); e.preventDefault(); }
+  const popup = document.getElementById('profilePopup');
+  if(!popup) return;
+  const isOpen = popup.style.display === 'block';
+  popup.style.display = isOpen ? 'none' : 'block';
+}
+
+// Close popup when clicking outside - use timeout to avoid same-click conflict
+document.addEventListener('click', function(e) {
+  const popup = document.getElementById('profilePopup');
+  const btn = document.getElementById('avatarBtn');
+  if(!popup || popup.style.display !== 'block') return;
+  if(btn && btn.contains(e.target)) return;
+  if(popup.contains(e.target)) return;
+  popup.style.display = 'none';
+});
+
 // Calculate absent automatically
 function calcAbsent() {
   const reg = parseInt(document.getElementById('att-registered').value) || 0;
@@ -1092,16 +1195,9 @@ function startApp(role, user) {
   document.getElementById('app').style.display='flex';
   document.getElementById('roleBadge').textContent = role==='admin'?'🔐 Admin':'🧑‍💼 Coordinator';
 
-  // Show user info in topbar
+  // Show user info in topbar avatar
   const savedUser = user || JSON.parse(sessionStorage.getItem('ctUser')||'{}');
-  if(savedUser && savedUser.name) {
-    const userEl = document.getElementById('user-info');
-    if(userEl) {
-      userEl.innerHTML = savedUser.picture
-        ? `<img src="${savedUser.picture}" style="width:28px;height:28px;border-radius:50%;border:2px solid var(--accent)">`
-        : `<span style="font-size:12px;color:var(--text2)">${savedUser.name.split(' ')[0]}</span>`;
-    }
-  }
+  updateAvatar(savedUser, role);
 
   buildSidebar(role);
   setupBottomNav(role);
@@ -1641,6 +1737,8 @@ window.addEventListener('load',()=>{
     const savedUser = JSON.parse(sessionStorage.getItem('ctUser')||'{}');
     startApp(savedRole, savedUser);
   }
+  // Restore sidebar collapse state
+  if(sidebarCollapsed) applySidebarCollapse();
 });
 </script>
 </body>
