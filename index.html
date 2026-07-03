@@ -792,67 +792,73 @@ let lineChartInst = null;
 let barChartInst = null;
 
 function renderReports() {
-  if(!attReportData || attReportData.length === 0) {
-    document.getElementById('reports-empty').style.display = 'block';
-    document.getElementById('charts-top').style.display = 'none';
-    return;
-  }
+  // Always show charts section even without attendance count data
   document.getElementById('reports-empty').style.display = 'none';
   document.getElementById('charts-top').style.display = 'grid';
 
   const slotFilter = document.getElementById('bar-slot-filter') ? document.getElementById('bar-slot-filter').value : '';
+
+  // Use allDashData for submissions over time (always available)
+  // Use attReportData for attendance charts (needs registered/present counts)
   const filtered = slotFilter ? attReportData.filter(r => r.slot === slotFilter) : attReportData;
 
   // --- Donut Chart ---
-  const totalPresent = filtered.reduce((s,r) => s + r.present, 0);
-  const totalAbsent = filtered.reduce((s,r) => s + r.absent, 0);
+  const totalPresent = filtered.reduce((s,r) => s + (r.present||0), 0);
+  const totalAbsent = filtered.reduce((s,r) => s + (r.absent||0), 0);
   const donutCtx = document.getElementById('donutChart').getContext('2d');
   if(donutChartInst) donutChartInst.destroy();
-  donutChartInst = new Chart(donutCtx, {
-    type: 'doughnut',
-    data: {
-      labels: ['Present', 'Absent'],
-      datasets: [{
-        data: [totalPresent, totalAbsent],
-        backgroundColor: ['#10b981', '#f43f5e'],
-        borderWidth: 0,
-        hoverOffset: 6
-      }]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      cutout: '65%',
-      plugins: {
-        legend: { display: false },
-        tooltip: {
-          callbacks: {
-            label: ctx => {
-              const total = totalPresent + totalAbsent;
-              const pct = total > 0 ? Math.round((ctx.parsed/total)*100) : 0;
-              return ` ${ctx.label}: ${ctx.parsed} (${pct}%)`;
-            }
-          }
+
+  if(totalPresent === 0 && totalAbsent === 0) {
+    // No attendance count data yet - show message
+    document.getElementById('donut-legend').innerHTML = '<span style="color:var(--muted);font-size:12px">Submit attendance sheets with student counts to see this chart</span>';
+    donutChartInst = new Chart(donutCtx, {
+      type: 'doughnut',
+      data: { labels: ['No data'], datasets: [{ data: [1], backgroundColor: ['#e2e8f0'], borderWidth: 0 }] },
+      options: { responsive:true, maintainAspectRatio:false, cutout:'65%', plugins:{ legend:{display:false}, tooltip:{enabled:false} } }
+    });
+  } else {
+    donutChartInst = new Chart(donutCtx, {
+      type: 'doughnut',
+      data: {
+        labels: ['Present', 'Absent'],
+        datasets: [{ data: [totalPresent, totalAbsent], backgroundColor: ['#10b981', '#f43f5e'], borderWidth: 0, hoverOffset: 6 }]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false, cutout: '65%',
+        plugins: {
+          legend: { display: false },
+          tooltip: { callbacks: { label: ctx => { const t = totalPresent+totalAbsent; return ` ${ctx.label}: ${ctx.parsed} (${t>0?Math.round((ctx.parsed/t)*100):0}%)`; } } }
         }
       }
-    }
-  });
-  // Legend
-  const total = totalPresent + totalAbsent;
-  document.getElementById('donut-legend').innerHTML = `
-    <span style="display:flex;align-items:center;gap:5px"><span style="width:10px;height:10px;border-radius:50%;background:#10b981;display:inline-block"></span>Present: <b>${totalPresent}</b> (${total>0?Math.round((totalPresent/total)*100):0}%)</span>
-    <span style="display:flex;align-items:center;gap:5px"><span style="width:10px;height:10px;border-radius:50%;background:#f43f5e;display:inline-block"></span>Absent: <b>${totalAbsent}</b> (${total>0?Math.round((totalAbsent/total)*100):0}%)</span>
-  `;
+    });
+    const total = totalPresent + totalAbsent;
+    document.getElementById('donut-legend').innerHTML = `
+      <span style="display:flex;align-items:center;gap:5px"><span style="width:10px;height:10px;border-radius:50%;background:#10b981;display:inline-block"></span>Present: <b>${totalPresent}</b> (${total>0?Math.round((totalPresent/total)*100):0}%)</span>
+      <span style="display:flex;align-items:center;gap:5px"><span style="width:10px;height:10px;border-radius:50%;background:#f43f5e;display:inline-block"></span>Absent: <b>${totalAbsent}</b> (${total>0?Math.round((totalAbsent/total)*100):0}%)</span>
+    `;
+  }
 
-  // --- Line Chart - submissions per day ---
+  // --- Line Chart - submissions per day (uses all submissions) ---
   const dateCounts = {};
-  allDashData.forEach(r => {
+  (allDashData||[]).forEach(r => {
     const d = (r.date||'').includes('T') ? r.date.split('T')[0] : r.date;
     if(d) dateCounts[d] = (dateCounts[d]||0) + 1;
+  });
+  // Also include local session submissions
+  (submissions||[]).forEach(s => {
+    if(s.date) dateCounts[s.date] = (dateCounts[s.date]||0);
   });
   const sortedDates = Object.keys(dateCounts).sort();
   const lineCtx = document.getElementById('lineChart').getContext('2d');
   if(lineChartInst) lineChartInst.destroy();
+
+  if(sortedDates.length === 0) {
+    lineChartInst = new Chart(lineCtx, {
+      type: 'line',
+      data: { labels: ['No data'], datasets: [{ data: [0], borderColor:'#6366f1', borderWidth:2 }] },
+      options: { responsive:true, maintainAspectRatio:false, plugins:{ legend:{display:false} } }
+    });
+  } else {
   lineChartInst = new Chart(lineCtx, {
     type: 'line',
     data: {
@@ -879,6 +885,7 @@ function renderReports() {
       }
     }
   });
+  } // end else sortedDates
 
   // --- Bar Chart - city wise attendance % ---
   const cityData = {};
@@ -893,6 +900,16 @@ function renderReports() {
 
   const barCtx = document.getElementById('barChart').getContext('2d');
   if(barChartInst) barChartInst.destroy();
+
+  if(cities.length === 0) {
+    barChartInst = new Chart(barCtx, {
+      type: 'bar',
+      data: { labels: ['No attendance count data yet'], datasets: [{ data: [0], backgroundColor: ['#e2e8f0'], borderRadius: 6 }] },
+      options: { responsive:true, maintainAspectRatio:false, plugins:{ legend:{display:false}, tooltip:{enabled:false} }, scales:{ y:{beginAtZero:true,max:100,ticks:{callback:v=>v+'%',color:'#64748b'}}, x:{ticks:{color:'#64748b'}} } }
+    });
+    return;
+  }
+
   barChartInst = new Chart(barCtx, {
     type: 'bar',
     data: {
@@ -1518,6 +1535,8 @@ function renderDashboard(rows, isFiltered) {
       dates.forEach(d => { const o=document.createElement('option'); o.value=d; o.textContent=d; df.appendChild(o); });
     }
     renderAttReport();
+    // Render reports if on reports page
+    if(document.getElementById('page-reports').classList.contains('active')) renderReports();
   } else {
     renderCityChart(rows);
   }
@@ -1758,7 +1777,7 @@ window.addEventListener('load',()=>{
   }
   // Restore sidebar collapse state
   if(sidebarCollapsed) applySidebarCollapse();
-});
+}); // end window load
 </script>
 </body>
 </html>
