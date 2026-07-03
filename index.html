@@ -163,6 +163,11 @@ tr:hover td{background:var(--input-bg)}
 .bnav-icon{font-size:22px}
 .bnav-label{font-size:10px;font-weight:600;margin-top:2px}
 
+/* City tags */
+.city-tag{display:inline-block;font-size:11px;padding:4px 10px;border-radius:20px;border:1px solid var(--border);background:var(--card);color:var(--text2);cursor:pointer;transition:all 0.15s;user-select:none}
+.city-tag:hover{border-color:var(--accent);color:var(--accent)}
+.city-tag.selected{background:var(--accent);color:#fff;border-color:var(--accent)}
+
 /* Collapsed sidebar */
 .sidebar.collapsed{width:60px}
 .sidebar.collapsed .logo-text,
@@ -570,7 +575,7 @@ tr:hover td{background:var(--input-bg)}
           <!-- Add New Coordinator -->
           <div style="background:var(--input-bg);border:1px solid var(--border);border-radius:10px;padding:16px;margin-bottom:16px">
             <p style="font-size:13px;font-weight:600;color:var(--text2);margin-bottom:12px">➕ Add new coordinator</p>
-            <div style="display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:10px;align-items:start">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;align-items:end">
               <div>
                 <label style="font-size:11px;font-weight:600;color:var(--muted);display:block;margin-bottom:4px">FULL NAME</label>
                 <input type="text" id="new-coord-name" placeholder="e.g. Vashist Mamidi" style="width:100%;height:38px;border-radius:7px;border:1px solid var(--input-border);background:var(--card);color:var(--text);font-size:13px;padding:0 10px;outline:none">
@@ -579,13 +584,11 @@ tr:hover td{background:var(--input-bg)}
                 <label style="font-size:11px;font-weight:600;color:var(--muted);display:block;margin-bottom:4px">EMAIL</label>
                 <input type="email" id="new-coord-email" placeholder="e.g. vashistm@codetantra.in" style="width:100%;height:38px;border-radius:7px;border:1px solid var(--input-border);background:var(--card);color:var(--text);font-size:13px;padding:0 10px;outline:none">
               </div>
-              <div>
-                <label style="font-size:11px;font-weight:600;color:var(--muted);display:block;margin-bottom:4px">CITIES (hold Ctrl/Cmd to select multiple)</label>
-                <select id="new-coord-city" multiple style="width:100%;height:80px;border-radius:7px;border:1px solid var(--input-border);background:var(--card);color:var(--text);font-size:12px;padding:4px;outline:none">
-                  <option>Ahmedabad</option><option>Bangalore North</option><option>Bangalore South</option><option>Bhubaneswar</option><option>Chandigarh</option><option>Chennai - West</option><option>Coimbatore</option><option>Delhi</option><option>Ernakulam</option><option>Guwahati</option><option>Hosur</option><option>Hyderabad</option><option>Indore</option><option>Jaipur</option><option>Kolkata</option><option>Lucknow</option><option>Madurai</option><option>Mumbai - East</option><option>Mumbai - West</option><option>Nagpur</option><option>Noida</option><option>Patna</option><option>Pondicherry</option><option>Pune</option><option>Salem</option><option>Thiruvananthapuram</option><option>Tirupati</option><option>Vijayawada</option><option>Visakhapatnam</option><option>VIT Chennai</option><option>VIT Vellore</option>
-                </select>
-              </div>
-              <button onclick="addCoordinator()" id="add-coord-btn" style="height:38px;padding:0 16px;border-radius:7px;border:none;background:var(--accent);color:#fff;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap">Add →</button>
+              
+
+            </div>
+            <div style="display:flex;justify-content:flex-end;margin-top:10px">
+              <button onclick="addCoordinator()" id="add-coord-btn" style="height:38px;padding:0 20px;border-radius:7px;border:none;background:var(--accent);color:#fff;font-size:13px;font-weight:600;cursor:pointer">Add coordinator →</button>
             </div>
             <div id="add-coord-msg" style="font-size:12px;margin-top:8px;display:none"></div>
           </div>
@@ -715,6 +718,37 @@ document.addEventListener('click', function(e) {
   if(popup.contains(e.target)) return;
   popup.style.display = 'none';
 });
+
+// City tag selector
+function toggleCityTag(el) {
+  el.classList.toggle('selected');
+  updateSelectedCitiesDisplay();
+}
+
+function selectAllCityTags() {
+  document.querySelectorAll('.city-tag').forEach(t => t.classList.add('selected'));
+  updateSelectedCitiesDisplay();
+}
+
+function clearAllCityTags() {
+  document.querySelectorAll('.city-tag').forEach(t => t.classList.remove('selected'));
+  updateSelectedCitiesDisplay();
+}
+
+function updateSelectedCitiesDisplay() {
+  const selected = document.querySelectorAll('.city-tag.selected');
+  const display = document.getElementById('selected-cities-display');
+  if(!display) return;
+  if(selected.length === 0) {
+    display.textContent = 'No cities selected';
+  } else {
+    display.textContent = selected.length + ' city/cities selected: ' + Array.from(selected).map(t=>t.dataset.city).join(', ');
+  }
+}
+
+function getSelectedCities() {
+  return Array.from(document.querySelectorAll('.city-tag.selected')).map(t => t.dataset.city);
+}
 
 // Calculate absent automatically
 function calcAbsent() {
@@ -1025,8 +1059,7 @@ function renderCoordinators(data) {
 function addCoordinator() {
   const name = document.getElementById('new-coord-name').value.trim();
   const email = document.getElementById('new-coord-email').value.trim();
-  const citySelect = document.getElementById('new-coord-city');
-  const cities = Array.from(citySelect.selectedOptions).map(o => o.value);
+  const cities = getSelectedCities();
   const city = cities.join(', ');
   const msg = document.getElementById('add-coord-msg');
 
@@ -1056,7 +1089,7 @@ function addCoordinator() {
       msg.style.color = '#065f46';
       document.getElementById('new-coord-name').value = '';
       document.getElementById('new-coord-email').value = '';
-      Array.from(citySelect.options).forEach(o => o.selected = false);
+          clearAllCityTags();
       loadCoordinators();
     } else {
       msg.textContent = '❌ ' + (result.message || 'Failed to add. Please try again.');
