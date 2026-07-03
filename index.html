@@ -1366,7 +1366,12 @@ async function submitForm(form) {
   document.getElementById(form+'-loading').style.display='block';
   if(document.getElementById(form+'-progress')) document.getElementById(form+'-progress').style.display='block';
   setProgress(form,5);
-  uploadFiles(form, city, date, slot, type, formFiles);
+  // Get attendance counts if attendance form
+  const registered = form==='att' ? parseInt(document.getElementById('att-registered').value)||0 : 0;
+  const present = form==='att' ? parseInt(document.getElementById('att-present').value)||0 : 0;
+  const absent = Math.max(0, registered - present);
+  const remarks = form==='att' ? (document.getElementById('att-remarks').value||'') : '';
+  uploadFiles(form, city, date, slot, type, formFiles, registered, present, absent, remarks);
 }
 
 async function uploadFiles(form, city, date, slot, type, formFiles, registered=0, present=0, absent=0, remarks='') {
