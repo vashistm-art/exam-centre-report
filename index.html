@@ -11,8 +11,8 @@
 body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);min-height:100vh;display:flex;overflow-x:hidden;width:100%}
 
 /* Login */
-.login-screen{position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;z-index:999;padding:1rem}
-.login-card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:2.5rem 2rem;width:100%;max-width:400px;box-shadow:0 8px 32px var(--shadow);text-align:center}
+.login-screen{position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;z-index:999;padding:1rem;width:100%;height:100%}
+.login-card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:2.5rem 2rem;width:100%;max-width:400px;box-shadow:0 8px 32px var(--shadow);text-align:center;margin:0 auto}
 .login-logo{width:56px;height:56px;background:var(--accent);border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:26px;margin:0 auto 1rem}
 .login-card h1{font-size:20px;font-weight:700;color:var(--text);margin-bottom:4px}
 .login-card p{font-size:13px;color:var(--muted);margin-bottom:1.5rem}
@@ -930,29 +930,48 @@ function renderReports() {
 }
 
 // ===== COORDINATOR MANAGEMENT =====
-function loadCoordinators() {
+async function loadCoordinators() {
   document.getElementById('coord-loading').style.display = 'block';
   document.getElementById('coord-list').style.display = 'none';
 
-  const cbName = 'coordCB_' + Date.now();
-  const script = document.createElement('script');
-  window[cbName] = function(result) {
-    delete window[cbName];
-    if(document.head.contains(script)) document.head.removeChild(script);
+  try {
+    // Try direct fetch first
+    let result;
+    try {
+      const res = await fetch(SCRIPT_URL + '?action=getCoordinators', { redirect: 'follow' });
+      result = await res.json();
+    } catch(e) {
+      // Fallback to JSONP
+      result = await new Promise((resolve, reject) => {
+        const cbName = 'coordCB_' + Date.now();
+        const script = document.createElement('script');
+        window[cbName] = function(r) {
+          delete window[cbName];
+          if(document.head.contains(script)) document.head.removeChild(script);
+          resolve(r);
+        };
+        script.onerror = () => { delete window[cbName]; reject(new Error('Failed')); };
+        script.src = SCRIPT_URL + '?action=getCoordinators&callback=' + cbName;
+        document.head.appendChild(script);
+        setTimeout(() => reject(new Error('Timeout')), 15000);
+      });
+    }
+
     document.getElementById('coord-loading').style.display = 'none';
     document.getElementById('coord-list').style.display = 'block';
-    if(result.status === 'success') renderCoordinators(result.data || []);
-    else document.getElementById('coord-empty').style.display = 'block';
-  };
-  script.onerror = function() {
-    delete window[cbName];
+
+    if(result && result.status === 'success') {
+      renderCoordinators(result.data || []);
+    } else {
+      document.getElementById('coord-empty').textContent = 'No coordinators found.';
+      document.getElementById('coord-empty').style.display = 'block';
+    }
+  } catch(err) {
     document.getElementById('coord-loading').style.display = 'none';
     document.getElementById('coord-list').style.display = 'block';
-    document.getElementById('coord-empty').textContent = 'Could not load. Please try again.';
+    document.getElementById('coord-empty').textContent = 'Could not load coordinators. Please click Refresh.';
     document.getElementById('coord-empty').style.display = 'block';
-  };
-  script.src = SCRIPT_URL + '?action=getCoordinators&callback=' + cbName;
-  document.head.appendChild(script);
+  }
 }
 
 function renderCoordinators(data) {
