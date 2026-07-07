@@ -1047,7 +1047,10 @@ function renderCoordinators(data) {
     tr.innerHTML = `
       <td style="padding:10px 12px;border-bottom:1px solid var(--border);font-weight:500;color:var(--text)">${c.name||'—'}</td>
       <td style="padding:10px 12px;border-bottom:1px solid var(--border);color:var(--muted)">${c.email||'—'}</td>
-      <td style="padding:10px 12px;border-bottom:1px solid var(--border);color:var(--text2)">${c.city||'—'}</td>
+      <td style="padding:10px 12px;border-bottom:1px solid var(--border);color:var(--text2)" id="city-cell-${i}">
+        <span id="city-text-${i}">${c.city||'—'}</span>
+        <button onclick="editCity(${i},'${c.email}','${(c.city||'').replace(/'/g,"\'")}')" style="margin-left:6px;height:22px;padding:0 8px;border-radius:5px;border:1px solid var(--border);background:var(--input-bg);color:var(--muted);font-size:10px;cursor:pointer">Edit</button>
+      </td>
       <td style="padding:10px 12px;border-bottom:1px solid var(--border)">
         <span style="display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:600;padding:3px 10px;border-radius:20px;background:${isActive?'#d1fae5':'#fee2e2'};color:${isActive?'#065f46':'#b91c1c'}">
           <span style="width:6px;height:6px;border-radius:50%;background:${isActive?'#10b981':'#ef4444'}"></span>
@@ -1117,6 +1120,47 @@ function toggleCoordinator(email, newStatus, rowIdx) {
   postData({action:'updateCoordinator', email, status:newStatus}).then(result => {
     if(result.status === 'success') loadCoordinators();
     else alert('Failed to update status. Please try again.');
+  }).catch(() => alert('Connection error. Please try again.'));
+}
+
+// City options for edit
+const CITY_OPTIONS = ['Ahmedabad','Bangalore North','Bangalore South','Bhubaneswar','Chandigarh','Chennai - West','Coimbatore','Delhi','Ernakulam','Guwahati','Hosur','Hyderabad','Indore','Jaipur','Kolkata','Lucknow','Madurai','Mumbai - East','Mumbai - West','Nagpur','Noida','Patna','Pondicherry','Pune','Salem','Thiruvananthapuram','Tirupati','Vijayawada','Visakhapatnam','VIT Chennai','VIT Vellore'];
+
+function editCity(rowIdx, email, currentCity) {
+  const cell = document.getElementById('city-cell-' + rowIdx);
+  if(!cell) return;
+
+  // Build inline edit UI
+  const cityOpts = CITY_OPTIONS.map(c => `<option value="${c}" ${c===currentCity?'selected':''}>${c}</option>`).join('');
+  cell.innerHTML = `
+    <select id="edit-city-select-${rowIdx}" style="height:30px;border-radius:6px;border:1px solid var(--input-border);background:var(--input-bg);color:var(--text);font-size:12px;padding:0 6px;outline:none;max-width:160px">
+      ${cityOpts}
+    </select>
+    <button onclick="saveCity(${rowIdx},'${email}')" style="margin-left:4px;height:28px;padding:0 8px;border-radius:6px;border:none;background:var(--accent);color:#fff;font-size:11px;cursor:pointer">Save</button>
+    <button onclick="cancelEditCity(${rowIdx},'${currentCity}')" style="margin-left:4px;height:28px;padding:0 8px;border-radius:6px;border:1px solid var(--border);background:var(--input-bg);color:var(--muted);font-size:11px;cursor:pointer">Cancel</button>
+  `;
+}
+
+function cancelEditCity(rowIdx, currentCity) {
+  const cell = document.getElementById('city-cell-' + rowIdx);
+  if(!cell) return;
+  cell.innerHTML = `
+    <span id="city-text-${rowIdx}">${currentCity}</span>
+    <button onclick="editCity(${rowIdx},'','${currentCity}')" style="margin-left:6px;height:22px;padding:0 8px;border-radius:5px;border:1px solid var(--border);background:var(--input-bg);color:var(--muted);font-size:10px;cursor:pointer">Edit</button>
+  `;
+}
+
+function saveCity(rowIdx, email) {
+  const select = document.getElementById('edit-city-select-' + rowIdx);
+  if(!select) return;
+  const newCity = select.value;
+
+  postData({action:'updateCoordinator', email, city:newCity}).then(result => {
+    if(result.status === 'success') {
+      loadCoordinators();
+    } else {
+      alert('Failed to update city. Please try again.');
+    }
   }).catch(() => alert('Connection error. Please try again.'));
 }
 
