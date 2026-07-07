@@ -565,7 +565,7 @@ tr:hover td{background:var(--input-bg)}
         </div>
 
         <!-- Coordinator Management -->
-        <div class="form-card" style="max-width:100%">
+        <div class="form-card" style="max-width:100%;overflow:visible">
           <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
             <h2>🧑‍💼 Manage Coordinators</h2>
             <button onclick="loadCoordinators()" style="height:32px;padding:0 12px;border-radius:7px;border:1px solid var(--border);background:var(--input-bg);color:var(--muted);font-size:12px;cursor:pointer">🔄 Refresh</button>
@@ -573,7 +573,7 @@ tr:hover td{background:var(--input-bg)}
           <p class="sub">Add, remove or toggle access for coordinators.</p>
 
           <!-- Add New Coordinator -->
-          <div style="background:var(--input-bg);border:1px solid var(--border);border-radius:10px;padding:16px;margin-bottom:16px">
+          <div style="background:var(--input-bg);border:1px solid var(--border);border-radius:10px;padding:16px;margin-bottom:16px;overflow:visible">
             <p style="font-size:13px;font-weight:600;color:var(--text2);margin-bottom:12px">➕ Add new coordinator</p>
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;align-items:end">
               <div>
@@ -592,9 +592,9 @@ tr:hover td{background:var(--input-bg)}
                   <option value="Ahmedabad">Ahmedabad</option><option value="Bangalore North">Bangalore North</option><option value="Bangalore South">Bangalore South</option><option value="Bhubaneswar">Bhubaneswar</option><option value="Chandigarh">Chandigarh</option><option value="Chennai - West">Chennai - West</option><option value="Coimbatore">Coimbatore</option><option value="Delhi">Delhi</option><option value="Ernakulam">Ernakulam</option><option value="Guwahati">Guwahati</option><option value="Hosur">Hosur</option><option value="Hyderabad">Hyderabad</option><option value="Indore">Indore</option><option value="Jaipur">Jaipur</option><option value="Kolkata">Kolkata</option><option value="Lucknow">Lucknow</option><option value="Madurai">Madurai</option><option value="Mumbai - East">Mumbai - East</option><option value="Mumbai - West">Mumbai - West</option><option value="Nagpur">Nagpur</option><option value="Noida">Noida</option><option value="Patna">Patna</option><option value="Pondicherry">Pondicherry</option><option value="Pune">Pune</option><option value="Salem">Salem</option><option value="Thiruvananthapuram">Thiruvananthapuram</option><option value="Tirupati">Tirupati</option><option value="Vijayawada">Vijayawada</option><option value="Visakhapatnam">Visakhapatnam</option><option value="VIT Chennai">VIT Chennai</option><option value="VIT Vellore">VIT Vellore</option>
                 </select>
               </div>
-            </div>
-            <div style="display:flex;justify-content:flex-end;margin-top:10px">
-              <button onclick="addCoordinator()" id="add-coord-btn" style="height:38px;padding:0 20px;border-radius:7px;border:none;background:var(--accent);color:#fff;font-size:13px;font-weight:600;cursor:pointer">Add coordinator →</button>
+              <div style="display:flex;align-items:flex-end">
+                <button onclick="addCoordinator()" id="add-coord-btn" style="height:42px;padding:0 20px;border-radius:8px;border:none;background:var(--accent);color:#fff;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap">Add Coordinator</button>
+              </div>
             </div>
             <div id="add-coord-msg" style="font-size:12px;margin-top:8px;display:none"></div>
           </div>
@@ -987,46 +987,50 @@ function renderReports() {
 
 // ===== COORDINATOR MANAGEMENT =====
 async function loadCoordinators() {
-  document.getElementById('coord-loading').style.display = 'block';
-  document.getElementById('coord-list').style.display = 'none';
+  const loadingEl = document.getElementById('coord-loading');
+  const listEl = document.getElementById('coord-list');
+  const emptyEl = document.getElementById('coord-empty');
+  if(loadingEl) loadingEl.style.display = 'block';
+  if(listEl) listEl.style.display = 'none';
 
-  try {
-    // Try direct fetch first
-    let result;
-    try {
-      const res = await fetch(SCRIPT_URL + '?action=getCoordinators', { redirect: 'follow' });
-      result = await res.json();
-    } catch(e) {
-      // Fallback to JSONP
-      result = await new Promise((resolve, reject) => {
-        const cbName = 'coordCB_' + Date.now();
-        const script = document.createElement('script');
-        window[cbName] = function(r) {
-          delete window[cbName];
-          if(document.head.contains(script)) document.head.removeChild(script);
-          resolve(r);
-        };
-        script.onerror = () => { delete window[cbName]; reject(new Error('Failed')); };
-        script.src = SCRIPT_URL + '?action=getCoordinators&callback=' + cbName;
-        document.head.appendChild(script);
-        setTimeout(() => reject(new Error('Timeout')), 15000);
-      });
+  const url = SCRIPT_URL + '?action=getCoordinators';
+
+  // Try XHR first (handles CORS better)
+  const result = await new Promise((resolve) => {
+    const xhr = new XMLHttpRequest();
+    xhr.open('GET', url, true);
+    xhr.timeout = 20000;
+    xhr.onload = function() {
+      try { resolve(JSON.parse(xhr.responseText)); }
+      catch(e) { resolve(null); }
+    };
+    xhr.onerror = xhr.ontimeout = function() {
+      // Fallback JSONP
+      const cbName = 'coordCB_' + Date.now();
+      const script = document.createElement('script');
+      window[cbName] = function(r) {
+        delete window[cbName];
+        if(document.head.contains(script)) document.head.removeChild(script);
+        resolve(r);
+      };
+      script.onerror = () => { delete window[cbName]; resolve(null); };
+      script.src = url + '&callback=' + cbName;
+      document.head.appendChild(script);
+      setTimeout(() => { if(window[cbName]) { delete window[cbName]; resolve(null); } }, 15000);
+    };
+    xhr.send();
+  });
+
+  if(loadingEl) loadingEl.style.display = 'none';
+  if(listEl) listEl.style.display = 'block';
+
+  if(result && result.status === 'success') {
+    renderCoordinators(result.data || []);
+  } else {
+    if(emptyEl) {
+      emptyEl.textContent = result ? 'No coordinators found.' : 'Could not load. Please click Refresh.';
+      emptyEl.style.display = 'block';
     }
-
-    document.getElementById('coord-loading').style.display = 'none';
-    document.getElementById('coord-list').style.display = 'block';
-
-    if(result && result.status === 'success') {
-      renderCoordinators(result.data || []);
-    } else {
-      document.getElementById('coord-empty').textContent = 'No coordinators found.';
-      document.getElementById('coord-empty').style.display = 'block';
-    }
-  } catch(err) {
-    document.getElementById('coord-loading').style.display = 'none';
-    document.getElementById('coord-list').style.display = 'block';
-    document.getElementById('coord-empty').textContent = 'Could not load coordinators. Please click Refresh.';
-    document.getElementById('coord-empty').style.display = 'block';
   }
 }
 
