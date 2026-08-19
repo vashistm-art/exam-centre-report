@@ -424,7 +424,7 @@ tr:hover td{background:var(--input-bg)}
           </div>
           <div class="field">
             <label class="field-label">Date <span class="required">*</span></label>
-            <input type="date" id="att-date"/>
+            <input type="date" id="att-date" onchange="checkFetchActiveCourses()"/>
             <div class="err" id="att-err-date">Please select a date.</div>
           </div>
           <div class="field">
@@ -462,20 +462,21 @@ tr:hover td{background:var(--input-bg)}
           <div class="field">
             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
               <label class="field-label" style="margin-bottom:0">Course-wise attendance</label>
-              <button type="button" onclick="addCourseRow()" style="height:30px;padding:0 12px;border-radius:6px;border:none;background:var(--accent);color:#fff;font-size:12px;font-weight:600;cursor:pointer">+ Add course</button>
+              <button type="button" onclick="clearAllCourseInputs()" style="height:30px;padding:0 10px;border-radius:6px;border:1px solid var(--border);background:var(--input-bg);color:var(--muted);font-size:12px;cursor:pointer">Clear all</button>
             </div>
-            <div id="course-rows-header" style="display:grid;grid-template-columns:2fr 1fr 1fr auto;gap:8px;margin-bottom:4px;padding:0 10px">
+            <!-- Header -->
+            <div id="course-list-header" style="display:none;grid-template-columns:2fr 1fr 1fr 1fr;gap:8px;margin-bottom:4px;padding:4px 10px;background:var(--input-bg);border-radius:6px">
               <span style="font-size:11px;font-weight:600;color:var(--muted)">COURSE CODE</span>
-              <span style="font-size:11px;font-weight:600;color:var(--muted)">ATTENDED</span>
-              <span style="font-size:11px;font-weight:600;color:var(--muted)">NOT ATTENDED</span>
-              <span></span>
+              <span style="font-size:11px;font-weight:600;color:#065f46">ATTENDED</span>
+              <span style="font-size:11px;font-weight:600;color:#b91c1c">NOT ATTENDED</span>
+              <span style="font-size:11px;font-weight:600;color:var(--accent)">TOTAL</span>
             </div>
-            <div id="course-rows-container">
-              <!-- Course rows added dynamically -->
+            <!-- Course list -->
+            <div id="course-list-container" style="max-height:300px;overflow-y:auto;border:1px solid var(--border);border-radius:8px;display:none"></div>
+            <div id="course-list-empty" style="font-size:13px;color:var(--muted);padding:14px;text-align:center;background:var(--input-bg);border:1px dashed var(--border);border-radius:8px">
+              Select a date and session above to load active courses for that day.
             </div>
-            <div id="course-rows-empty" style="font-size:12px;color:var(--muted);padding:8px;text-align:center;background:var(--input-bg);border-radius:8px;border:1px dashed var(--border)">
-              Click "+ Add course" to add course-wise attendance
-            </div>
+            <div id="course-duplicate-msg" style="display:none;font-size:12px;color:#b91c1c;margin-top:6px;padding:6px 10px;background:#fee2e2;border-radius:6px">⚠️ Duplicate entries detected!</div>
           </div>
 
           <div class="field">
@@ -635,6 +636,40 @@ tr:hover td{background:var(--input-bg)}
           <a class="drive-link-box" href="https://drive.google.com/drive/folders/1OtI5E0C_AkL2TiRKx6QDIrdxc4Bl5eT7" target="_blank">📁 Open Google Drive Root Folder →</a>
         </div>
 
+        <!-- Active Courses for the Day -->
+        <div class="form-card" style="margin-bottom:16px">
+          <h2>📅 Active Courses for the Day</h2>
+          <p class="sub">Set which course codes are active for a specific exam date. Coordinators will only see these when submitting.</p>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px">
+            <div>
+              <label class="field-label">Exam date</label>
+              <input type="date" id="active-course-date" style="width:100%;height:42px;border-radius:8px;border:1px solid var(--input-border);background:var(--input-bg);color:var(--text);font-size:14px;padding:0 12px;outline:none;cursor:pointer;position:relative" onchange="loadActiveCourses()">
+            </div>
+            <div>
+              <label class="field-label">Session</label>
+              <select id="active-course-slot" style="width:100%;height:42px;border-radius:8px;border:1px solid var(--input-border);background:var(--input-bg);color:var(--text);font-size:14px;padding:0 12px;outline:none;appearance:none" onchange="loadActiveCourses()">
+                <option value="">— Select session —</option>
+                <option value="FN">Morning (FN) — 09:30-12:00</option>
+                <option value="AN">Afternoon (AN) — 14:00-17:00</option>
+              </select>
+            </div>
+          </div>
+          <div id="active-course-selector" style="display:none">
+            <label class="field-label" style="margin-bottom:8px">Select active course codes</label>
+            <div style="display:flex;flex-wrap:wrap;gap:6px;padding:10px;background:var(--input-bg);border:1px solid var(--border);border-radius:8px;max-height:150px;overflow-y:auto;margin-bottom:10px" id="active-course-tags"></div>
+            <div style="display:flex;justify-content:space-between;align-items:center">
+              <span id="active-course-count" style="font-size:12px;color:var(--muted)">0 courses selected</span>
+              <button onclick="saveActiveCourses()" style="height:36px;padding:0 16px;border-radius:8px;border:none;background:var(--accent);color:#fff;font-size:13px;font-weight:600;cursor:pointer">Save active courses →</button>
+            </div>
+            <div id="active-course-msg" style="font-size:12px;margin-top:8px;display:none"></div>
+          </div>
+          <!-- Saved active courses list -->
+          <div id="saved-active-courses" style="margin-top:12px;display:none">
+            <label class="field-label">Currently saved active courses</label>
+            <div id="saved-active-list" style="font-size:12px;color:var(--muted);padding:8px;background:var(--input-bg);border-radius:6px;border:1px solid var(--border)"></div>
+          </div>
+        </div>
+
         <!-- Course Code Management -->
         <div class="form-card" style="margin-bottom:16px">
           <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
@@ -772,7 +807,7 @@ function addCourseRow(code='', attended='', notAttended='') {
   const id = courseRowCount;
   const div = document.createElement('div');
   div.id = 'course-row-' + id;
-  div.style.cssText = 'display:grid;grid-template-columns:2fr 1fr 1fr auto;gap:8px;align-items:center;margin-bottom:8px;padding:10px;background:var(--input-bg);border:1px solid var(--border);border-radius:8px';
+  div.style.cssText = 'display:grid;grid-template-columns:2fr 1fr 1fr 1fr auto;gap:8px;align-items:center;margin-bottom:8px;padding:10px;background:var(--input-bg);border:1px solid var(--border);border-radius:8px';
   div.innerHTML = `
     <div>
       <select id="course-code-${id}" onchange="handleCourseCodeChange(${id})" style="width:100%;height:36px;border-radius:6px;border:1px solid var(--input-border);background:var(--card);color:var(--text);font-size:13px;padding:0 8px;outline:none">
@@ -781,14 +816,24 @@ function addCourseRow(code='', attended='', notAttended='') {
       <input type="text" id="course-custom-${id}" placeholder="Enter course code" style="display:none;width:100%;height:36px;border-radius:6px;border:1px solid var(--input-border);background:var(--card);color:var(--text);font-size:13px;padding:0 8px;outline:none;margin-top:4px">
     </div>
     <div>
-      <input type="number" id="course-attended-${id}" value="${attended}" min="0" placeholder="Attended" style="width:100%;height:36px;border-radius:6px;border:1px solid var(--input-border);background:var(--card);color:var(--text);font-size:13px;padding:0 8px;outline:none">
+      <input type="number" id="course-attended-${id}" value="${attended}" min="0" placeholder="Attended" oninput="calcCourseTotal(${id})" style="width:100%;height:36px;border-radius:6px;border:1px solid var(--input-border);background:var(--card);color:var(--text);font-size:13px;padding:0 8px;outline:none">
     </div>
     <div>
-      <input type="number" id="course-absent-${id}" value="${notAttended}" min="0" placeholder="Not attended" style="width:100%;height:36px;border-radius:6px;border:1px solid var(--input-border);background:var(--card);color:var(--text);font-size:13px;padding:0 8px;outline:none">
+      <input type="number" id="course-absent-${id}" value="${notAttended}" min="0" placeholder="Not attended" oninput="calcCourseTotal(${id})" style="width:100%;height:36px;border-radius:6px;border:1px solid var(--input-border);background:var(--card);color:var(--text);font-size:13px;padding:0 8px;outline:none">
+    </div>
+    <div id="course-total-${id}" style="height:36px;border-radius:6px;background:var(--accent-bg);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:var(--accent);min-width:50px">
+      ${attended && notAttended ? parseInt(attended)+parseInt(notAttended) : (attended ? parseInt(attended) : (notAttended ? parseInt(notAttended) : '—'))}
     </div>
     <button onclick="removeCourseRow(${id})" style="height:36px;width:36px;border-radius:6px;border:none;background:#fee2e2;color:#b91c1c;font-size:16px;cursor:pointer;flex-shrink:0">✕</button>
   `;
   container.appendChild(div);
+}
+
+function calcCourseTotal(id) {
+  const att = parseInt(document.getElementById('course-attended-' + id).value) || 0;
+  const abs = parseInt(document.getElementById('course-absent-' + id).value) || 0;
+  const totalEl = document.getElementById('course-total-' + id);
+  if(totalEl) totalEl.textContent = att + abs > 0 ? att + abs : '—';
 }
 
 function handleCourseCodeChange(id) {
@@ -1784,6 +1829,7 @@ function showPage(id) {
   if(navEl) navEl.classList.add('active');
   document.getElementById('pageTitle').textContent=pageTitles[id];
   if(id==='dashboard') fetchDashboard();
+  if(id==='attendance') { /* courses load when date+slot selected */ }
   if(id==='reports') { fetchDashboard(); fetchCourseReport(); setTimeout(renderReports, 800); }
   setBottomNav(id);
 }
@@ -1797,6 +1843,7 @@ function setBottomNav(id) {
 // Slot
 function selectSlot(form,val) {
   slots[form]=val;
+  if(form==='att') checkFetchActiveCourses();
   document.getElementById(form+'-card-fn').classList.toggle('selected',val==='FN');
   document.getElementById(form+'-card-an').classList.toggle('selected',val==='AN');
   document.getElementById(form+'-err-slot').style.display='none';
