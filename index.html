@@ -831,6 +831,13 @@ let lineChartInst = null;
 let barChartInst = null;
 
 function renderReports() {
+  // If no data yet, fetch first then render
+  if(!allDashData || allDashData.length === 0) {
+    document.getElementById('reports-empty').style.display = 'block';
+    document.getElementById('charts-top').style.display = 'none';
+    fetchDashboard();
+    return;
+  }
   // Always show charts section even without attendance count data
   document.getElementById('reports-empty').style.display = 'none';
   document.getElementById('charts-top').style.display = 'grid';
@@ -1381,6 +1388,7 @@ function showPage(id) {
   if(navEl) navEl.classList.add('active');
   document.getElementById('pageTitle').textContent=pageTitles[id];
   if(id==='dashboard') fetchDashboard();
+  if(id==='reports') { fetchDashboard(); setTimeout(renderReports, 800); }
   setBottomNav(id);
 }
 
@@ -1630,7 +1638,9 @@ function renderDashboard(rows, isFiltered) {
     }
     renderAttReport();
     // Render reports if on reports page
-    if(document.getElementById('page-reports').classList.contains('active')) renderReports();
+    if(document.getElementById('page-reports') && document.getElementById('page-reports').classList.contains('active')) {
+      setTimeout(renderReports, 100);
+    }
   } else {
     renderCityChart(rows);
   }
