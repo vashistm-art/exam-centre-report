@@ -183,6 +183,7 @@ tr:hover td{background:var(--input-bg)}
 /* Responsive */
 @media(max-width:768px){
   #charts-top{grid-template-columns:1fr!important}
+  #pivot-section{grid-template-columns:1fr!important}
 
   #chart-section{grid-template-columns:1fr!important}
 
@@ -457,6 +458,26 @@ tr:hover td{background:var(--input-bg)}
             </div>
           </div>
 
+          <!-- Course-wise attendance -->
+          <div class="field">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+              <label class="field-label" style="margin-bottom:0">Course-wise attendance</label>
+              <button type="button" onclick="addCourseRow()" style="height:30px;padding:0 12px;border-radius:6px;border:none;background:var(--accent);color:#fff;font-size:12px;font-weight:600;cursor:pointer">+ Add course</button>
+            </div>
+            <div id="course-rows-header" style="display:grid;grid-template-columns:2fr 1fr 1fr auto;gap:8px;margin-bottom:4px;padding:0 10px">
+              <span style="font-size:11px;font-weight:600;color:var(--muted)">COURSE CODE</span>
+              <span style="font-size:11px;font-weight:600;color:var(--muted)">ATTENDED</span>
+              <span style="font-size:11px;font-weight:600;color:var(--muted)">NOT ATTENDED</span>
+              <span></span>
+            </div>
+            <div id="course-rows-container">
+              <!-- Course rows added dynamically -->
+            </div>
+            <div id="course-rows-empty" style="font-size:12px;color:var(--muted);padding:8px;text-align:center;background:var(--input-bg);border-radius:8px;border:1px dashed var(--border)">
+              Click "+ Add course" to add course-wise attendance
+            </div>
+          </div>
+
           <div class="field">
             <label class="field-label">Upload attendance sheet</label>
             <div class="upload-area" id="att-dropzone"><input type="file" id="att-file" multiple accept=".pdf,.xlsx,.xls,.doc,.docx,.jpg,.jpeg,.png" onchange="handleFiles('att',this.files)"><div class="upload-icon">📁</div><div class="upload-text">Click to browse or drag &amp; drop</div><div class="upload-hint">PDF, Excel, Word, JPG, PNG</div></div>
@@ -551,6 +572,56 @@ tr:hover td{background:var(--input-bg)}
           </div>
         </div>
         <div class="empty" id="reports-empty" style="margin-top:24px;display:none">No attendance data yet. Submit attendance sheets with counts to see reports.</div>
+
+      <!-- Pivot Report Tables -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:16px" id="pivot-section">
+        <!-- Centre-wise table -->
+        <div class="table-card">
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:14px 16px;border-bottom:1px solid var(--border)">
+            <h3 style="font-size:14px;font-weight:600;color:var(--text)">🏢 Centre-wise Report</h3>
+            <button onclick="exportPivotReport('centre')" style="height:28px;padding:0 10px;border-radius:6px;border:none;background:var(--accent);color:#fff;font-size:11px;font-weight:600;cursor:pointer">⬇ Export</button>
+          </div>
+          <div style="overflow-x:auto">
+            <table id="centre-pivot-table" style="width:100%;border-collapse:collapse;font-size:12px">
+              <thead>
+                <tr style="background:var(--input-bg)">
+                  <th style="text-align:left;padding:8px 12px;color:var(--text2);font-weight:600;border-bottom:1px solid var(--border)">FAT Centre</th>
+                  <th style="text-align:right;padding:8px 12px;color:#065f46;font-weight:600;border-bottom:1px solid var(--border)">Attended</th>
+                  <th style="text-align:right;padding:8px 12px;color:#b91c1c;font-weight:600;border-bottom:1px solid var(--border)">Not Attended</th>
+                  <th style="text-align:right;padding:8px 12px;color:var(--text2);font-weight:600;border-bottom:1px solid var(--border)">Grand Total</th>
+                </tr>
+              </thead>
+              <tbody id="centre-pivot-tbody"></tbody>
+              <tfoot id="centre-pivot-tfoot"></tfoot>
+            </table>
+            <div class="empty" id="centre-pivot-empty">No data yet. Submit attendance with course details.</div>
+          </div>
+        </div>
+
+        <!-- Course-wise table -->
+        <div class="table-card">
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:14px 16px;border-bottom:1px solid var(--border)">
+            <h3 style="font-size:14px;font-weight:600;color:var(--text)">📚 Course-wise Report</h3>
+            <button onclick="exportPivotReport('course')" style="height:28px;padding:0 10px;border-radius:6px;border:none;background:var(--accent);color:#fff;font-size:11px;font-weight:600;cursor:pointer">⬇ Export</button>
+          </div>
+          <div style="overflow-x:auto">
+            <table id="course-pivot-table" style="width:100%;border-collapse:collapse;font-size:12px">
+              <thead>
+                <tr style="background:var(--input-bg)">
+                  <th style="text-align:left;padding:8px 12px;color:var(--text2);font-weight:600;border-bottom:1px solid var(--border)">Course Code</th>
+                  <th style="text-align:right;padding:8px 12px;color:#065f46;font-weight:600;border-bottom:1px solid var(--border)">Attended</th>
+                  <th style="text-align:right;padding:8px 12px;color:#b91c1c;font-weight:600;border-bottom:1px solid var(--border)">Not Attended</th>
+                  <th style="text-align:right;padding:8px 12px;color:var(--text2);font-weight:600;border-bottom:1px solid var(--border)">Grand Total</th>
+                  <th style="text-align:right;padding:8px 12px;color:var(--accent);font-weight:600;border-bottom:1px solid var(--border)">Percentage</th>
+                </tr>
+              </thead>
+              <tbody id="course-pivot-tbody"></tbody>
+              <tfoot id="course-pivot-tfoot"></tfoot>
+            </table>
+            <div class="empty" id="course-pivot-empty">No data yet. Submit attendance with course details.</div>
+          </div>
+        </div>
+      </div>
       </div>
 
       <!-- Admin Page -->
@@ -562,6 +633,36 @@ tr:hover td{background:var(--input-bg)}
           <p class="sub">Quick access to submissions and Drive folders.</p>
           <a class="drive-link-box" href="https://docs.google.com/spreadsheets/d/1LsXTBiPwytEd8dWtQe3vFlbfVO-h9TH1oxtU9WlZFW0/edit" target="_blank">📊 Attendance — Submissions Log →</a>
           <a class="drive-link-box" href="https://drive.google.com/drive/folders/1OtI5E0C_AkL2TiRKx6QDIrdxc4Bl5eT7" target="_blank">📁 Open Google Drive Root Folder →</a>
+        </div>
+
+        <!-- Course Code Management -->
+        <div class="form-card" style="margin-bottom:16px">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+            <h2>📚 Manage Course Codes</h2>
+          </div>
+          <p class="sub">Add or remove course codes available to coordinators.</p>
+          <!-- Tabs -->
+          <div style="display:flex;gap:8px;margin-bottom:12px;border-bottom:1px solid var(--border);padding-bottom:0">
+            <button id="tab-single" onclick="switchCourseTab('single')" style="height:34px;padding:0 14px;border:none;border-bottom:2px solid var(--accent);background:none;color:var(--accent);font-size:13px;font-weight:600;cursor:pointer">Single</button>
+            <button id="tab-bulk" onclick="switchCourseTab('bulk')" style="height:34px;padding:0 14px;border:none;border-bottom:2px solid transparent;background:none;color:var(--muted);font-size:13px;font-weight:500;cursor:pointer">Bulk Add</button>
+          </div>
+
+          <!-- Single add -->
+          <div id="course-single-panel" style="display:flex;gap:8px;margin-bottom:12px">
+            <input type="text" id="new-course-input" placeholder="e.g. OLMBA612" style="flex:1;height:38px;border-radius:8px;border:1px solid var(--input-border);background:var(--input-bg);color:var(--text);font-size:14px;padding:0 12px;outline:none" onkeydown="if(event.key==='Enter')addCourseCode()">
+            <button onclick="addCourseCode()" style="height:38px;padding:0 16px;border-radius:8px;border:none;background:var(--accent);color:#fff;font-size:13px;font-weight:600;cursor:pointer">Add</button>
+          </div>
+
+          <!-- Bulk add -->
+          <div id="course-bulk-panel" style="display:none;margin-bottom:12px">
+            <textarea id="bulk-course-input" placeholder="Paste all course codes here, one per line or comma separated:&#10;OLMBA501&#10;OLMBA502&#10;OLMBA503&#10;..." style="width:100%;height:120px;border-radius:8px;border:1px solid var(--input-border);background:var(--input-bg);color:var(--text);font-size:13px;padding:10px 12px;outline:none;resize:vertical;font-family:monospace"></textarea>
+            <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:8px">
+              <button onclick="document.getElementById('bulk-course-input').value=''" style="height:36px;padding:0 14px;border-radius:8px;border:1px solid var(--border);background:var(--input-bg);color:var(--muted);font-size:13px;cursor:pointer">Clear</button>
+              <button onclick="bulkAddCourseCodes()" style="height:36px;padding:0 16px;border-radius:8px;border:none;background:var(--accent);color:#fff;font-size:13px;font-weight:600;cursor:pointer">Add All →</button>
+            </div>
+            <div id="bulk-add-msg" style="font-size:12px;margin-top:6px;display:none"></div>
+          </div>
+          <div id="course-code-list" style="display:flex;flex-wrap:wrap;gap:6px;max-height:200px;overflow-y:auto;padding:10px;background:var(--input-bg);border:1px solid var(--border);border-radius:8px"></div>
         </div>
 
         <!-- Coordinator Management -->
@@ -654,6 +755,155 @@ tr:hover td{background:var(--input-bg)}
 </div>
 
 <script>
+// ===== COURSE-WISE ATTENDANCE =====
+let courseRowCount = 0;
+
+function getCourseOptions(selectedVal) {
+  return '<option value="">— Select course —</option>' +
+    COURSE_CODES.map(c => `<option value="${c}" ${c===selectedVal?'selected':''}>${c}</option>`).join('') +
+    '<option value="__custom__">+ Custom code...</option>';
+}
+
+function addCourseRow(code='', attended='', notAttended='') {
+  const container = document.getElementById('course-rows-container');
+  const empty = document.getElementById('course-rows-empty');
+  if(empty) empty.style.display = 'none';
+  courseRowCount++;
+  const id = courseRowCount;
+  const div = document.createElement('div');
+  div.id = 'course-row-' + id;
+  div.style.cssText = 'display:grid;grid-template-columns:2fr 1fr 1fr auto;gap:8px;align-items:center;margin-bottom:8px;padding:10px;background:var(--input-bg);border:1px solid var(--border);border-radius:8px';
+  div.innerHTML = `
+    <div>
+      <select id="course-code-${id}" onchange="handleCourseCodeChange(${id})" style="width:100%;height:36px;border-radius:6px;border:1px solid var(--input-border);background:var(--card);color:var(--text);font-size:13px;padding:0 8px;outline:none">
+        ${getCourseOptions(code)}
+      </select>
+      <input type="text" id="course-custom-${id}" placeholder="Enter course code" style="display:none;width:100%;height:36px;border-radius:6px;border:1px solid var(--input-border);background:var(--card);color:var(--text);font-size:13px;padding:0 8px;outline:none;margin-top:4px">
+    </div>
+    <div>
+      <input type="number" id="course-attended-${id}" value="${attended}" min="0" placeholder="Attended" style="width:100%;height:36px;border-radius:6px;border:1px solid var(--input-border);background:var(--card);color:var(--text);font-size:13px;padding:0 8px;outline:none">
+    </div>
+    <div>
+      <input type="number" id="course-absent-${id}" value="${notAttended}" min="0" placeholder="Not attended" style="width:100%;height:36px;border-radius:6px;border:1px solid var(--input-border);background:var(--card);color:var(--text);font-size:13px;padding:0 8px;outline:none">
+    </div>
+    <button onclick="removeCourseRow(${id})" style="height:36px;width:36px;border-radius:6px;border:none;background:#fee2e2;color:#b91c1c;font-size:16px;cursor:pointer;flex-shrink:0">✕</button>
+  `;
+  container.appendChild(div);
+}
+
+function handleCourseCodeChange(id) {
+  const select = document.getElementById('course-code-' + id);
+  const custom = document.getElementById('course-custom-' + id);
+  if(select.value === '__custom__') {
+    custom.style.display = 'block';
+    custom.focus();
+  } else {
+    custom.style.display = 'none';
+  }
+}
+
+function removeCourseRow(id) {
+  const row = document.getElementById('course-row-' + id);
+  if(row) row.remove();
+  const container = document.getElementById('course-rows-container');
+  const empty = document.getElementById('course-rows-empty');
+  if(empty && container && container.children.length === 0) empty.style.display = 'block';
+}
+
+function getCourseRowsData() {
+  const rows = document.querySelectorAll('[id^="course-row-"]');
+  const data = [];
+  rows.forEach(row => {
+    const idNum = row.id.split('-').pop();
+    const select = document.getElementById('course-code-' + idNum);
+    const custom = document.getElementById('course-custom-' + idNum);
+    const attended = parseInt(document.getElementById('course-attended-' + idNum).value) || 0;
+    const absent = parseInt(document.getElementById('course-absent-' + idNum).value) || 0;
+    let code = select ? select.value : '';
+    if(code === '__custom__' && custom) code = custom.value.trim();
+    if(code && code !== '__custom__') {
+      data.push({ code, attended, notAttended: absent, total: attended + absent });
+    }
+  });
+  return data;
+}
+
+function clearCourseRows() {
+  const container = document.getElementById('course-rows-container');
+  if(container) container.innerHTML = '';
+  const empty = document.getElementById('course-rows-empty');
+  if(empty) empty.style.display = 'block';
+  courseRowCount = 0;
+}
+
+// ===== COURSE CODE MANAGEMENT (ADMIN) =====
+function renderCourseCodeList() {
+  const list = document.getElementById('course-code-list');
+  if(!list) return;
+  list.innerHTML = COURSE_CODES.map((c,i) => `
+    <span style="display:inline-flex;align-items:center;gap:4px;padding:4px 10px;border-radius:20px;background:var(--accent-bg);color:var(--accent);font-size:12px;font-weight:500">
+      ${c}
+      <button onclick="removeCourseCode(${i})" style="background:none;border:none;color:var(--accent);cursor:pointer;font-size:14px;line-height:1;padding:0 2px">×</button>
+    </span>
+  `).join('');
+}
+
+function switchCourseTab(tab) {
+  document.getElementById('course-single-panel').style.display = tab === 'single' ? 'flex' : 'none';
+  document.getElementById('course-bulk-panel').style.display = tab === 'bulk' ? 'block' : 'none';
+  document.getElementById('tab-single').style.color = tab === 'single' ? 'var(--accent)' : 'var(--muted)';
+  document.getElementById('tab-single').style.borderBottomColor = tab === 'single' ? 'var(--accent)' : 'transparent';
+  document.getElementById('tab-single').style.fontWeight = tab === 'single' ? '600' : '500';
+  document.getElementById('tab-bulk').style.color = tab === 'bulk' ? 'var(--accent)' : 'var(--muted)';
+  document.getElementById('tab-bulk').style.borderBottomColor = tab === 'bulk' ? 'var(--accent)' : 'transparent';
+  document.getElementById('tab-bulk').style.fontWeight = tab === 'bulk' ? '600' : '500';
+}
+
+function addCourseCode() {
+  const input = document.getElementById('new-course-input');
+  const val = input.value.trim().toUpperCase();
+  if(!val) return;
+  if(COURSE_CODES.includes(val)) { alert('Course code already exists!'); return; }
+  COURSE_CODES.push(val);
+  COURSE_CODES.sort();
+  input.value = '';
+  renderCourseCodeList();
+}
+
+function bulkAddCourseCodes() {
+  const textarea = document.getElementById('bulk-course-input');
+  const msg = document.getElementById('bulk-add-msg');
+  const raw = textarea.value.trim();
+  if(!raw) { msg.textContent = '⚠️ Please paste some course codes first.'; msg.style.color = '#b91c1c'; msg.style.display = 'block'; return; }
+
+  // Split by newline, comma, semicolon or space
+  const codes = raw.split(/[\n,; ]+/)
+    .map(c => c.trim().toUpperCase())
+    .filter(c => c.length > 0);
+
+  let added = 0, skipped = 0;
+  codes.forEach(code => {
+    if(COURSE_CODES.includes(code)) { skipped++; }
+    else { COURSE_CODES.push(code); added++; }
+  });
+  COURSE_CODES.sort();
+  renderCourseCodeList();
+
+  msg.textContent = `✅ Added ${added} course code(s). ${skipped > 0 ? skipped + ' already existed (skipped).' : ''}`;
+  msg.style.color = '#065f46';
+  msg.style.display = 'block';
+  if(added > 0) textarea.value = '';
+}
+
+function removeCourseCode(idx) {
+  if(!confirm('Remove ' + COURSE_CODES[idx] + '?')) return;
+  COURSE_CODES.splice(idx, 1);
+  renderCourseCodeList();
+}
+
+// Load course codes when admin page opens
+const _origShowPage = showPage;
+
 // Sidebar collapse
 let sidebarCollapsed = sessionStorage.getItem('ctSidebarCollapsed') === 'true';
 
@@ -1181,6 +1431,149 @@ function removeCoordinator(email, rowIdx) {
 
 // Load coordinators when admin page is shown
 const origShowPage = showPage;
+// Course report data
+let courseReportData = [];
+
+async function fetchCourseReport() {
+  try {
+    const xhr = new XMLHttpRequest();
+    const url = SCRIPT_URL + '?action=getCourseReport';
+    const result = await new Promise((resolve) => {
+      xhr.open('GET', url, true);
+      xhr.timeout = 20000;
+      xhr.onload = () => { try { resolve(JSON.parse(xhr.responseText)); } catch(e) { resolve(null); } };
+      xhr.onerror = xhr.ontimeout = () => resolve(null);
+      xhr.send();
+    });
+    if(result && result.status === 'success') {
+      courseReportData = result.data || [];
+      renderPivotReports();
+    }
+  } catch(e) {
+    console.error('fetchCourseReport error:', e);
+  }
+}
+
+function renderPivotReports() {
+  // Centre-wise pivot
+  const centreMap = {};
+  courseReportData.forEach(r => {
+    if(!centreMap[r.city]) centreMap[r.city] = {attended:0, notAttended:0};
+    centreMap[r.city].attended += parseInt(r.attended)||0;
+    centreMap[r.city].notAttended += parseInt(r.notAttended)||0;
+  });
+
+  const centres = Object.keys(centreMap).sort();
+  const cTbody = document.getElementById('centre-pivot-tbody');
+  const cTfoot = document.getElementById('centre-pivot-tfoot');
+  const cEmpty = document.getElementById('centre-pivot-empty');
+
+  if(centres.length === 0) {
+    cEmpty.style.display = 'block';
+    document.getElementById('centre-pivot-table').style.display = 'none';
+  } else {
+    cEmpty.style.display = 'none';
+    document.getElementById('centre-pivot-table').style.display = 'table';
+    let totalAtt=0, totalNot=0;
+    cTbody.innerHTML = centres.map(c => {
+      const d = centreMap[c];
+      totalAtt += d.attended; totalNot += d.notAttended;
+      return `<tr onmouseover="this.style.background='var(--input-bg)'" onmouseout="this.style.background=''">
+        <td style="padding:7px 12px;border-bottom:1px solid var(--border);color:var(--text)">${c}</td>
+        <td style="padding:7px 12px;border-bottom:1px solid var(--border);text-align:right;color:#065f46;font-weight:500">${d.attended}</td>
+        <td style="padding:7px 12px;border-bottom:1px solid var(--border);text-align:right;color:#b91c1c;font-weight:500">${d.notAttended}</td>
+        <td style="padding:7px 12px;border-bottom:1px solid var(--border);text-align:right;color:var(--text);font-weight:600">${d.attended+d.notAttended}</td>
+      </tr>`;
+    }).join('');
+    cTfoot.innerHTML = `<tr style="background:var(--accent-bg);font-weight:700">
+      <td style="padding:8px 12px;color:var(--text)">Grand Total</td>
+      <td style="padding:8px 12px;text-align:right;color:#065f46">${totalAtt}</td>
+      <td style="padding:8px 12px;text-align:right;color:#b91c1c">${totalNot}</td>
+      <td style="padding:8px 12px;text-align:right;color:var(--accent)">${totalAtt+totalNot}</td>
+    </tr>`;
+  }
+
+  // Course-wise pivot
+  const courseMap = {};
+  courseReportData.forEach(r => {
+    if(!courseMap[r.code]) courseMap[r.code] = {attended:0, notAttended:0};
+    courseMap[r.code].attended += parseInt(r.attended)||0;
+    courseMap[r.code].notAttended += parseInt(r.notAttended)||0;
+  });
+
+  const courses = Object.keys(courseMap).sort();
+  const kTbody = document.getElementById('course-pivot-tbody');
+  const kTfoot = document.getElementById('course-pivot-tfoot');
+  const kEmpty = document.getElementById('course-pivot-empty');
+
+  if(courses.length === 0) {
+    kEmpty.style.display = 'block';
+    document.getElementById('course-pivot-table').style.display = 'none';
+  } else {
+    kEmpty.style.display = 'none';
+    document.getElementById('course-pivot-table').style.display = 'table';
+    let totalAtt=0, totalNot=0;
+    kTbody.innerHTML = courses.map(c => {
+      const d = courseMap[c];
+      const total = d.attended + d.notAttended;
+      const pct = total > 0 ? ((d.attended/total)*100).toFixed(2)+'%' : 'N/A';
+      totalAtt += d.attended; totalNot += d.notAttended;
+      return `<tr onmouseover="this.style.background='var(--input-bg)'" onmouseout="this.style.background=''">
+        <td style="padding:7px 12px;border-bottom:1px solid var(--border);color:var(--text);font-weight:500">${c}</td>
+        <td style="padding:7px 12px;border-bottom:1px solid var(--border);text-align:right;color:#065f46;font-weight:500">${d.attended}</td>
+        <td style="padding:7px 12px;border-bottom:1px solid var(--border);text-align:right;color:#b91c1c;font-weight:500">${d.notAttended}</td>
+        <td style="padding:7px 12px;border-bottom:1px solid var(--border);text-align:right;color:var(--text);font-weight:600">${total}</td>
+        <td style="padding:7px 12px;border-bottom:1px solid var(--border);text-align:right"><span style="background:var(--accent-bg);color:var(--accent);padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600">${pct}</span></td>
+      </tr>`;
+    }).join('');
+    const grandTotal = totalAtt + totalNot;
+    const grandPct = grandTotal > 0 ? ((totalAtt/grandTotal)*100).toFixed(2)+'%' : 'N/A';
+    kTfoot.innerHTML = `<tr style="background:var(--accent-bg);font-weight:700">
+      <td style="padding:8px 12px;color:var(--text)">Grand Total</td>
+      <td style="padding:8px 12px;text-align:right;color:#065f46">${totalAtt}</td>
+      <td style="padding:8px 12px;text-align:right;color:#b91c1c">${totalNot}</td>
+      <td style="padding:8px 12px;text-align:right;color:var(--accent)">${grandTotal}</td>
+      <td style="padding:8px 12px;text-align:right;color:var(--accent)">${grandPct}</td>
+    </tr>`;
+  }
+}
+
+function exportPivotReport(type) {
+  let headers, rows;
+  if(type === 'centre') {
+    const centreMap = {};
+    courseReportData.forEach(r => {
+      if(!centreMap[r.city]) centreMap[r.city] = {attended:0, notAttended:0};
+      centreMap[r.city].attended += parseInt(r.attended)||0;
+      centreMap[r.city].notAttended += parseInt(r.notAttended)||0;
+    });
+    headers = ['FAT Centre','Attended','Not Attended','Grand Total'];
+    rows = Object.keys(centreMap).sort().map(c => [c, centreMap[c].attended, centreMap[c].notAttended, centreMap[c].attended+centreMap[c].notAttended]);
+  } else {
+    const courseMap = {};
+    courseReportData.forEach(r => {
+      if(!courseMap[r.code]) courseMap[r.code] = {attended:0, notAttended:0};
+      courseMap[r.code].attended += parseInt(r.attended)||0;
+      courseMap[r.code].notAttended += parseInt(r.notAttended)||0;
+    });
+    headers = ['Course Code','Attended','Not Attended','Grand Total','Percentage'];
+    rows = Object.keys(courseMap).sort().map(c => {
+      const d = courseMap[c];
+      const total = d.attended+d.notAttended;
+      return [c, d.attended, d.notAttended, total, total>0?((d.attended/total)*100).toFixed(2)+'%':'N/A'];
+    });
+  }
+  let csv = headers.join(',')+'\n';
+  rows.forEach(r => { csv += r.map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(',')+'\n'; });
+  const blob = new Blob([csv],{type:'text/csv'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'CT_Exam_Ops_'+type+'_report_'+new Date().toISOString().split('T')[0]+'.csv';
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
 function exportAttReport() {
   if(!attReportData.length) { alert('No attendance data to export.'); return; }
   const headers = ['City','Date','Session','Registered','Present','Absent','Attendance %','Remarks'];
@@ -1228,6 +1621,9 @@ function postData(payload) {
     xhr.send(JSON.stringify(payload));
   });
 }
+
+// Course codes - admin can update these
+let COURSE_CODES = ['OLMBA501', 'OLMBA502', 'OLMBA503', 'OLMBA504', 'OLMBA505', 'OLMBA506', 'OLMBA507', 'OLMBA508', 'OLMBA509', 'OLMBA510', 'OLMBA511', 'OLMBA601', 'OLMBA602', 'OLMBA603', 'OLMBA604', 'OLMBA606', 'OLMBA608', 'OLMBA609', 'OLMBA610', 'OLMBA611', 'OLMBA614', 'OLMCA501', 'OLMCA502', 'OLMCA503', 'OLMCA504', 'OLMCA505', 'OLMCA506', 'OLMCA507', 'OLMCA508', 'OLMCA509', 'OLMCA511', 'OLMCA601', 'OLMCA602', 'OLMCA603', 'OLMCA604', 'OLMCA605', 'OLMCA606', 'OLMCA607', 'OLMCA608', 'OLMCA609', 'OLMCA611', 'OLMDS501', 'OLMDS502', 'OLMDS503', 'OLMDS504', 'OLMDS505', 'OLMDS506', 'OLMDS507', 'OLMDS508', 'OLMDS509', 'OLMDS510', 'OLMDS601', 'OLMDS602', 'OLMDS603', 'OLMDS604', 'OLMDS605', 'OLMDS606', 'OLMDS607', 'OLMDS609', 'OLMDS610'];
 
 const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzGOlJgDPbkfo-HszzKPITZ-o3V7iRXM6BPHoTk8fU5phvpwLLEBJpJZ4E4gnIhr-oKGA/exec";
 const ADMIN_PASSWORD = "CT@Admin2026";
@@ -1388,7 +1784,7 @@ function showPage(id) {
   if(navEl) navEl.classList.add('active');
   document.getElementById('pageTitle').textContent=pageTitles[id];
   if(id==='dashboard') fetchDashboard();
-  if(id==='reports') { fetchDashboard(); setTimeout(renderReports, 800); }
+  if(id==='reports') { fetchDashboard(); fetchCourseReport(); setTimeout(renderReports, 800); }
   setBottomNav(id);
 }
 
@@ -1468,10 +1864,11 @@ async function submitForm(form) {
   const present = form==='att' ? parseInt(document.getElementById('att-present').value)||0 : 0;
   const absent = Math.max(0, registered - present);
   const remarks = form==='att' ? (document.getElementById('att-remarks').value||'') : '';
-  uploadFiles(form, city, date, slot, type, formFiles, registered, present, absent, remarks);
+  const courseData = form==='att' ? getCourseRowsData() : [];
+  uploadFiles(form, city, date, slot, type, formFiles, registered, present, absent, remarks, courseData);
 }
 
-async function uploadFiles(form, city, date, slot, type, formFiles, registered=0, present=0, absent=0, remarks='') {
+async function uploadFiles(form, city, date, slot, type, formFiles, registered=0, present=0, absent=0, remarks='', courseData=[]) {
   try {
     let folderUrl = '';
     document.getElementById(form+'-loading-text').textContent = formFiles.length > 0 ? 'Preparing files...' : 'Submitting...';
