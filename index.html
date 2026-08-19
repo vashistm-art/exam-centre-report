@@ -632,7 +632,8 @@ tr:hover td{background:var(--input-bg)}
         <div class="form-card" style="margin-bottom:16px">
           <h2>🔐 Admin Panel</h2>
           <p class="sub">Quick access to submissions and Drive folders.</p>
-          <a class="drive-link-box" href="https://docs.google.com/spreadsheets/d/1LsXTBiPwytEd8dWtQe3vFlbfVO-h9TH1oxtU9WlZFW0/edit" target="_blank">📊 Attendance — Submissions Log →</a>
+          <a class="drive-link-box" id="att-log-link" href="#" target="_blank" onclick="openSheetLink('att',event)">📊 Attendance — Submissions Log →</a>
+          <a class="drive-link-box" id="umc-log-link-btn" href="#" target="_blank" onclick="openSheetLink('umc',event)">📊 UMC — Submissions Log →</a>
           <a class="drive-link-box" href="https://drive.google.com/drive/folders/1OtI5E0C_AkL2TiRKx6QDIrdxc4Bl5eT7" target="_blank">📁 Open Google Drive Root Folder →</a>
         </div>
 
@@ -1368,6 +1369,36 @@ function renderReports() {
 }
 
 // ===== COORDINATOR MANAGEMENT =====
+// Open sheet links dynamically
+async function openSheetLink(type, e) {
+  e.preventDefault();
+  const linkEl = document.getElementById(type === 'att' ? 'att-log-link' : 'umc-log-link-btn');
+  const origText = linkEl.textContent;
+  linkEl.textContent = '⏳ Loading...';
+
+  try {
+    const action = type === 'att' ? 'getAttLogUrl' : 'getUmcLogUrl';
+    const xhr = new XMLHttpRequest();
+    const result = await new Promise((resolve) => {
+      xhr.open('GET', SCRIPT_URL + '?action=' + action, true);
+      xhr.timeout = 15000;
+      xhr.onload = () => { try { resolve(JSON.parse(xhr.responseText)); } catch(e) { resolve(null); } };
+      xhr.onerror = xhr.ontimeout = () => resolve(null);
+      xhr.send();
+    });
+
+    linkEl.textContent = origText;
+    if(result && result.url) {
+      window.open(result.url, '_blank');
+    } else {
+      alert('Could not find the sheet. It may not have been created yet — submit at least one form first.');
+    }
+  } catch(err) {
+    linkEl.textContent = origText;
+    alert('Could not load link. Please try again.');
+  }
+}
+
 async function loadCoordinators() {
   const loadingEl = document.getElementById('coord-loading');
   const listEl = document.getElementById('coord-list');
