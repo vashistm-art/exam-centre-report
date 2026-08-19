@@ -643,11 +643,11 @@ tr:hover td{background:var(--input-bg)}
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px">
             <div>
               <label class="field-label">Exam date</label>
-              <input type="date" id="active-course-date" style="width:100%;height:42px;border-radius:8px;border:1px solid var(--input-border);background:var(--input-bg);color:var(--text);font-size:14px;padding:0 12px;outline:none;cursor:pointer;position:relative" onchange="loadActiveCourses()">
+              <input type="date" id="active-course-date" onchange="loadActiveCourses()" style="width:100%;height:42px;border-radius:8px;border:1px solid var(--input-border);background:var(--input-bg);color:var(--text);font-size:14px;padding:0 12px;outline:none;cursor:pointer;position:relative" onchange="loadActiveCourses()">
             </div>
             <div>
               <label class="field-label">Session</label>
-              <select id="active-course-slot" style="width:100%;height:42px;border-radius:8px;border:1px solid var(--input-border);background:var(--input-bg);color:var(--text);font-size:14px;padding:0 12px;outline:none;appearance:none" onchange="loadActiveCourses()">
+              <select id="active-course-slot" onchange="loadActiveCourses()" style="width:100%;height:42px;border-radius:8px;border:1px solid var(--input-border);background:var(--input-bg);color:var(--text);font-size:14px;padding:0 12px;outline:none;appearance:none" onchange="loadActiveCourses()">
                 <option value="">— Select session —</option>
                 <option value="FN">Morning (FN) — 09:30-12:00</option>
                 <option value="AN">Afternoon (AN) — 14:00-17:00</option>
@@ -871,6 +871,86 @@ function getCourseRowsData() {
     }
   });
   return data;
+}
+
+function loadActiveCourses() {
+  const date = document.getElementById('active-course-date') ? document.getElementById('active-course-date').value : '';
+  const slot = document.getElementById('active-course-slot') ? document.getElementById('active-course-slot').value : '';
+  if(!date || !slot) return;
+
+  const selector = document.getElementById('active-course-selector');
+  if(selector) selector.style.display = 'block';
+
+  const tagsEl = document.getElementById('active-course-tags');
+  if(!tagsEl) return;
+
+  tagsEl.innerHTML = COURSE_CODES.map(c =>
+    '<span onclick="toggleActiveCourse(\'' + c + '\',this)" data-code="' + c + '" style="display:inline-block;font-size:11px;padding:4px 10px;border-radius:20px;border:1px solid var(--border);background:var(--card);color:var(--text2);cursor:pointer;margin:3px">' + c + '</span>'
+  ).join('');
+
+  selectedActiveCourses = [];
+  updateActiveCourseCount();
+
+  const key = date + '_' + slot;
+  const xhr = new XMLHttpRequest();
+  xhr.open('GET', SCRIPT_URL + '?action=getActiveCourses&key=' + encodeURIComponent(key), true);
+  xhr.timeout = 15000;
+  xhr.onload = function() {
+    try {
+      const res = JSON.parse(xhr.responseText);
+      if(res && res.status === 'success' && res.courses && res.courses.length > 0) {
+        selectedActiveCourses = res.courses;
+        res.courses.forEach(function(c) {
+          const el = tagsEl.querySelector('[data-code="' + c + '"]');
+          if(el) { el.style.background='var(--accent)'; el.style.color='#fff'; el.style.borderColor='var(--accent)'; }
+        });
+        updateActiveCourseCount();
+        showSavedActiveCourses(res.courses);
+      }
+    } catch(e) {}
+  };
+  xhr.send();
+}
+
+let selectedActiveCourses = [];
+
+function toggleActiveCourse(code, el) {
+  const idx = selectedActiveCourses.indexOf(code);
+  if(idx > -1) {
+    selectedActiveCourses.splice(idx, 1);
+    el.style.background='var(--card)'; el.style.color='var(--text2)'; el.style.borderColor='var(--border)';
+  } else {
+    selectedActiveCourses.push(code);
+    el.style.background='var(--accent)'; el.style.color='#fff'; el.style.borderColor='var(--accent)';
+  }
+  updateActiveCourseCount();
+}
+
+function updateActiveCourseCount() {
+  const el = document.getElementById('active-course-count');
+  if(el) el.textContent = selectedActiveCourses.length + ' course(s) selected';
+}
+
+function showSavedActiveCourses(courses) {
+  const saved = document.getElementById('saved-active-courses');
+  const list = document.getElementById('saved-active-list');
+  if(saved && list) { saved.style.display='block'; list.textContent = courses.join(', ') || 'None'; }
+}
+
+async function saveActiveCourses() {
+  const date = document.getElementById('active-course-date').value;
+  const slot = document.getElementById('active-course-slot').value;
+  const msg = document.getElementById('active-course-msg');
+  if(!date || !slot) { if(msg){msg.textContent='⚠️ Select date and session first.'; msg.style.color='#b91c1c'; msg.style.display='block';} return; }
+  if(selectedActiveCourses.length === 0) { if(msg){msg.textContent='⚠️ Select at least one course.'; msg.style.color='#b91c1c'; msg.style.display='block';} return; }
+  if(msg){msg.textContent='⏳ Saving...'; msg.style.color='var(--muted)'; msg.style.display='block';}
+  const result = await postData({action:'saveActiveCourses', key:date+'_'+slot, date, slot, courses:selectedActiveCourses});
+  if(result && result.status==='success') {
+    if(msg){msg.textContent='✅ Saved '+selectedActiveCourses.length+' courses for '+date+' '+slot; msg.style.color='#065f46';}
+    showSavedActiveCourses(selectedActiveCourses);
+  } else {
+    if(msg){msg.textContent='❌ Failed to save. Try again.'; msg.style.color='#b91c1c';}
+  }
 }
 
 function clearCourseRows() {
