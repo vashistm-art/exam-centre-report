@@ -1808,6 +1808,14 @@ function toggleTheme() {
 }
 
 // Google Sign-In callback — checks access via Apps Script
+// ⚙️ ADMIN EMAILS — Update this list to add/remove admins
+// Coordinators are managed from Admin Panel → Manage Coordinators
+const ADMIN_EMAILS_LOCAL = [
+  "vashistm@codetantra.in",
+  "vashistm.art@gmail.com",
+  // "sonu@gmail.com",  // Add more admins here
+];
+
 function handleGoogleLogin(response) {
   try {
     const payload = JSON.parse(atob(response.credential.split('.')[1]));
@@ -1818,14 +1826,21 @@ function handleGoogleLogin(response) {
     const errEl = document.getElementById('loginErr');
     if(errEl) { errEl.style.color = 'var(--muted)'; errEl.textContent = '⏳ Verifying access for ' + email + '...'; errEl.style.display = 'block'; }
 
-    // All access controlled from Code.gs only
+    // Check admin first (local — instant, no network needed)
+    if(ADMIN_EMAILS_LOCAL.map(e => e.toLowerCase()).includes(email.toLowerCase())) {
+      if(errEl) errEl.style.display = 'none';
+      startApp('admin', {email, name, picture});
+      return;
+    }
+
+    // Check coordinator via Apps Script
     const cbName = 'authCB_' + Date.now();
     const script = document.createElement('script');
     window[cbName] = function(result) {
       delete window[cbName];
       if(document.head.contains(script)) document.head.removeChild(script);
-      if(result.status === 'success') {
-        if(errEl) errEl.style.display = 'none';
+      if(errEl) errEl.style.display = 'none';
+      if(result && result.status === 'success') {
         startApp(result.role, {email, name, picture});
       } else {
         if(errEl) { errEl.style.color = '#ef4444'; errEl.textContent = '⛔ Access denied. ' + email + ' is not approved. Please contact admin.'; errEl.style.display = 'block'; }
@@ -1833,10 +1848,16 @@ function handleGoogleLogin(response) {
     };
     script.onerror = function() {
       delete window[cbName];
-      if(errEl) errEl.style.display = 'none';
-      // Fallback — deny access if can't reach server
+      // If Apps Script unreachable, deny access
       if(errEl) { errEl.style.color = '#ef4444'; errEl.textContent = '⚠️ Could not verify access. Please try again.'; errEl.style.display = 'block'; }
     };
+    // 10 second timeout
+    setTimeout(function() {
+      if(window[cbName]) {
+        delete window[cbName];
+        if(errEl) { errEl.style.color = '#ef4444'; errEl.textContent = '⚠️ Verification timed out. Please try again.'; errEl.style.display = 'block'; }
+      }
+    }, 10000);
     script.src = SCRIPT_URL + '?action=checkAccess&email=' + encodeURIComponent(email) + '&callback=' + cbName;
     document.head.appendChild(script);
 
