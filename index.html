@@ -1815,41 +1815,34 @@ function handleGoogleLogin(response) {
     const name = payload.name;
     const picture = payload.picture;
 
-    // Show checking message
     const errEl = document.getElementById('loginErr');
-    errEl.style.color = 'var(--muted)';
-    errEl.textContent = '⏳ Verifying access for ' + email + '...';
-    errEl.style.display = 'block';
+    if(errEl) { errEl.style.color = 'var(--muted)'; errEl.textContent = '⏳ Verifying access for ' + email + '...'; errEl.style.display = 'block'; }
 
-    // Check access via Apps Script (JSONP)
+    // All access controlled from Code.gs only
     const cbName = 'authCB_' + Date.now();
     const script = document.createElement('script');
     window[cbName] = function(result) {
       delete window[cbName];
       if(document.head.contains(script)) document.head.removeChild(script);
-
       if(result.status === 'success') {
-        errEl.style.display = 'none';
+        if(errEl) errEl.style.display = 'none';
         startApp(result.role, {email, name, picture});
       } else {
-        errEl.style.color = '#ef4444';
-        errEl.textContent = '⛔ Access denied. ' + email + ' is not an approved coordinator. Please contact your admin.';
-        errEl.style.display = 'block';
+        if(errEl) { errEl.style.color = '#ef4444'; errEl.textContent = '⛔ Access denied. ' + email + ' is not approved. Please contact admin.'; errEl.style.display = 'block'; }
       }
     };
     script.onerror = function() {
       delete window[cbName];
-      // Fallback — allow if can't reach server
-      errEl.style.display = 'none';
-      startApp('coord', {email, name, picture});
+      if(errEl) errEl.style.display = 'none';
+      // Fallback — deny access if can't reach server
+      if(errEl) { errEl.style.color = '#ef4444'; errEl.textContent = '⚠️ Could not verify access. Please try again.'; errEl.style.display = 'block'; }
     };
     script.src = SCRIPT_URL + '?action=checkAccess&email=' + encodeURIComponent(email) + '&callback=' + cbName;
     document.head.appendChild(script);
 
   } catch(e) {
-    document.getElementById('loginErr').style.color = '#ef4444';
-    document.getElementById('loginErr').textContent = 'Login failed. Please try again.';
-    document.getElementById('loginErr').style.display = 'block';
+    const errEl = document.getElementById('loginErr');
+    if(errEl) { errEl.style.color = '#ef4444'; errEl.textContent = 'Login failed. Please try again.'; errEl.style.display = 'block'; }
   }
 }
 
