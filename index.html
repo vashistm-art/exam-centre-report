@@ -1405,30 +1405,28 @@ async function loadCoordinators() {
 
   const url = SCRIPT_URL + '?action=getCoordinators';
 
-  // Try XHR first (handles CORS better)
+  // Use JSONP - most reliable for Apps Script
   const result = await new Promise((resolve) => {
-    const xhr = new XMLHttpRequest();
-    xhr.open('GET', url, true);
-    xhr.timeout = 20000;
-    xhr.onload = function() {
-      try { resolve(JSON.parse(xhr.responseText)); }
-      catch(e) { resolve(null); }
+    const cbName = 'coordCB_' + Date.now();
+    const script = document.createElement('script');
+    window[cbName] = function(r) {
+      delete window[cbName];
+      if(document.head.contains(script)) document.head.removeChild(script);
+      resolve(r);
     };
-    xhr.onerror = xhr.ontimeout = function() {
-      // Fallback JSONP
-      const cbName = 'coordCB_' + Date.now();
-      const script = document.createElement('script');
-      window[cbName] = function(r) {
+    script.onerror = function() {
+      delete window[cbName];
+      resolve(null);
+    };
+    script.src = url + '&callback=' + cbName;
+    document.head.appendChild(script);
+    // Timeout after 15 seconds
+    setTimeout(() => {
+      if(window[cbName]) {
         delete window[cbName];
-        if(document.head.contains(script)) document.head.removeChild(script);
-        resolve(r);
-      };
-      script.onerror = () => { delete window[cbName]; resolve(null); };
-      script.src = url + '&callback=' + cbName;
-      document.head.appendChild(script);
-      setTimeout(() => { if(window[cbName]) { delete window[cbName]; resolve(null); } }, 15000);
-    };
-    xhr.send();
+        resolve(null);
+      }
+    }, 15000);
   });
 
   if(loadingEl) loadingEl.style.display = 'none';
@@ -1438,7 +1436,7 @@ async function loadCoordinators() {
     renderCoordinators(result.data || []);
   } else {
     if(emptyEl) {
-      emptyEl.textContent = result ? 'No coordinators found.' : 'Could not load. Please click Refresh.';
+      emptyEl.textContent = 'Could not load coordinators. Please click Refresh.';
       emptyEl.style.display = 'block';
     }
   }
