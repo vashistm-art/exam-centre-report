@@ -550,7 +550,7 @@ tr:hover td{background:var(--input-bg)}
               <canvas id="lineChart"></canvas>
             </div>
           </div>
-        </div>
+        
         <!-- Bar chart - full width -->
         <div class="table-card" style="padding:20px">
           <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
@@ -574,12 +574,16 @@ tr:hover td{background:var(--input-bg)}
       <div style="margin-top:24px">
         <div class="table-card" style="padding:16px;margin-bottom:16px">
           <h3 style="font-size:15px;font-weight:700;color:var(--text);margin-bottom:12px">📋 EOD Report</h3>
-          <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end">
-            <div style="flex:1;min-width:140px">
-              <label style="font-size:11px;font-weight:600;color:var(--muted);display:block;margin-bottom:4px">DATE</label>
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr auto auto;gap:10px;align-items:flex-end">
+            <div>
+              <label style="font-size:11px;font-weight:600;color:var(--muted);display:block;margin-bottom:4px">FROM DATE</label>
               <input type="date" id="eod-date" style="width:100%;height:36px;border-radius:7px;border:1px solid var(--input-border);background:var(--input-bg);color:var(--text);font-size:13px;padding:0 10px;outline:none">
             </div>
-            <div style="flex:1;min-width:140px">
+            <div>
+              <label style="font-size:11px;font-weight:600;color:var(--muted);display:block;margin-bottom:4px">TO DATE <span style="color:var(--muted);font-weight:400">(optional)</span></label>
+              <input type="date" id="eod-date-to" style="width:100%;height:36px;border-radius:7px;border:1px solid var(--input-border);background:var(--input-bg);color:var(--text);font-size:13px;padding:0 10px;outline:none">
+            </div>
+            <div>
               <label style="font-size:11px;font-weight:600;color:var(--muted);display:block;margin-bottom:4px">SESSION</label>
               <select id="eod-slot" style="width:100%;height:36px;border-radius:7px;border:1px solid var(--input-border);background:var(--input-bg);color:var(--text);font-size:13px;padding:0 10px;outline:none;appearance:none">
                 <option value="">All sessions</option>
@@ -587,10 +591,8 @@ tr:hover td{background:var(--input-bg)}
                 <option value="AN">Afternoon (AN)</option>
               </select>
             </div>
-            <div style="display:flex;gap:8px;flex-shrink:0">
-              <button onclick="generateEODReport()" style="height:36px;padding:0 16px;border-radius:7px;border:none;background:var(--accent);color:#fff;font-size:13px;font-weight:600;cursor:pointer">Generate</button>
-              <button onclick="exportEODExcel()" id="eod-export-btn" style="height:36px;padding:0 16px;border-radius:7px;border:none;background:#065f46;color:#fff;font-size:13px;font-weight:600;cursor:pointer;display:none">⬇ Export</button>
-            </div>
+            <button onclick="generateEODReport()" style="height:36px;padding:0 16px;border-radius:7px;border:none;background:var(--accent);color:#fff;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap">Generate</button>
+            <button onclick="exportEODExcel()" id="eod-export-btn" style="height:36px;padding:0 16px;border-radius:7px;border:none;background:#065f46;color:#fff;font-size:13px;font-weight:600;cursor:pointer;display:none;white-space:nowrap">⬇ Export</button>
           </div>
         </div>
 
@@ -643,29 +645,7 @@ tr:hover td{background:var(--input-bg)}
       </div>
 
       <!-- Pivot Report Tables -->
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:16px" id="pivot-section">
-        <!-- Centre-wise table -->
-        <div class="table-card">
-          <div style="display:flex;justify-content:space-between;align-items:center;padding:14px 16px;border-bottom:1px solid var(--border)">
-            <h3 style="font-size:14px;font-weight:600;color:var(--text)">🏢 Centre-wise Report</h3>
-            <button onclick="exportPivotReport('centre')" style="height:28px;padding:0 10px;border-radius:6px;border:none;background:var(--accent);color:#fff;font-size:11px;font-weight:600;cursor:pointer">⬇ Export</button>
-          </div>
-          <div style="overflow-x:auto">
-            <table id="centre-pivot-table" style="width:100%;border-collapse:collapse;font-size:12px">
-              <thead>
-                <tr style="background:var(--input-bg)">
-                  <th style="text-align:left;padding:8px 12px;color:var(--text2);font-weight:600;border-bottom:1px solid var(--border)">FAT Centre</th>
-                  <th style="text-align:right;padding:8px 12px;color:#065f46;font-weight:600;border-bottom:1px solid var(--border)">Attended</th>
-                  <th style="text-align:right;padding:8px 12px;color:#b91c1c;font-weight:600;border-bottom:1px solid var(--border)">Not Attended</th>
-                  <th style="text-align:right;padding:8px 12px;color:var(--text2);font-weight:600;border-bottom:1px solid var(--border)">Grand Total</th>
-                </tr>
-              </thead>
-              <tbody id="centre-pivot-tbody"></tbody>
-              <tfoot id="centre-pivot-tfoot"></tfoot>
-            </table>
-            <div class="empty" id="centre-pivot-empty">No data yet. Submit attendance with course details.</div>
-          </div>
-        </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:16px" 
 
         <!-- Course-wise table -->
         <div class="table-card">
@@ -1110,6 +1090,97 @@ function clearCourseRows() {
   if(container) { container.innerHTML = ''; container.style.display = 'none'; }
   if(header) header.style.display = 'none';
   if(empty) { empty.style.display = 'block'; empty.textContent = '📅 Select a date and session above to load active courses for that day.'; }
+}
+
+// ===== MISSING FUNCTIONS RESTORED =====
+
+// Sign out
+function signOut() {
+  localStorage.removeItem('ctRole');
+  localStorage.removeItem('ctUser');
+  localStorage.removeItem('ctLoginTime');
+  currentRole = null;
+  document.getElementById('app').style.display = 'none';
+  document.getElementById('loginScreen').style.display = 'flex';
+  // Reset Google sign-in
+  if(window.google && google.accounts && google.accounts.id) {
+    google.accounts.id.disableAutoSelect();
+  }
+  location.reload();
+}
+
+// Load active courses for admin panel
+function loadActiveCourses() {
+  var date = document.getElementById('active-course-date') ? document.getElementById('active-course-date').value : '';
+  var slotEl = document.getElementById('active-course-slot');
+  var slotRaw = slotEl ? slotEl.value : '';
+  var slot = slotRaw === 'CUSTOM' ? getActiveCourseSlotKey() : slotRaw;
+
+  var selector = document.getElementById('active-course-selector');
+  if(selector) selector.style.display = 'block';
+
+  var tagsEl = document.getElementById('active-course-tags');
+  if(!tagsEl) return;
+
+  if(COURSE_CODES.length === 0) {
+    tagsEl.innerHTML = '<span style="color:var(--muted);font-size:12px">No course codes yet. Add them in Manage Course Codes.</span>';
+  } else {
+    tagsEl.innerHTML = COURSE_CODES.map(function(c) {
+      return '<span onclick="toggleActiveCourse(this)" data-code="' + c + '" style="display:inline-block;font-size:11px;padding:4px 10px;border-radius:20px;border:1px solid var(--border);background:var(--card);color:var(--text2);cursor:pointer;margin:3px;transition:all 0.15s">' + c + '</span>';
+    }).join('');
+  }
+
+  selectedActiveCourses = [];
+  updateActiveCourseCount();
+
+  if(!date || !slot) return;
+
+  var key = date + '_' + slot;
+  var xhr = new XMLHttpRequest();
+  xhr.open('GET', SCRIPT_URL + '?action=getActiveCourses&key=' + encodeURIComponent(key), true);
+  xhr.timeout = 15000;
+  xhr.onload = function() {
+    try {
+      var res = JSON.parse(xhr.responseText);
+      if(res && res.status === 'success' && res.courses && res.courses.length > 0) {
+        selectedActiveCourses = res.courses;
+        res.courses.forEach(function(c) {
+          var el = tagsEl.querySelector('[data-code="' + c + '"]');
+          if(el) { el.style.background='var(--accent)'; el.style.color='#fff'; el.style.borderColor='var(--accent)'; }
+        });
+        updateActiveCourseCount();
+        showSavedActiveCourses(res.courses);
+      }
+    } catch(e) {}
+  };
+  xhr.send();
+}
+
+// Save active courses
+async function saveActiveCourses() {
+  var date = document.getElementById('active-course-date').value;
+  var slotRaw = document.getElementById('active-course-slot').value;
+  var slot = slotRaw === 'CUSTOM' ? getActiveCourseSlotKey() : slotRaw;
+  var msg = document.getElementById('active-course-msg');
+
+  if(!date || !slotRaw) {
+    if(msg) { msg.textContent = '⚠️ Please select date and session first.'; msg.style.color = '#b91c1c'; msg.style.display = 'block'; }
+    return;
+  }
+  if(selectedActiveCourses.length === 0) {
+    if(msg) { msg.textContent = '⚠️ Please select at least one course.'; msg.style.color = '#b91c1c'; msg.style.display = 'block'; }
+    return;
+  }
+
+  if(msg) { msg.textContent = '⏳ Saving...'; msg.style.color = 'var(--muted)'; msg.style.display = 'block'; }
+
+  var result = await postData({ action:'saveActiveCourses', key: date+'_'+slot, date, slot, courses: selectedActiveCourses });
+  if(result && result.status === 'success') {
+    if(msg) { msg.textContent = '✅ Saved ' + selectedActiveCourses.length + ' courses for ' + date + ' ' + slot; msg.style.color = '#065f46'; }
+    showSavedActiveCourses(selectedActiveCourses);
+  } else {
+    if(msg) { msg.textContent = '❌ Failed to save. Please try again.'; msg.style.color = '#b91c1c'; }
+  }
 }
 
 // Legacy stubs (kept for compatibility)
@@ -2376,49 +2447,72 @@ async function submitCentrePhoto() {
 
 // ===== EOD REPORT =====
 async function generateEODReport() {
-  const date = document.getElementById('eod-date').value;
+  const dateFrom = document.getElementById('eod-date').value;
+  const dateTo = document.getElementById('eod-date-to').value || dateFrom;
   const slot = document.getElementById('eod-slot').value;
+
+  if(!dateFrom) {
+    document.getElementById('eod-empty').textContent = 'Please select a From Date.';
+    document.getElementById('eod-empty').style.display = 'block';
+    return;
+  }
 
   document.getElementById('eod-empty').style.display = 'none';
   document.getElementById('eod-report-content').style.display = 'none';
   document.getElementById('eod-loading').style.display = 'block';
+  document.getElementById('eod-loading').textContent = '⏳ Fetching data...';
 
-  // Fetch fresh data
-  try {
-    const res = await fetch(SCRIPT_URL + '?action=getSubmissions', {redirect:'follow'});
-    const data = await res.json();
-    if(data && data.status === 'success') {
-      allDashData = data.data || [];
-    }
-  } catch(e) {
-    // Use cached data
+  // Use cached data if available, else fetch
+  const fetchPromises = [];
+
+  if(!allDashData || allDashData.length === 0) {
+    fetchPromises.push(
+      new Promise(resolve => {
+        const cbName = 'eodSub_' + Date.now();
+        const s = document.createElement('script');
+        window[cbName] = function(r) { delete window[cbName]; if(r && r.status==='success') allDashData = r.data||[]; resolve(); };
+        s.onerror = function() { delete window[cbName]; resolve(); };
+        s.src = SCRIPT_URL + '?action=getSubmissions&callback=' + cbName;
+        document.head.appendChild(s);
+        setTimeout(function(){ if(window[cbName]){delete window[cbName]; resolve();} }, 15000);
+      })
+    );
   }
 
-  // Also fetch course data
-  try {
-    const res2 = await fetch(SCRIPT_URL + '?action=getCourseReport', {redirect:'follow'});
-    const data2 = await res2.json();
-    if(data2 && data2.status === 'success') {
-      courseReportData = data2.data || [];
-    }
-  } catch(e) {}
+  if(!courseReportData || courseReportData.length === 0) {
+    fetchPromises.push(
+      new Promise(resolve => {
+        const cbName = 'eodCrs_' + Date.now();
+        const s = document.createElement('script');
+        window[cbName] = function(r) { delete window[cbName]; if(r && r.status==='success') courseReportData = r.data||[]; resolve(); };
+        s.onerror = function() { delete window[cbName]; resolve(); };
+        s.src = SCRIPT_URL + '?action=getCourseReport&callback=' + cbName;
+        document.head.appendChild(s);
+        setTimeout(function(){ if(window[cbName]){delete window[cbName]; resolve();} }, 15000);
+      })
+    );
+  }
+
+  // Fetch both in parallel if needed
+  if(fetchPromises.length > 0) {
+    document.getElementById('eod-loading').textContent = '⏳ Loading data...';
+    await Promise.all(fetchPromises);
+  }
 
   document.getElementById('eod-loading').style.display = 'none';
 
-  // Filter by date and slot
-  let attData = allDashData.filter(r => r.type === 'Attendance');
-  let courseData = courseReportData;
-
-  if(date) {
-    attData = attData.filter(r => {
-      const d = (r.date||'').includes('T') ? r.date.split('T')[0] : r.date;
-      return d === date;
-    });
-    courseData = courseData.filter(r => {
-      const d = (r.date||'').includes('T') ? r.date.split('T')[0] : r.date;
-      return d === date;
-    });
+  // Filter by date range and slot
+  function inDateRange(dateStr) {
+    const d = (dateStr||'').includes('T') ? dateStr.split('T')[0] : (dateStr||'');
+    return d >= dateFrom && d <= dateTo;
   }
+
+  let attData = (allDashData||[]).filter(r => r.type === 'Attendance' || !r.type);
+  let courseData = courseReportData || [];
+
+  attData = attData.filter(r => inDateRange(r.date));
+  courseData = courseData.filter(r => inDateRange(r.date));
+
   if(slot) {
     attData = attData.filter(r => r.slot === slot);
     courseData = courseData.filter(r => r.slot === slot);
@@ -2495,14 +2589,17 @@ async function generateEODReport() {
     '</tr>';
 
   // Update title
-  document.getElementById('eod-report-title').textContent = 'EOD Report' + (date ? ' — ' + date : '');
-  document.getElementById('eod-report-subtitle').textContent = slot ? (slot === 'FN' ? 'Morning Session' : 'Afternoon Session') : 'All Sessions';
+  const titleDate = dateTo && dateTo !== dateFrom ? dateFrom + ' to ' + dateTo : dateFrom;
+  document.getElementById('eod-report-title').textContent = 'EOD Report' + (dateFrom ? ' — ' + titleDate : '');
+  document.getElementById('eod-report-subtitle').textContent = slot ? (slot === 'FN' ? 'Morning (FN)' : 'Afternoon (AN)') : 'All Sessions';
   document.getElementById('eod-report-content').style.display = 'block';
   document.getElementById('eod-export-btn').style.display = 'block';
 }
 
 function exportEODExcel() {
-  const date = document.getElementById('eod-date').value || 'All';
+  const dateFrom = document.getElementById('eod-date').value || 'All';
+  const dateTo = document.getElementById('eod-date-to').value || dateFrom;
+  const date = dateFrom === dateTo ? dateFrom : dateFrom + '_to_' + dateTo;
   const slot = document.getElementById('eod-slot').value || 'All';
 
   // City data
