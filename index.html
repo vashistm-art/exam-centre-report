@@ -750,6 +750,7 @@ tr:hover td{background:var(--input-bg)}
             <h3>Photo submitted!</h3>
             <p id="photo-success-detail"></p>
             <p id="photo-geo-detail" style="margin-top:4px;font-size:11px"></p>
+            <div id="photo-submitted-previews" style="display:none;gap:8px;margin-top:12px;flex-wrap:wrap;justify-content:center"></div>
           </div>
         </div>
       </div>
@@ -2216,6 +2217,35 @@ function exportPivotReport(type) {
 }
 
 // Submit centre photo
+// Compress image to reduce upload size and speed
+async function compressImage(file, maxWidth, quality) {
+  return new Promise((resolve) => {
+    const img = new Image();
+    const url = URL.createObjectURL(file);
+    img.onload = function() {
+      URL.revokeObjectURL(url);
+      const canvas = document.createElement('canvas');
+      let w = img.width, h = img.height;
+      if(w > maxWidth) { h = Math.round(h * maxWidth / w); w = maxWidth; }
+      canvas.width = w; canvas.height = h;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(img, 0, 0, w, h);
+      canvas.toBlob(blob => resolve(blob), 'image/jpeg', quality);
+    };
+    img.onerror = () => resolve(file); // fallback to original
+    img.src = url;
+  });
+}
+
+async function fileToBase64(file) {
+  return new Promise((resolve, reject) => {
+    const r = new FileReader();
+    r.onload = () => resolve(r.result.split(',')[1]);
+    r.onerror = reject;
+    r.readAsDataURL(file);
+  });
+}
+
 async function submitCentrePhoto() {
   const city = document.getElementById('photo-city').value;
   const date = document.getElementById('photo-date').value;
@@ -2231,47 +2261,73 @@ async function submitCentrePhoto() {
   if(!ok) return;
 
   const btn = document.getElementById('photo-submit');
-  btn.disabled = true; btn.textContent = '⏳ Uploading...';
+  btn.disabled = true;
   document.getElementById('photo-loading').style.display = 'block';
 
   try {
     for(let i=0; i<centrePhotoFiles.length; i++) {
       const f = centrePhotoFiles[i];
-      document.getElementById('photo-loading-text').textContent = 'Uploading photo ' + (i+1) + ' of ' + centrePhotoFiles.length + '...';
-      const base64 = await new Promise((resolve, reject) => {
-        const r = new FileReader();
-        r.onload = () => resolve(r.result.split(',')[1]);
-        r.onerror = reject;
-        r.readAsDataURL(f);
-      });
+      const loadingText = document.getElementById('photo-loading-text');
+
+      // Step 1: Compress
+      if(loadingText) loadingText.textContent = 'Compressing photo ' + (i+1) + '...';
+      let uploadFile = f;
+      if(f.type.startsWith('image/')) {
+        const compressed = await compressImage(f, 1024, 0.7); // max 1024px, 70% quality
+        uploadFile = new File([compressed], f.name.replace(/\.[^.]+$/, '.jpg'), {type:'image/jpeg'});
+      }
+
+      // Step 2: Convert to base64
+      if(loadingText) loadingText.textContent = 'Uploading photo ' + (i+1) + ' of ' + centrePhotoFiles.length + '...';
+      const base64 = await fileToBase64(uploadFile);
+
+      // Step 3: Upload
+      const originalSizeKB = Math.round(f.size/1024);
+      const compressedSizeKB = Math.round(uploadFile.size/1024);
+      console.log('Photo: ' + originalSizeKB + 'KB → ' + compressedSizeKB + 'KB compressed');
+
       await postData({
         city, date, slot,
         type: 'CentrePhoto',
         remarks,
-        geoTag: centrePhotoGeo ? centrePhotoGeo : null,
-        files: [{name: f.name, mimeType: f.type || 'image/jpeg', base64}]
+        geoTag: centrePhotoGeo || null,
+        files: [{name: uploadFile.name, mimeType: 'image/jpeg', base64}]
       });
     }
 
     document.getElementById('photo-loading').style.display = 'none';
     document.getElementById('photo-success').style.display = 'block';
-    document.getElementById('photo-success-detail').textContent = city + ' | ' + date + ' | ' + slot;
+    document.getElementById('photo-success-detail').textContent = city + ' | ' + date + ' | ' + (slot === 'FN' ? 'Morning FN' : 'Afternoon AN');
     if(centrePhotoGeo) {
       document.getElementById('photo-geo-detail').textContent = '📍 ' + centrePhotoGeo.lat + ', ' + centrePhotoGeo.lng + ' (±' + centrePhotoGeo.accuracy + 'm)';
     }
-    btn.textContent = '📸 Submit Centre Photo';
 
-    // Reset
+    // Show photo previews
+    const previewArea = document.getElementById('photo-submitted-previews');
+    if(previewArea) {
+      previewArea.innerHTML = centrePhotoFiles.map(f => {
+        const url = URL.createObjectURL(f);
+        return '<img src="' + url + '" style="width:80px;height:80px;object-fit:cover;border-radius:6px;border:1px solid var(--border)">';
+      }).join('');
+      previewArea.style.display = 'flex';
+    }
+
+    btn.disabled = false;
+    btn.textContent = '📸 Submit Another';
+
+    // Reset files
     centrePhotoFiles = [];
     centrePhotoGeo = null;
     document.getElementById('photo-file-list').innerHTML = '';
-    document.getElementById('geo-status').style.display = 'none';
+    const geo = document.getElementById('geo-status');
+    if(geo) geo.style.display = 'none';
 
   } catch(err) {
+    console.error('Upload error:', err);
     document.getElementById('photo-loading').style.display = 'none';
     btn.disabled = false;
     btn.textContent = '📸 Submit Centre Photo';
-    alert('Upload failed. Please try again.');
+    alert('Upload failed: ' + (err.message || 'Please try again.'));
   }
 }
 
