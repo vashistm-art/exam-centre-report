@@ -3503,13 +3503,15 @@ function confirmSubmit() {
 }
 
 // Close modal on overlay click
-document.getElementById('confirmModal').addEventListener('click', function(e) {
+var confirmModalEl = document.getElementById('confirmModal');
+if(confirmModalEl) confirmModalEl.addEventListener('click', function(e) {
   if(e.target === this) closeModal();
 });
 
 // Drag & drop
 [{id:'att-dropzone',key:'att'},{id:'umc-dropzone1',key:'umc1'},{id:'umc-dropzone2',key:'umc2'}].forEach(({id,key})=>{
   const dz=document.getElementById(id);
+  if(!dz) return;
   dz.addEventListener('dragover',e=>{e.preventDefault();dz.classList.add('dragover');});
   dz.addEventListener('dragleave',()=>dz.classList.remove('dragover'));
   dz.addEventListener('drop',e=>{e.preventDefault();dz.classList.remove('dragover');handleFiles(key,e.dataTransfer.files);});
