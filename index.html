@@ -521,18 +521,7 @@ tr:hover td{background:var(--input-bg)}
             <div class="file-list" id="umc2-file-list"></div>
           </div>
 
-          <!-- Centre photograph with geotag -->
-          <div class="field">
-            <label class="field-label">Centre photograph <span style="font-size:11px;color:var(--muted);font-weight:400">— with geo-tag location</span></label>
-            <div class="upload-area" id="umc-dropzone3" style="position:relative">
-              <input type="file" id="umc-file3" accept="image/*" capture="environment" onchange="handleCentrePhoto(this.files)">
-              <div class="upload-icon">📸</div>
-              <div class="upload-text">Take photo or upload centre image</div>
-              <div class="upload-hint">JPG, PNG — location will be captured automatically</div>
-            </div>
-            <div class="file-list" id="umc3-file-list"></div>
-            <div id="geo-status" style="font-size:12px;margin-top:6px;display:none;padding:6px 10px;border-radius:6px"></div>
-          </div>
+
           <hr class="divider">
           <button class="btn-submit" id="umc-submit" onclick="showConfirmModal('umc')">Submit UMC report</button>
           <div class="loading" id="umc-loading"><span class="spinner"></span><span id="umc-loading-text">Uploading...</span><div style="font-size:11px;color:var(--muted);margin-top:6px" id="umc-loading-sub">Please do not close or refresh</div></div>
@@ -628,6 +617,69 @@ tr:hover td{background:var(--input-bg)}
           </div>
         </div>
       </div>
+      </div>
+
+      <!-- Centre Photo Page -->
+      <div class="page" id="page-centrephoto">
+        <div class="form-card">
+          <h2>📸 Centre Photograph</h2>
+          <p class="sub">Upload centre photograph with geo-tag location for verification.</p>
+
+          <div class="field">
+            <label class="field-label" for="photo-city">Test centre <span class="required">*</span></label>
+            <select id="photo-city" style="width:100%;height:42px;border-radius:8px;border:1px solid var(--input-border);background:var(--input-bg);color:var(--text);font-size:14px;padding:0 12px;outline:none;appearance:none">
+              <option value="">— Select test centre —</option>
+            </select>
+            <div class="err" id="photo-err-city">Please select a test centre.</div>
+          </div>
+
+          <div class="field">
+            <label class="field-label">Date <span class="required">*</span></label>
+            <input type="date" id="photo-date" style="width:100%;height:42px;border-radius:8px;border:1px solid var(--input-border);background:var(--input-bg);color:var(--text);font-size:14px;padding:0 12px;outline:none;cursor:pointer;-webkit-appearance:none"/>
+            <div class="err" id="photo-err-date">Please select a date.</div>
+          </div>
+
+          <div class="field">
+            <label class="field-label">Session <span class="required">*</span></label>
+            <div class="slot-grid">
+              <label class="slot-card" id="photo-card-fn" onclick="selectSlot('photo','FN')"><input type="radio" name="photo-slot"><div class="slot-icon">🌅</div><div class="slot-name">Morning session</div><span class="slot-code">FN</span><div class="slot-time">09:30 – 12:00 Hrs</div></label>
+              <label class="slot-card" id="photo-card-an" onclick="selectSlot('photo','AN')"><input type="radio" name="photo-slot"><div class="slot-icon">☀️</div><div class="slot-name">Afternoon session</div><span class="slot-code">AN</span><div class="slot-time">14:00 – 17:00 Hrs</div></label>
+            </div>
+            <div class="err" id="photo-err-slot">Please select a session.</div>
+          </div>
+
+          <div class="field">
+            <label class="field-label">Centre photograph <span class="required">*</span></label>
+            <div class="upload-area" id="photo-dropzone">
+              <input type="file" id="photo-file" accept="image/*" capture="environment" onchange="handleCentrePhoto(this.files)">
+              <div class="upload-icon">📸</div>
+              <div class="upload-text">Take photo or click to browse</div>
+              <div class="upload-hint">JPG, PNG — GPS location will be captured automatically</div>
+            </div>
+            <div class="file-list" id="photo-file-list"></div>
+            <div class="err" id="photo-err-file">Please upload a centre photograph.</div>
+          </div>
+
+          <!-- Geo location status -->
+          <div id="geo-status" style="display:none;font-size:13px;padding:10px 14px;border-radius:8px;margin-bottom:1rem;display:none">
+          </div>
+
+          <!-- Remarks -->
+          <div class="field">
+            <label class="field-label">Remarks (optional)</label>
+            <input type="text" id="photo-remarks" placeholder="Any notes about the centre..." style="width:100%;height:42px;border-radius:8px;border:1px solid var(--input-border);background:var(--input-bg);color:var(--text);font-size:14px;padding:0 12px;outline:none">
+          </div>
+
+          <hr class="divider">
+          <button class="btn-submit" id="photo-submit" onclick="submitCentrePhoto()">📸 Submit Centre Photo</button>
+          <div class="loading" id="photo-loading"><span class="spinner"></span><span id="photo-loading-text">Uploading...</span><div style="font-size:11px;color:var(--muted);margin-top:6px">Please do not close or refresh</div></div>
+          <div class="success-banner" id="photo-success">
+            <div style="font-size:28px;margin-bottom:6px">✅</div>
+            <h3>Photo submitted!</h3>
+            <p id="photo-success-detail"></p>
+            <p id="photo-geo-detail" style="margin-top:4px;font-size:11px"></p>
+          </div>
+        </div>
       </div>
 
       <!-- Admin Page -->
@@ -819,6 +871,7 @@ tr:hover td{background:var(--input-bg)}
     <div class="bottom-nav-item" id="bnav-umc" onclick="showPage('umc');setBottomNav('umc')"><span class="bnav-icon">⚠️</span><span class="bnav-label">UMC</span></div>
     <div class="bottom-nav-item" id="bnav-dashboard" style="display:none" onclick="showPage('dashboard');setBottomNav('dashboard')"><span class="bnav-icon">📊</span><span class="bnav-label">Dashboard</span></div>
     <div class="bottom-nav-item" id="bnav-reports" style="display:none" onclick="showPage('reports');setBottomNav('reports')"><span class="bnav-icon">📈</span><span class="bnav-label">Reports</span></div>
+    <div class="bottom-nav-item" id="bnav-centrephoto" onclick="showPage('centrephoto');setBottomNav('centrephoto')"><span class="bnav-icon">📸</span><span class="bnav-label">Centre Photo</span></div>
     <div class="bottom-nav-item" id="bnav-admin" style="display:none" onclick="showPage('admin');setBottomNav('admin')"><span class="bnav-icon">🔐</span><span class="bnav-label">Admin</span></div>
   </div>
 </div>
@@ -1501,7 +1554,7 @@ function updateCityDropdowns() {
     TEST_CENTRES.map(c => `<option>${c}</option>`).join('');
 
   // Update form dropdowns
-  ['att-city','umc-city'].forEach(id => {
+  ['att-city','umc-city','photo-city'].forEach(id => {
     const sel = document.getElementById(id);
     if(sel) sel.innerHTML = opts;
   });
@@ -1924,6 +1977,66 @@ function exportPivotReport(type) {
   URL.revokeObjectURL(url);
 }
 
+// Submit centre photo
+async function submitCentrePhoto() {
+  const city = document.getElementById('photo-city').value;
+  const date = document.getElementById('photo-date').value;
+  const slot = slots['photo'];
+  const remarks = document.getElementById('photo-remarks').value || '';
+
+  // Validate
+  let ok = true;
+  document.getElementById('photo-err-city').style.display = city ? 'none' : 'block'; if(!city) ok=false;
+  document.getElementById('photo-err-date').style.display = date ? 'none' : 'block'; if(!date) ok=false;
+  document.getElementById('photo-err-slot').style.display = slot ? 'none' : 'block'; if(!slot) ok=false;
+  document.getElementById('photo-err-file').style.display = centrePhotoFiles.length > 0 ? 'none' : 'block'; if(!centrePhotoFiles.length) ok=false;
+  if(!ok) return;
+
+  const btn = document.getElementById('photo-submit');
+  btn.disabled = true; btn.textContent = '⏳ Uploading...';
+  document.getElementById('photo-loading').style.display = 'block';
+
+  try {
+    for(let i=0; i<centrePhotoFiles.length; i++) {
+      const f = centrePhotoFiles[i];
+      document.getElementById('photo-loading-text').textContent = 'Uploading photo ' + (i+1) + ' of ' + centrePhotoFiles.length + '...';
+      const base64 = await new Promise((resolve, reject) => {
+        const r = new FileReader();
+        r.onload = () => resolve(r.result.split(',')[1]);
+        r.onerror = reject;
+        r.readAsDataURL(f);
+      });
+      await postData({
+        city, date, slot,
+        type: 'CentrePhoto',
+        remarks,
+        geoTag: centrePhotoGeo ? centrePhotoGeo : null,
+        files: [{name: f.name, mimeType: f.type || 'image/jpeg', base64}]
+      });
+    }
+
+    document.getElementById('photo-loading').style.display = 'none';
+    document.getElementById('photo-success').style.display = 'block';
+    document.getElementById('photo-success-detail').textContent = city + ' | ' + date + ' | ' + slot;
+    if(centrePhotoGeo) {
+      document.getElementById('photo-geo-detail').textContent = '📍 ' + centrePhotoGeo.lat + ', ' + centrePhotoGeo.lng + ' (±' + centrePhotoGeo.accuracy + 'm)';
+    }
+    btn.textContent = '📸 Submit Centre Photo';
+
+    // Reset
+    centrePhotoFiles = [];
+    centrePhotoGeo = null;
+    document.getElementById('photo-file-list').innerHTML = '';
+    document.getElementById('geo-status').style.display = 'none';
+
+  } catch(err) {
+    document.getElementById('photo-loading').style.display = 'none';
+    btn.disabled = false;
+    btn.textContent = '📸 Submit Centre Photo';
+    alert('Upload failed. Please try again.');
+  }
+}
+
 function exportAttReport() {
   if(!attReportData.length) { alert('No attendance data to export.'); return; }
   const headers = ['City','Date','Session','Registered','Present','Absent','Attendance %','Remarks'];
@@ -2119,8 +2232,8 @@ function buildSidebar(role) {
   const nav = document.getElementById('sidebarNav');
   nav.innerHTML='';
   const items = role==='admin'
-    ? [{id:'dashboard',icon:'📊',label:'Dashboard'},{id:'reports',icon:'📈',label:'Reports'},{id:'attendance',icon:'📋',label:'Attendance Sheet'},{id:'umc',icon:'⚠️',label:'UMC Form'},{id:'admin',icon:'🔐',label:'Admin Panel'}]
-    : [{id:'attendance',icon:'📋',label:'Attendance Sheet'},{id:'umc',icon:'⚠️',label:'UMC Form'}];
+    ? [{id:'dashboard',icon:'📊',label:'Dashboard'},{id:'reports',icon:'📈',label:'Reports'},{id:'attendance',icon:'📋',label:'Attendance Sheet'},{id:'umc',icon:'⚠️',label:'UMC Form'},{id:'centrephoto',icon:'📸',label:'Centre Photo'},{id:'admin',icon:'🔐',label:'Admin Panel'}]
+    : [{id:'attendance',icon:'📋',label:'Attendance Sheet'},{id:'umc',icon:'⚠️',label:'UMC Form'},{id:'centrephoto',icon:'📸',label:'Centre Photo'}];
   items.forEach(item => {
     const div = document.createElement('div');
     div.className='nav-item';
@@ -2137,10 +2250,11 @@ function setupBottomNav(role) {
     document.getElementById('bnav-reports').style.display='flex';
     document.getElementById('bnav-admin').style.display='flex';
   }
+  document.getElementById('bnav-centrephoto').style.display='flex';
 }
 
 // Pages
-const pageTitles={dashboard:'Dashboard',reports:'Reports',attendance:'Attendance Sheet',umc:'UMC Form',admin:'Admin Panel'};
+const pageTitles={dashboard:'Dashboard',reports:'Reports',attendance:'Attendance Sheet',umc:'UMC Form',centrephoto:'Centre Photo',admin:'Admin Panel'};
 function showPage(id) {
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
@@ -2220,7 +2334,7 @@ async function submitForm(form) {
   const date=document.getElementById(form+'-date').value;
   const slot=slots[form];
   const type=form==='umc'?'UMC':'Attendance';
-  const formFiles=form==='umc'?[...files['umc1'],...files['umc2'],...centrePhotoFiles]:files['att'];
+  const formFiles=form==='umc'?[...files['umc1'],...files['umc2']]:files['att'];
   const btn=document.getElementById(form+'-submit');
   btn.disabled=true; btn.textContent='⏳ Uploading...';
   document.getElementById(form+'-loading').style.display='block';
