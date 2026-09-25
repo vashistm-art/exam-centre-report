@@ -1005,9 +1005,9 @@ function loadActiveCourses() {
   if(COURSE_CODES.length === 0) {
     tagsEl.innerHTML = '<span style="color:var(--muted);font-size:12px">No course codes added yet. Add them in Manage Course Codes section.</span>';
   } else {
-    tagsEl.innerHTML = COURSE_CODES.map(c =>
-      '<span onclick="toggleActiveCourse('' + c + '',this)" data-code="' + c + '" style="display:inline-block;font-size:11px;padding:4px 10px;border-radius:20px;border:1px solid var(--border);background:var(--card);color:var(--text2);cursor:pointer;margin:3px;transition:all 0.15s">' + c + '</span>'
-    ).join('');
+    tagsEl.innerHTML = COURSE_CODES.map(function(c) {
+      return '<span onclick="toggleActiveCourse(this)" data-code="' + c + '" style="display:inline-block;font-size:11px;padding:4px 10px;border-radius:20px;border:1px solid var(--border);background:var(--card);color:var(--text2);cursor:pointer;margin:3px;transition:all 0.15s">' + c + '</span>';
+    }).join('');
   }
 
   selectedActiveCourses = [];
@@ -1064,8 +1064,9 @@ function getActiveSlotKey() {
   return slot;
 }
 
-function toggleActiveCourse(code, el) {
-  const idx = selectedActiveCourses.indexOf(code);
+function toggleActiveCourse(el) {
+  var code = el.getAttribute('data-code');
+  var idx = selectedActiveCourses.indexOf(code);
   if(idx > -1) {
     selectedActiveCourses.splice(idx, 1);
     el.style.background='var(--card)'; el.style.color='var(--text2)'; el.style.borderColor='var(--border)';
