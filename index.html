@@ -325,7 +325,6 @@ tr:hover td{background:var(--input-bg)}
               <label style="font-size:11px;font-weight:600;color:var(--muted);display:block;margin-bottom:4px">CITY</label>
               <select id="filter-city" style="width:100%;height:36px;border-radius:7px;border:1px solid var(--input-border);background:var(--input-bg);color:var(--text);font-size:13px;padding:0 10px;outline:none;appearance:none" onchange="applyFilters()">
                 <option value="">All Cities</option>
-                <option>Ahmedabad</option><option>Bangalore North</option><option>Bangalore South</option><option>Bhubaneswar</option><option>Chandigarh</option><option>Chennai - West</option><option>Coimbatore</option><option>Delhi</option><option>Ernakulam</option><option>Guwahati</option><option>Hosur</option><option>Hyderabad</option><option>Indore</option><option>Jaipur</option><option>Kolkata</option><option>Lucknow</option><option>Madurai</option><option>Mumbai - East</option><option>Mumbai - West</option><option>Nagpur</option><option>Noida</option><option>Patna</option><option>Pondicherry</option><option>Pune</option><option>Salem</option><option>Thiruvananthapuram</option><option>Tirupati</option><option>Vijayawada</option><option>Visakhapatnam</option><option>VIT Chennai</option><option>VIT Vellore</option>
               </select>
             </div>
             <div style="flex:1;min-width:110px">
@@ -414,9 +413,7 @@ tr:hover td{background:var(--input-bg)}
           <p class="sub">Submit attendance documents for your exam centre.</p>
           <div class="field">
             <label class="field-label" for="att-city">Test centre <span class="required">*</span></label>
-            <select id="att-city"><option value="">— Select test centre —</option>
-              <option>Ahmedabad</option><option>Bangalore North</option><option>Bangalore South</option><option>Bhubaneswar</option><option>Chandigarh</option><option>Chennai - West</option><option>Coimbatore</option><option>Delhi</option><option>Ernakulam</option><option>Guwahati</option><option>Hosur</option><option>Hyderabad</option><option>Indore</option><option>Jaipur</option><option>Kolkata</option><option>Lucknow</option><option>Madurai</option><option>Mumbai - East</option><option>Mumbai - West</option><option>Nagpur</option><option>Noida</option><option>Patna</option><option>Pondicherry</option><option>Pune</option><option>Salem</option><option>Thiruvananthapuram</option><option>Tirupati</option><option>Vijayawada</option><option>Visakhapatnam</option><option>VIT Chennai</option><option>VIT Vellore</option>
-            </select>
+            <select id="att-city"><option value="">— Select test centre —</option></select>
             <div class="err" id="att-err-city">Please select a test centre.</div>
           </div>
           <div class="field">
@@ -496,9 +493,7 @@ tr:hover td{background:var(--input-bg)}
           <p class="sub">Report an Unfair Means Case at your exam centre.</p>
           <div class="field">
             <label class="field-label" for="umc-city">Test centre <span class="required">*</span></label>
-            <select id="umc-city"><option value="">— Select test centre —</option>
-              <option>Ahmedabad</option><option>Bangalore North</option><option>Bangalore South</option><option>Bhubaneswar</option><option>Chandigarh</option><option>Chennai - West</option><option>Coimbatore</option><option>Delhi</option><option>Ernakulam</option><option>Guwahati</option><option>Hosur</option><option>Hyderabad</option><option>Indore</option><option>Jaipur</option><option>Kolkata</option><option>Lucknow</option><option>Madurai</option><option>Mumbai - East</option><option>Mumbai - West</option><option>Nagpur</option><option>Noida</option><option>Patna</option><option>Pondicherry</option><option>Pune</option><option>Salem</option><option>Thiruvananthapuram</option><option>Tirupati</option><option>Vijayawada</option><option>Visakhapatnam</option><option>VIT Chennai</option><option>VIT Vellore</option>
-            </select>
+            <select id="umc-city"><option value="">— Select test centre —</option></select>
             <div class="err" id="umc-err-city">Please select a test centre.</div>
           </div>
           <div class="field">
@@ -524,6 +519,19 @@ tr:hover td{background:var(--input-bg)}
             <label class="field-label">Upload proof of UMC</label>
             <div class="upload-area" id="umc-dropzone2"><input type="file" id="umc-file2" multiple accept=".pdf,.jpg,.jpeg,.png,.mp4,.mov" onchange="handleFiles('umc2',this.files)"><div class="upload-icon">🖼️</div><div class="upload-text">Click to browse or drag &amp; drop</div><div class="upload-hint">PDF, JPG, PNG, Video</div></div>
             <div class="file-list" id="umc2-file-list"></div>
+          </div>
+
+          <!-- Centre photograph with geotag -->
+          <div class="field">
+            <label class="field-label">Centre photograph <span style="font-size:11px;color:var(--muted);font-weight:400">— with geo-tag location</span></label>
+            <div class="upload-area" id="umc-dropzone3" style="position:relative">
+              <input type="file" id="umc-file3" accept="image/*" capture="environment" onchange="handleCentrePhoto(this.files)">
+              <div class="upload-icon">📸</div>
+              <div class="upload-text">Take photo or upload centre image</div>
+              <div class="upload-hint">JPG, PNG — location will be captured automatically</div>
+            </div>
+            <div class="file-list" id="umc3-file-list"></div>
+            <div id="geo-status" style="font-size:12px;margin-top:6px;display:none;padding:6px 10px;border-radius:6px"></div>
           </div>
           <hr class="divider">
           <button class="btn-submit" id="umc-submit" onclick="showConfirmModal('umc')">Submit UMC report</button>
@@ -629,9 +637,37 @@ tr:hover td{background:var(--input-bg)}
         <div class="form-card" style="margin-bottom:16px">
           <h2>🔐 Admin Panel</h2>
           <p class="sub">Quick access to submissions and Drive folders.</p>
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:16px">
+            <div style="background:var(--accent-bg);border:1px solid var(--border);border-radius:8px;padding:10px;text-align:center;font-size:12px">
+              <div style="font-size:20px;margin-bottom:4px">🏢</div>
+              <div style="font-weight:600;color:var(--text)">Test Centres</div>
+              <div style="color:var(--muted);font-size:11px">Manage below</div>
+            </div>
+            <div style="background:var(--accent-bg);border:1px solid var(--border);border-radius:8px;padding:10px;text-align:center;font-size:12px">
+              <div style="font-size:20px;margin-bottom:4px">📚</div>
+              <div style="font-weight:600;color:var(--text)">Course Codes</div>
+              <div style="color:var(--muted);font-size:11px">Manage below</div>
+            </div>
+            <div style="background:var(--accent-bg);border:1px solid var(--border);border-radius:8px;padding:10px;text-align:center;font-size:12px">
+              <div style="font-size:20px;margin-bottom:4px">🧑‍💼</div>
+              <div style="font-weight:600;color:var(--text)">Coordinators</div>
+              <div style="color:var(--muted);font-size:11px">Manage below</div>
+            </div>
+          </div>
           <a class="drive-link-box" id="att-log-link" href="#" target="_blank" onclick="openSheetLink('att',event)">📊 Attendance — Submissions Log →</a>
           <a class="drive-link-box" id="umc-log-link-btn" href="#" target="_blank" onclick="openSheetLink('umc',event)">📊 UMC — Submissions Log →</a>
           <a class="drive-link-box" href="https://drive.google.com/drive/folders/1OtI5E0C_AkL2TiRKx6QDIrdxc4Bl5eT7" target="_blank">📁 Open Google Drive Root Folder →</a>
+        </div>
+
+        <!-- Manage Test Centres -->
+        <div class="form-card" style="margin-bottom:16px">
+          <h2>🏢 Manage Test Centres</h2>
+          <p class="sub">Add or remove test centres available in the dropdown.</p>
+          <div style="display:flex;gap:8px;margin-bottom:12px">
+            <input type="text" id="new-centre-input" placeholder="e.g. Chennai - East" style="flex:1;height:38px;border-radius:8px;border:1px solid var(--input-border);background:var(--input-bg);color:var(--text);font-size:14px;padding:0 12px;outline:none" onkeydown="if(event.key==='Enter')addTestCentre()">
+            <button onclick="addTestCentre()" style="height:38px;padding:0 16px;border-radius:8px;border:none;background:var(--accent);color:#fff;font-size:13px;font-weight:600;cursor:pointer">Add</button>
+          </div>
+          <div id="centre-list" style="display:flex;flex-wrap:wrap;gap:6px;max-height:200px;overflow-y:auto;padding:10px;background:var(--input-bg);border:1px solid var(--border);border-radius:8px"></div>
         </div>
 
         <!-- Active Courses for the Day -->
@@ -1366,6 +1402,132 @@ function renderReports() {
 }
 
 // ===== COORDINATOR MANAGEMENT =====
+// ===== CENTRE PHOTO WITH GEOTAG =====
+let centrePhotoFiles = [];
+let centrePhotoGeo = null;
+
+function handleCentrePhoto(fileList) {
+  centrePhotoFiles = Array.from(fileList);
+  const list = document.getElementById('umc3-file-list');
+  const status = document.getElementById('geo-status');
+  
+  // Show file
+  list.innerHTML = '';
+  centrePhotoFiles.forEach((f,i) => {
+    const div = document.createElement('div');
+    div.className = 'file-item';
+    div.innerHTML = `<span>📸</span><span class="file-name">${f.name}</span><span class="file-size">${(f.size/1024).toFixed(0)} KB</span><span class="file-remove" onclick="removeCentrePhoto()">✕</span>`;
+    list.appendChild(div);
+  });
+
+  // Capture geolocation
+  if(navigator.geolocation) {
+    status.style.display = 'block';
+    status.style.background = 'var(--input-bg)';
+    status.style.color = 'var(--muted)';
+    status.textContent = '📍 Capturing location...';
+    
+    navigator.geolocation.getCurrentPosition(
+      function(pos) {
+        centrePhotoGeo = {
+          lat: pos.coords.latitude.toFixed(6),
+          lng: pos.coords.longitude.toFixed(6),
+          accuracy: Math.round(pos.coords.accuracy)
+        };
+        status.style.background = '#dcfce7';
+        status.style.color = '#065f46';
+        status.textContent = '📍 Location captured: ' + centrePhotoGeo.lat + ', ' + centrePhotoGeo.lng + ' (±' + centrePhotoGeo.accuracy + 'm)';
+      },
+      function(err) {
+        centrePhotoGeo = null;
+        status.style.background = '#fef3c7';
+        status.style.color = '#92400e';
+        status.textContent = '⚠️ Could not capture location: ' + err.message;
+      },
+      { enableHighAccuracy: true, timeout: 10000 }
+    );
+  } else {
+    status.style.display = 'block';
+    status.style.background = '#fef3c7';
+    status.style.color = '#92400e';
+    status.textContent = '⚠️ Location not supported on this device.';
+  }
+}
+
+function removeCentrePhoto() {
+  centrePhotoFiles = [];
+  centrePhotoGeo = null;
+  document.getElementById('umc3-file-list').innerHTML = '';
+  document.getElementById('geo-status').style.display = 'none';
+  document.getElementById('umc-file3').value = '';
+}
+
+// ===== MANAGE TEST CENTRES =====
+// Test centres list - can be managed from Admin Panel
+let TEST_CENTRES = ['Ahmedabad','Bangalore North','Bangalore South','Bhubaneswar','Chandigarh','Chennai - West','Coimbatore','Delhi','Ernakulam','Guwahati','Hosur','Hyderabad','Indore','Jaipur','Kolkata','Lucknow','Madurai','Mumbai - East','Mumbai - West','Nagpur','Noida','Patna','Pondicherry','Pune','Salem','Thiruvananthapuram','Tirupati','Vijayawada','Visakhapatnam','VIT Chennai','VIT Vellore'];
+
+function renderCentreList() {
+  const list = document.getElementById('centre-list');
+  if(!list) return;
+  list.innerHTML = TEST_CENTRES.map((c,i) => `
+    <span style="display:inline-flex;align-items:center;gap:4px;padding:4px 10px;border-radius:20px;background:var(--accent-bg);color:var(--accent);font-size:12px;font-weight:500">
+      ${c}
+      <button onclick="removeTestCentre(${i})" style="background:none;border:none;color:var(--accent);cursor:pointer;font-size:14px;line-height:1;padding:0 2px">×</button>
+    </span>
+  `).join('');
+  // Also update all city dropdowns in the app
+  updateCityDropdowns();
+}
+
+function addTestCentre() {
+  const input = document.getElementById('new-centre-input');
+  const val = input.value.trim();
+  if(!val) return;
+  if(TEST_CENTRES.includes(val)) { alert('Centre already exists!'); return; }
+  TEST_CENTRES.push(val);
+  TEST_CENTRES.sort();
+  input.value = '';
+  renderCentreList();
+}
+
+function removeTestCentre(idx) {
+  if(!confirm('Remove ' + TEST_CENTRES[idx] + '?')) return;
+  TEST_CENTRES.splice(idx, 1);
+  renderCentreList();
+}
+
+function updateCityDropdowns() {
+  const opts = '<option value="">— Select test centre —</option>' +
+    TEST_CENTRES.map(c => `<option>${c}</option>`).join('');
+
+  // Update form dropdowns
+  ['att-city','umc-city'].forEach(id => {
+    const sel = document.getElementById(id);
+    if(sel) sel.innerHTML = opts;
+  });
+
+  // Update dashboard filter dropdown
+  const filterCity = document.getElementById('filter-city');
+  if(filterCity) {
+    filterCity.innerHTML = '<option value="">All Cities</option>' +
+      TEST_CENTRES.map(c => `<option>${c}</option>`).join('');
+  }
+
+  // Update coordinator city tags
+  const coordTags = document.getElementById('coord-city-tags');
+  if(coordTags) {
+    coordTags.innerHTML = TEST_CENTRES.map(c =>
+      `<span class="city-tag" onclick="toggleCoordCity(this)" data-city="${c}" style="display:inline-block;font-size:11px;padding:4px 10px;border-radius:20px;border:1px solid var(--border);background:var(--card);color:var(--text2);cursor:pointer;margin:3px;transition:all 0.15s">${c}</span>`
+    ).join('');
+  }
+
+  // Update active course city options if exists
+  const activeCityOpts = document.getElementById('active-course-city-opts');
+  if(activeCityOpts) {
+    activeCityOpts.innerHTML = TEST_CENTRES.map(c => `<option>${c}</option>`).join('');
+  }
+}
+
 // Open sheet links dynamically
 async function openSheetLink(type, e) {
   e.preventDefault();
@@ -1931,6 +2093,7 @@ function startApp(role, user) {
 
   buildSidebar(role);
   setupBottomNav(role);
+  updateCityDropdowns(); // populate city dropdowns from TEST_CENTRES
   if(role==='admin') showPage('dashboard');
   else showPage('attendance');
 }
@@ -2057,7 +2220,7 @@ async function submitForm(form) {
   const date=document.getElementById(form+'-date').value;
   const slot=slots[form];
   const type=form==='umc'?'UMC':'Attendance';
-  const formFiles=form==='umc'?[...files['umc1'],...files['umc2']]:files['att'];
+  const formFiles=form==='umc'?[...files['umc1'],...files['umc2'],...centrePhotoFiles]:files['att'];
   const btn=document.getElementById(form+'-submit');
   btn.disabled=true; btn.textContent='⏳ Uploading...';
   document.getElementById(form+'-loading').style.display='block';
@@ -2286,7 +2449,7 @@ function updateDashboard() {
 }
 
 let allDashData = [];
-const ALL_CITIES = ['Ahmedabad','Bangalore North','Bangalore South','Bhubaneswar','Chandigarh','Chennai - West','Coimbatore','Delhi','Ernakulam','Guwahati','Hosur','Hyderabad','Indore','Jaipur','Kolkata','Lucknow','Madurai','Mumbai - East','Mumbai - West','Nagpur','Noida','Patna','Pondicherry','Pune','Salem','Thiruvananthapuram','Tirupati','Vijayawada','Visakhapatnam','VIT Chennai','VIT Vellore'];
+// ALL_CITIES now uses TEST_CENTRES - managed from Admin Panel
 
 function applyFilters() {
   const fromDate = document.getElementById('filter-from').value;
@@ -2331,7 +2494,7 @@ function renderCityChart(rows) {
 
 function renderMissingCities(rows) {
   const submitted = new Set(rows.map(r=>r.city));
-  const missing = ALL_CITIES.filter(c=>!submitted.has(c));
+  const missing = TEST_CENTRES.filter(c=>!submitted.has(c));
   const el = document.getElementById('missing-cities');
   if(!missing.length){el.innerHTML='<span style="color:#4ade80;font-size:12px">✅ All cities have submitted!</span>';return;}
   el.innerHTML = missing.map(c=>`<span class="missing-badge">${c}</span>`).join('');
