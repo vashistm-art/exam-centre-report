@@ -2607,12 +2607,12 @@ const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzGOlJgDPbkfo-HszzKP
 const ADMIN_PASSWORD = "CT@Admin2026";
 const PASSWORDS = {coord:"CT@Coord2026", admin:"CT@Admin2026"};
 
-let currentRole = sessionStorage.getItem('ctRole') || null;
-let isDark = sessionStorage.getItem('ctTheme') === 'dark';
+let currentRole = localStorage.getItem('ctRole') || null;
+let isDark = localStorage.getItem('ctTheme') === 'dark';
 let files = {att:[],umc1:[],umc2:[]};
 let slots = {att:'',umc:''};
 let lastFolder = {att:'',umc:''};
-let submissions = JSON.parse(sessionStorage.getItem('ctSubmissions') || '[]');
+let submissions = JSON.parse(localStorage.getItem('ctSubmissions') || '[]');
 
 // Clock
 function updateClock() {
@@ -2626,7 +2626,7 @@ updateClock(); setInterval(updateClock,1000);
 function toggleTheme() {
   isDark = !isDark;
   document.documentElement.setAttribute('data-theme', isDark?'dark':'light');
-  sessionStorage.setItem('ctTheme', isDark?'dark':'light');
+  localStorage.setItem('ctTheme', isDark?'dark':'light');
   const icon = isDark?'☀️':'🌙';
   document.getElementById('themeBtn').textContent = icon;
   document.getElementById('loginThemeBtn').textContent = icon;
@@ -2704,33 +2704,83 @@ function handleGoogleLogin(response) {
       return;
     }
 
-    // Check coordinator via Apps Script
-    const cbName = 'authCB_' + Date.now();
-    const script = document.createElement('script');
-    window[cbName] = function(result) {
-      delete window[cbName];
-      if(document.head.contains(script)) document.head.removeChild(script);
-      if(errEl) errEl.style.display = 'none';
-      if(result && result.status === 'success') {
-        startApp(result.role, {email, name, picture});
-      } else {
-        if(errEl) { errEl.style.color = '#ef4444'; errEl.textContent = '⛔ Access denied. ' + email + ' is not approved. Please contact admin.'; errEl.style.display = 'block'; }
-      }
-    };
-    script.onerror = function() {
-      delete window[cbName];
-      // If Apps Script unreachable, deny access
-      if(errEl) { errEl.style.color = '#ef4444'; errEl.textContent = '⚠️ Could not verify access. Please try again.'; errEl.style.display = 'block'; }
-    };
-    // 10 second timeout
-    setTimeout(function() {
-      if(window[cbName]) {
+    // Check coordinator via Apps Script with retry
+    var authAttempt = 0;
+    function tryAuth() {
+      authAttempt++;
+      if(errEl) { errEl.style.color = 'var(--muted)'; errEl.textContent = '⏳ Verifying access' + (authAttempt > 1 ? ' (attempt ' + authAttempt + ')...' : '...'); errEl.style.display = 'block'; }
+      
+      const cbName = 'authCB_' + Date.now();
+      const script = document.createElement('script');
+      var done = false;
+      
+      window[cbName] = function(result) {
+        if(done) return; done = true;
         delete window[cbName];
-        if(errEl) { errEl.style.color = '#ef4444'; errEl.textContent = '⚠️ Verification timed out. Please try again.'; errEl.style.display = 'block'; }
-      }
-    }, 10000);
-    script.src = SCRIPT_URL + '?action=checkAccess&email=' + encodeURIComponent(email) + '&callback=' + cbName;
-    document.head.appendChild(script);
+        if(document.head.contains(script)) document.head.removeChild(script);
+        if(errEl) errEl.style.display = 'none';
+        if(result && result.status === 'success') {
+          startApp(result.role, {email, name, picture});
+        } else {
+          if(errEl) { errEl.style.color = '#ef4444'; errEl.textContent = '⛔ Access denied. ' + email + ' is not approved. Please contact admin.'; errEl.style.display = 'block'; }
+        }
+      };
+      
+      script.onerror = function() {
+        if(done) return; done = true;
+        delete window[cbName];
+        if(document.head.contains(script)) document.head.removeChild(script);
+        if(authAttempt < 3) {
+          // Retry up to 3 times
+          setTimeout(tryAuth, 1500);
+        } else {
+          // After 3 failures, try XHR fallback
+          tryAuthXHR();
+        }
+      };
+      
+      // 10 second timeout per attempt
+      setTimeout(function() {
+        if(!done && window[cbName]) {
+          done = true;
+          delete window[cbName];
+          if(document.head.contains(script)) document.head.removeChild(script);
+          if(authAttempt < 3) {
+            setTimeout(tryAuth, 1500);
+          } else {
+            tryAuthXHR();
+          }
+        }
+      }, 10000);
+      
+      script.src = SCRIPT_URL + '?action=checkAccess&email=' + encodeURIComponent(email) + '&callback=' + cbName;
+      document.head.appendChild(script);
+    }
+    
+    function tryAuthXHR() {
+      if(errEl) { errEl.style.color = 'var(--muted)'; errEl.textContent = '⏳ Trying alternate connection...'; errEl.style.display = 'block'; }
+      var xhr = new XMLHttpRequest();
+      xhr.open('GET', SCRIPT_URL + '?action=checkAccess&email=' + encodeURIComponent(email), true);
+      xhr.timeout = 15000;
+      xhr.onload = function() {
+        try {
+          var result = JSON.parse(xhr.responseText);
+          if(errEl) errEl.style.display = 'none';
+          if(result && result.status === 'success') {
+            startApp(result.role, {email, name, picture});
+          } else {
+            if(errEl) { errEl.style.color = '#ef4444'; errEl.textContent = '⛔ Access denied. ' + email + ' is not approved.'; errEl.style.display = 'block'; }
+          }
+        } catch(e) {
+          if(errEl) { errEl.style.color = '#ef4444'; errEl.textContent = '⚠️ Could not verify. Check internet and try again.'; errEl.style.display = 'block'; }
+        }
+      };
+      xhr.onerror = xhr.ontimeout = function() {
+        if(errEl) { errEl.style.color = '#ef4444'; errEl.textContent = '⚠️ Connection failed. Please check your internet and try again.'; errEl.style.display = 'block'; }
+      };
+      xhr.send();
+    }
+    tryAuth();
 
   } catch(e) {
     const errEl = document.getElementById('loginErr');
@@ -2755,14 +2805,15 @@ function doAdminLogin() {
 
 function startApp(role, user) {
   currentRole = role;
-  sessionStorage.setItem('ctRole', role);
-  if(user) sessionStorage.setItem('ctUser', JSON.stringify(user));
+  localStorage.setItem('ctRole', role);
+  localStorage.setItem('ctLoginTime', Date.now().toString()); // save login time
+  if(user) localStorage.setItem('ctUser', JSON.stringify(user));
   document.getElementById('loginScreen').style.display='none';
   document.getElementById('app').style.display='flex';
   document.getElementById('roleBadge').textContent = role==='admin'?'🔐 Admin':'🧑‍💼 Coordinator';
 
   // Show user info in topbar avatar
-  const savedUser = user || JSON.parse(sessionStorage.getItem('ctUser')||'{}');
+  const savedUser = user || JSON.parse(localStorage.getItem('ctUser')||'{}');
   updateAvatar(savedUser, role);
 
   buildSidebar(role);
@@ -2774,8 +2825,9 @@ function startApp(role, user) {
 
 function logout() {
   currentRole = null;
-  sessionStorage.removeItem('ctRole');
-  sessionStorage.removeItem('ctUser');
+  localStorage.removeItem('ctRole');
+  localStorage.removeItem('ctUser');
+  localStorage.removeItem('ctLoginTime');
   // Sign out of Google
   if(window.google && google.accounts) {
     google.accounts.id.disableAutoSelect();
@@ -2976,7 +3028,7 @@ async function uploadFiles(form, city, date, slot, type, formFiles, registered=0
       }
       renderAttReport();
     }
-    sessionStorage.setItem('ctSubmissions', JSON.stringify(submissions));
+    localStorage.setItem('ctSubmissions', JSON.stringify(submissions));
     updateDashboard();
 
     setTimeout(() => {
@@ -3362,7 +3414,7 @@ document.getElementById('confirmModal').addEventListener('click', function(e) {
 
 // Auto restore session
 window.addEventListener('load',()=>{
-  const savedTheme=sessionStorage.getItem('ctTheme');
+  const savedTheme=localStorage.getItem('ctTheme');
   if(savedTheme){
     isDark=savedTheme==='dark';
     document.documentElement.setAttribute('data-theme',savedTheme);
@@ -3370,10 +3422,19 @@ window.addEventListener('load',()=>{
     document.getElementById('themeBtn').textContent=icon;
     document.getElementById('loginThemeBtn').textContent=icon;
   }
-  const savedRole=sessionStorage.getItem('ctRole');
-  if(savedRole) {
-    const savedUser = JSON.parse(sessionStorage.getItem('ctUser')||'{}');
+  const savedRole = localStorage.getItem('ctRole');
+  const loginTime = parseInt(localStorage.getItem('ctLoginTime') || '0');
+  const eightHours = 8 * 60 * 60 * 1000;
+  const sessionValid = savedRole && (Date.now() - loginTime) < eightHours;
+  
+  if(sessionValid) {
+    const savedUser = JSON.parse(localStorage.getItem('ctUser') || '{}');
     startApp(savedRole, savedUser);
+  } else if(savedRole) {
+    // Session expired - clear and show login
+    localStorage.removeItem('ctRole');
+    localStorage.removeItem('ctUser');
+    localStorage.removeItem('ctLoginTime');
   }
   // Restore sidebar collapse state
   if(sidebarCollapsed) applySidebarCollapse();
