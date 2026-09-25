@@ -998,9 +998,26 @@ tr:hover td{background:var(--input-bg)}
 </div>
 
 <script>
+// ===== GLOBAL VARIABLES (declared first to prevent ReferenceError) =====
+var slots = {att:'',umc:'',photo:''};
+var files = {att:[],umc1:[],umc2:[]};
+var currentRole = null;
+var allDashData = [];
+var courseReportData = [];
+var centrePhotoFiles = [];
+var centrePhotoGeo = null;
+var lastFolder = {};
+var donutChartInst = null;
+var lineChartInst = null;
+var barChartInst = null;
+var activeCoursesList = [];
+var selectedActiveCourses = [];
+var COURSE_CODES = ["OLMBA501","OLMBA502","OLMBA503","OLMBA504","OLMBA505","OLMBA506","OLMBA507","OLMBA508","OLMBA509","OLMBA510","OLMBA511","OLMBA601","OLMBA602","OLMBA603","OLMBA604","OLMBA606","OLMBA608","OLMBA609","OLMBA610","OLMBA611","OLMBA614","OLMCA501","OLMCA502","OLMCA503","OLMCA504","OLMCA505","OLMCA506","OLMCA507","OLMCA508","OLMCA509","OLMCA511","OLMCA601","OLMCA602","OLMCA603","OLMCA604","OLMCA605","OLMCA606","OLMCA607","OLMCA608","OLMCA609","OLMCA611","OLMDS501","OLMDS502","OLMDS503","OLMDS504","OLMDS505","OLMDS506","OLMDS507","OLMDS508","OLMDS509","OLMDS510","OLMDS601","OLMDS602","OLMDS603","OLMDS604","OLMDS605","OLMDS606","OLMDS607","OLMDS609","OLMDS610"];
+var TEST_CENTRES = ['Ahmedabad','Bangalore North','Bangalore South','Bhubaneswar','Chandigarh','Chennai - West','Coimbatore','Delhi','Ernakulam','Guwahati','Hosur','Hyderabad','Indore','Jaipur','Kolkata','Lucknow','Madurai','Mumbai - East','Mumbai - West','Nagpur','Noida','Patna','Pondicherry','Pune','Salem','Thiruvananthapuram','Tirupati','Vijayawada','Visakhapatnam','VIT Chennai','VIT Vellore'];
+var ADMIN_EMAILS_LOCAL = ["vashistm@codetantra.in","vashistm.art@gmail.com"];
+var SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzGOlJgDPbkfo-HszzKPITZ-o3V7iRXM6BPHoTk8fU5phvpwLLEBJpJZ4E4gnIhr-oKGA/exec";
+
 // ===== COURSE-WISE ATTENDANCE =====
-let activeCoursesList = [];
-var selectedActiveCourses = []; // active courses selected by admin
 
 function checkFetchActiveCourses() {
   var date = document.getElementById('att-date') ? document.getElementById('att-date').value : '';
@@ -1504,10 +1521,7 @@ function renderAttReport() {
   </tr>`;
 }
 
-// Chart instances
-let donutChartInst = null;
-let lineChartInst = null;
-let barChartInst = null;
+// Chart instances - declared at top of script
 
 function renderReports() {
   // If no data yet, fetch first then render
@@ -1673,8 +1687,8 @@ function renderReports() {
 
 // ===== COORDINATOR MANAGEMENT =====
 // ===== CENTRE PHOTO WITH GEOTAG =====
-let centrePhotoFiles = [];
-let centrePhotoGeo = null;
+// (global) // DEDUP let centrePhotoFiles = [];
+// (global) // DEDUP let centrePhotoGeo = null;
 
 function handleCentrePhoto(fileList) {
   centrePhotoFiles = Array.from(fileList);
@@ -1743,7 +1757,8 @@ function removeCentrePhoto() {
 
 // ===== MANAGE TEST CENTRES =====
 // Test centres list - can be managed from Admin Panel
-let TEST_CENTRES = ['Ahmedabad','Bangalore North','Bangalore South','Bhubaneswar','Chandigarh','Chennai - West','Coimbatore','Delhi','Ernakulam','Guwahati','Hosur','Hyderabad','Indore','Jaipur','Kolkata','Lucknow','Madurai','Mumbai - East','Mumbai - West','Nagpur','Noida','Patna','Pondicherry','Pune','Salem','Thiruvananthapuram','Tirupati','Vijayawada','Visakhapatnam','VIT Chennai','VIT Vellore'];
+// DEDUP: TEST_CENTRES
+
 
 function renderCentreList() {
   const list = document.getElementById('centre-list');
@@ -2154,7 +2169,7 @@ function removeCoordinator(email, rowIdx) {
 // Load coordinators when admin page is shown
 const origShowPage = showPage;
 // Course report data
-let courseReportData = [];
+// (global) // DEDUP let courseReportData = [];
 
 async function fetchCourseReport() {
   try {
@@ -2700,19 +2715,20 @@ function postData(payload) {
   });
 }
 
-// Course codes - admin can update these
-let COURSE_CODES = ['OLMBA501', 'OLMBA502', 'OLMBA503', 'OLMBA504', 'OLMBA505', 'OLMBA506', 'OLMBA507', 'OLMBA508', 'OLMBA509', 'OLMBA510', 'OLMBA511', 'OLMBA601', 'OLMBA602', 'OLMBA603', 'OLMBA604', 'OLMBA606', 'OLMBA608', 'OLMBA609', 'OLMBA610', 'OLMBA611', 'OLMBA614', 'OLMCA501', 'OLMCA502', 'OLMCA503', 'OLMCA504', 'OLMCA505', 'OLMCA506', 'OLMCA507', 'OLMCA508', 'OLMCA509', 'OLMCA511', 'OLMCA601', 'OLMCA602', 'OLMCA603', 'OLMCA604', 'OLMCA605', 'OLMCA606', 'OLMCA607', 'OLMCA608', 'OLMCA609', 'OLMCA611', 'OLMDS501', 'OLMDS502', 'OLMDS503', 'OLMDS504', 'OLMDS505', 'OLMDS506', 'OLMDS507', 'OLMDS508', 'OLMDS509', 'OLMDS510', 'OLMDS601', 'OLMDS602', 'OLMDS603', 'OLMDS604', 'OLMDS605', 'OLMDS606', 'OLMDS607', 'OLMDS609', 'OLMDS610'];
+// DEDUP: COURSE_CODES
 
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzGOlJgDPbkfo-HszzKPITZ-o3V7iRXM6BPHoTk8fU5phvpwLLEBJpJZ4E4gnIhr-oKGA/exec";
+
+// DEDUP: SCRIPT_URL
+
 const ADMIN_PASSWORD = "CT@Admin2026";
 const PASSWORDS = {coord:"CT@Coord2026", admin:"CT@Admin2026"};
 
-let currentRole = localStorage.getItem('ctRole') || null;
-let isDark = localStorage.getItem('ctTheme') === 'dark';
-let files = {att:[],umc1:[],umc2:[]};
-let slots = {att:'',umc:''};
-let lastFolder = {att:'',umc:''};
-let submissions = JSON.parse(localStorage.getItem('ctSubmissions') || '[]');
+// (global) // DEDUP let currentRole = localStorage.getItem('ctRole') || null;
+// (global) // DEDUP let isDark = localStorage.getItem('ctTheme') === 'dark';
+// files declared at top
+// slots declared at top
+lastFolder = {att:'',umc:''};  // initialized at top
+// (global) // DEDUP let submissions = JSON.parse(localStorage.getItem('ctSubmissions') || '[]');
 
 // Clock
 function updateClock() {
@@ -2735,11 +2751,8 @@ function toggleTheme() {
 // Google Sign-In callback — checks access via Apps Script
 // ⚙️ ADMIN EMAILS — Update this list to add/remove admins
 // Coordinators are managed from Admin Panel → Manage Coordinators
-const ADMIN_EMAILS_LOCAL = [
-  "vashistm@codetantra.in",
-  "vashistm.art@gmail.com",
-  // "sonu@gmail.com",  // Add more admins here
-];
+// DEDUP: ADMIN_EMAILS_LOCAL
+
 
 // Initialize Google Sign-In properly
 function initGoogleSignIn() {
@@ -3298,7 +3311,7 @@ function updateDashboard() {
   document.getElementById('stat-cities').textContent=cities;
 }
 
-let allDashData = [];
+// (global) // DEDUP let allDashData = [];
 // ALL_CITIES now uses TEST_CENTRES - managed from Admin Panel
 
 function applyFilters() {
