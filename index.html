@@ -1604,17 +1604,26 @@ let centrePhotoGeo = null;
 
 function handleCentrePhoto(fileList) {
   centrePhotoFiles = Array.from(fileList);
-  const list = document.getElementById('umc3-file-list');
+  // Use correct element IDs for Centre Photo page
+  const list = document.getElementById('photo-file-list') || document.getElementById('umc3-file-list');
   const status = document.getElementById('geo-status');
   
-  // Show file
-  list.innerHTML = '';
-  centrePhotoFiles.forEach((f,i) => {
-    const div = document.createElement('div');
-    div.className = 'file-item';
-    div.innerHTML = `<span>📸</span><span class="file-name">${f.name}</span><span class="file-size">${(f.size/1024).toFixed(0)} KB</span><span class="file-remove" onclick="removeCentrePhoto()">✕</span>`;
-    list.appendChild(div);
-  });
+  // Show file preview
+  if(list) {
+    list.innerHTML = '';
+    centrePhotoFiles.forEach(function(f) {
+      const div = document.createElement('div');
+      div.className = 'file-item';
+      // Show image thumbnail if image
+      const isImg = f.type && f.type.startsWith('image/');
+      const thumbUrl = isImg ? URL.createObjectURL(f) : '';
+      div.innerHTML = (isImg ? '<img src="'+thumbUrl+'" style="width:40px;height:40px;object-fit:cover;border-radius:4px;margin-right:8px">' : '<span>📸</span>') +
+        '<span class="file-name">'+f.name+'</span>' +
+        '<span class="file-size">'+(f.size/1024).toFixed(0)+' KB</span>' +
+        '<span class="file-remove" onclick="removeCentrePhoto()">✕</span>';
+      list.appendChild(div);
+    });
+  }
 
   // Capture geolocation
   if(navigator.geolocation) {
@@ -2214,22 +2223,54 @@ function exportPivotReport(type) {
 }
 
 // Submit centre photo
-// Compress image to reduce upload size and speed
+// Smart adaptive compression based on file size
 async function compressImage(file, maxWidth, quality) {
   return new Promise((resolve) => {
     const img = new Image();
     const url = URL.createObjectURL(file);
     img.onload = function() {
       URL.revokeObjectURL(url);
+
+      const fileSizeMB = file.size / (1024 * 1024);
+
+      // Adaptive settings based on file size
+      let targetWidth, targetQuality;
+      if(fileSizeMB < 0.5) {
+        // Small file (<0.5MB) - low quality phone - minimal compression
+        targetWidth = 1200;
+        targetQuality = 0.9;
+      } else if(fileSizeMB < 1) {
+        // Medium file (0.5-1MB) - light compression
+        targetWidth = 1024;
+        targetQuality = 0.85;
+      } else if(fileSizeMB < 3) {
+        // Large file (1-3MB) - moderate compression
+        targetWidth = 900;
+        targetQuality = 0.75;
+      } else if(fileSizeMB < 6) {
+        // Very large file (3-6MB) - strong compression
+        targetWidth = 800;
+        targetQuality = 0.65;
+      } else {
+        // Huge file (>6MB) - max compression (flagship phones)
+        targetWidth = 720;
+        targetQuality = 0.55;
+      }
+
       const canvas = document.createElement('canvas');
       let w = img.width, h = img.height;
-      if(w > maxWidth) { h = Math.round(h * maxWidth / w); w = maxWidth; }
+      if(w > targetWidth) { h = Math.round(h * targetWidth / w); w = targetWidth; }
       canvas.width = w; canvas.height = h;
       const ctx = canvas.getContext('2d');
       ctx.drawImage(img, 0, 0, w, h);
-      canvas.toBlob(blob => resolve(blob), 'image/jpeg', quality);
+
+      canvas.toBlob(function(blob) {
+        const compMB = blob.size / (1024*1024);
+        console.log('Compressed: ' + fileSizeMB.toFixed(2) + 'MB → ' + compMB.toFixed(2) + 'MB (' + w + 'px, q=' + targetQuality + ')');
+        resolve(blob);
+      }, 'image/jpeg', targetQuality);
     };
-    img.onerror = () => resolve(file); // fallback to original
+    img.onerror = function() { resolve(file); };
     img.src = url;
   });
 }
@@ -2270,7 +2311,7 @@ async function submitCentrePhoto() {
       if(loadingText) loadingText.textContent = 'Compressing photo ' + (i+1) + '...';
       let uploadFile = f;
       if(f.type.startsWith('image/')) {
-        const compressed = await compressImage(f, 1024, 0.7); // max 1024px, 70% quality
+        const compressed = await compressImage(f, 800, 0.6); // max 800px, 60% quality - faster upload
         uploadFile = new File([compressed], f.name.replace(/\.[^.]+$/, '.jpg'), {type:'image/jpeg'});
       }
 
@@ -2528,6 +2569,8 @@ function postData(payload) {
     const xhr = new XMLHttpRequest();
     xhr.open('POST', SCRIPT_URL, true);
     xhr.setRequestHeader('Content-Type', 'text/plain');
+    xhr.timeout = 60000; // 60 second timeout
+    xhr.ontimeout = function() { reject(new Error('Request timed out. Please try again.')); };
     xhr.onload = function() {
       try {
         const result = JSON.parse(xhr.responseText);
@@ -2865,32 +2908,52 @@ async function submitForm(form) {
 async function uploadFiles(form, city, date, slot, type, formFiles, registered=0, present=0, absent=0, remarks='', courseData=[]) {
   try {
     let folderUrl = '';
-    document.getElementById(form+'-loading-text').textContent = formFiles.length > 0 ? 'Preparing files...' : 'Submitting...';
-    setProgress(form, 10);
+    const loadingText = document.getElementById(form+'-loading-text');
+    const subEl = document.getElementById(form+'-loading-sub');
 
     if(formFiles.length > 0) {
-      // Upload files one by one
-      for(let i = 0; i < formFiles.length; i++) {
-        const f = formFiles[i];
-        setProgress(form, Math.round(10 + ((i / formFiles.length) * 75)));
-        document.getElementById(form+'-loading-text').textContent = `Uploading file ${i+1} of ${formFiles.length}: ${f.name.substring(0,25)}...`;
-        const subEl = document.getElementById(form+'-loading-sub');
-        if(subEl) subEl.textContent = `${Math.round(f.size/1024)} KB — please wait`;
+      // Step 1: Compress all images in parallel
+      if(loadingText) loadingText.textContent = 'Optimising ' + formFiles.length + ' file(s)...';
+      setProgress(form, 5);
 
-        const base64 = await new Promise((resolve, reject) => {
+      const optimised = await Promise.all(formFiles.map(async function(f) {
+        if(f.type && f.type.startsWith('image/')) {
+          const blob = await compressImage(f, 0, 0);
+          return new File([blob], f.name.replace(/\.[^.]+$/, '.jpg'), {type:'image/jpeg'});
+        }
+        return f;
+      }));
+
+      // Step 2: Convert all to base64 in parallel
+      if(loadingText) loadingText.textContent = 'Preparing upload...';
+      setProgress(form, 20);
+
+      const filesPayload = await Promise.all(optimised.map(function(f) {
+        return new Promise(function(resolve, reject) {
           const r = new FileReader();
-          r.onload = () => resolve(r.result.split(',')[1]);
+          r.onload = function() { resolve({name:f.name, mimeType:f.type||'application/octet-stream', base64:r.result.split(',')[1]}); };
           r.onerror = reject;
           r.readAsDataURL(f);
         });
+      }));
 
-        const result = await postData({city, date, slot, type, files:[{name:f.name, mimeType:f.type||'application/octet-stream', base64}]});
-        if(result.folderUrl) folderUrl = result.folderUrl;
-      }
+      const totalKB = Math.round(optimised.reduce(function(sum,f){return sum+f.size;},0)/1024);
+      if(loadingText) loadingText.textContent = 'Uploading ' + optimised.length + ' file(s)...';
+      if(subEl) subEl.textContent = totalKB + ' KB total — please wait';
+      setProgress(form, 40);
+
+      // Step 3: Send ALL files in ONE request
+      const result = await postData({city, date, slot, type, registered, present, absent, remarks, courseData, files: filesPayload});
+      if(result && result.folderUrl) folderUrl = result.folderUrl;
+      setProgress(form, 90);
+
     } else {
       // No files - just log the submission
-      const result = await postData({city, date, slot, type, files:[]});
-      if(result.folderUrl) folderUrl = result.folderUrl;
+      if(loadingText) loadingText.textContent = 'Submitting...';
+      setProgress(form, 40);
+      const result = await postData({city, date, slot, type, registered, present, absent, remarks, courseData, files:[]});
+      if(result && result.folderUrl) folderUrl = result.folderUrl;
+      setProgress(form, 90);
     }
 
     setProgress(form, 100);
