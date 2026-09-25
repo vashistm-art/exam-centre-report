@@ -831,19 +831,33 @@ tr:hover td{background:var(--input-bg)}
         <div class="form-card" style="margin-bottom:16px">
           <h2>📅 Active Courses for the Day</h2>
           <p class="sub">Set which course codes are active for a specific exam date. Coordinators will only see these when submitting.</p>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px">
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px;margin-bottom:12px">
             <div>
-              <label class="field-label">Exam date</label>
+              <label class="field-label">Date</label>
               <input type="date" id="active-course-date" onchange="loadActiveCourses()" style="width:100%;height:42px;border-radius:8px;border:1px solid var(--input-border);background:var(--input-bg);color:var(--text);font-size:14px;padding:0 12px;outline:none;cursor:pointer">
             </div>
             <div>
+              <label class="field-label">Start time</label>
+              <input type="time" id="active-start-time" value="09:30" onchange="loadActiveCourses()" style="width:100%;height:42px;border-radius:8px;border:1px solid var(--input-border);background:var(--input-bg);color:var(--text);font-size:14px;padding:0 12px;outline:none;cursor:pointer">
+            </div>
+            <div>
+              <label class="field-label">End time</label>
+              <input type="time" id="active-end-time" value="12:00" onchange="loadActiveCourses()" style="width:100%;height:42px;border-radius:8px;border:1px solid var(--input-border);background:var(--input-bg);color:var(--text);font-size:14px;padding:0 12px;outline:none;cursor:pointer">
+            </div>
+            <div>
               <label class="field-label">Session</label>
-              <select id="active-course-slot" onchange="loadActiveCourses()" style="width:100%;height:42px;border-radius:8px;border:1px solid var(--input-border);background:var(--input-bg);color:var(--text);font-size:14px;padding:0 12px;outline:none;appearance:none">
-                <option value="">— Select session —</option>
+              <select id="active-course-slot" onchange="onActiveSlotChange()" style="width:100%;height:42px;border-radius:8px;border:1px solid var(--input-border);background:var(--input-bg);color:var(--text);font-size:14px;padding:0 12px;outline:none;appearance:none">
+                <option value="">— Select —</option>
                 <option value="FN">Morning (FN)</option>
                 <option value="AN">Afternoon (AN)</option>
+                <option value="CUSTOM">Custom</option>
               </select>
             </div>
+          </div>
+          <!-- Custom session name for CUSTOM slot -->
+          <div id="active-custom-time-panel" style="display:none;margin-bottom:12px">
+            <input type="text" id="active-custom-name" placeholder="Session name e.g. Evening" style="width:100%;height:42px;border-radius:8px;border:1px solid var(--input-border);background:var(--input-bg);color:var(--text);font-size:14px;padding:0 12px;outline:none" oninput="updateActiveCustomPreview()">
+            <div id="active-custom-preview" style="margin-top:6px;font-size:12px;color:var(--accent);font-weight:500"></div>
           </div>
           <div id="active-course-selector" style="display:none">
             <label class="field-label" style="margin-bottom:8px">Select active course codes</label>
