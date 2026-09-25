@@ -720,11 +720,11 @@ tr:hover td{background:var(--input-bg)}
               </div>
 
               <div style="grid-column:1/-1;margin-top:4px">
-                <label style="font-size:13px;font-weight:600;color:var(--text2);display:block;margin-bottom:6px">City</label>
-                <select id="new-coord-city" style="width:100%;height:38px;border-radius:7px;border:1px solid var(--input-border);background:var(--card);color:var(--text);font-size:13px;padding:0 12px;outline:none;appearance:none;background-image:url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E\");background-repeat:no-repeat;background-position:right 10px center;background-color:var(--card)">
-                  <option value="">— Select city —</option>
-                  <option value="Ahmedabad">Ahmedabad</option><option value="Bangalore North">Bangalore North</option><option value="Bangalore South">Bangalore South</option><option value="Bhubaneswar">Bhubaneswar</option><option value="Chandigarh">Chandigarh</option><option value="Chennai - West">Chennai - West</option><option value="Coimbatore">Coimbatore</option><option value="Delhi">Delhi</option><option value="Ernakulam">Ernakulam</option><option value="Guwahati">Guwahati</option><option value="Hosur">Hosur</option><option value="Hyderabad">Hyderabad</option><option value="Indore">Indore</option><option value="Jaipur">Jaipur</option><option value="Kolkata">Kolkata</option><option value="Lucknow">Lucknow</option><option value="Madurai">Madurai</option><option value="Mumbai - East">Mumbai - East</option><option value="Mumbai - West">Mumbai - West</option><option value="Nagpur">Nagpur</option><option value="Noida">Noida</option><option value="Patna">Patna</option><option value="Pondicherry">Pondicherry</option><option value="Pune">Pune</option><option value="Salem">Salem</option><option value="Thiruvananthapuram">Thiruvananthapuram</option><option value="Tirupati">Tirupati</option><option value="Vijayawada">Vijayawada</option><option value="Visakhapatnam">Visakhapatnam</option><option value="VIT Chennai">VIT Chennai</option><option value="VIT Vellore">VIT Vellore</option>
-                </select>
+                <label style="font-size:13px;font-weight:600;color:var(--text2);display:block;margin-bottom:6px">City <span style="font-size:11px;color:var(--muted);font-weight:400">— click to select multiple</span> &nbsp;<button type="button" onclick="clearCoordCities()" style="font-size:11px;color:var(--muted);background:none;border:none;cursor:pointer;text-decoration:underline">Clear</button></label>
+                <div style="border:1px solid var(--input-border);border-radius:8px;padding:8px;background:var(--input-bg);max-height:120px;overflow-y:auto" id="coord-city-tags">
+                  <span class="city-tag" onclick="toggleCoordCity(this)" data-city="Ahmedabad" style="display:inline-block;font-size:11px;padding:4px 10px;border-radius:20px;border:1px solid var(--border);background:var(--card);color:var(--text2);cursor:pointer;margin:3px;transition:all 0.15s">Ahmedabad</span><span class="city-tag" onclick="toggleCoordCity(this)" data-city="Bangalore North" style="display:inline-block;font-size:11px;padding:4px 10px;border-radius:20px;border:1px solid var(--border);background:var(--card);color:var(--text2);cursor:pointer;margin:3px;transition:all 0.15s">Bangalore North</span><span class="city-tag" onclick="toggleCoordCity(this)" data-city="Bangalore South" style="display:inline-block;font-size:11px;padding:4px 10px;border-radius:20px;border:1px solid var(--border);background:var(--card);color:var(--text2);cursor:pointer;margin:3px;transition:all 0.15s">Bangalore South</span><span class="city-tag" onclick="toggleCoordCity(this)" data-city="Bhubaneswar" style="display:inline-block;font-size:11px;padding:4px 10px;border-radius:20px;border:1px solid var(--border);background:var(--card);color:var(--text2);cursor:pointer;margin:3px;transition:all 0.15s">Bhubaneswar</span><span class="city-tag" onclick="toggleCoordCity(this)" data-city="Chandigarh" style="display:inline-block;font-size:11px;padding:4px 10px;border-radius:20px;border:1px solid var(--border);background:var(--card);color:var(--text2);cursor:pointer;margin:3px;transition:all 0.15s">Chandigarh</span><span class="city-tag" onclick="toggleCoordCity(this)" data-city="Chennai - West" style="display:inline-block;font-size:11px;padding:4px 10px;border-radius:20px;border:1px solid var(--border);background:var(--card);color:var(--text2);cursor:pointer;margin:3px;transition:all 0.15s">Chennai - West</span><span class="city-tag" onclick="toggleCoordCity(this)" data-city="Coimbatore" style="display:inline-block;font-size:11px;padding:4px 10px;border-radius:20px;border:1px solid var(--border);background:var(--card);color:var(--text2);cursor:pointer;margin:3px;transition:all 0.15s">Coimbatore</span><span class="city-tag" onclick="toggleCoordCity(this)" data-city="Delhi" style="display:inline-block;font-size:11px;padding:4px 10px;border-radius:20px;border:1px solid var(--border);background:var(--card);color:var(--text2);cursor:pointer;margin:3px;transition:all 0.15s">Delhi</span><span class="city-tag" onclick="toggleCoordCity(this)" data-city="Ernakulam" style="display:inline-block;font-size:11px;padding:4px 10px;border-radius:20px;border:1px solid var(--border);background:var(--card);color:var(--text2);cursor:pointer;margin:3px;transition:all 0.15s">Ernakulam</span><span class="city-tag" onclick="toggleCoordCity(this)" data-city="Guwahati" style="display:inline-block;font-size:11px;padding:4px 10px;border-radius:20px;border:1px solid var(--border);background:var(--card);color:var(--text2);cursor:pointer;margin:3px;transition:all 0.15s">Guwahati</span><span class="city-tag" onclick="toggleCoordCity(this)" data-city="Hosur" style="display:inline-block;font-size:11px;padding:4px 10px;border-radius:20px;border:1px solid var(--border);background:var(--card);color:var(--text2);cursor:pointer;margin:3px;transition:all 0.15s">Hosur</span><span class="city-tag" onclick="toggleCoordCity(this)" data-city="Hyderabad" style="display:inline-block;font-size:11px;padding:4px 10px;border-radius:20px;border:1px solid var(--border);background:var(--card);color:var(--text2);cursor:pointer;margin:3px;transition:all 0.15s">Hyderabad</span><span class="city-tag" onclick="toggleCoordCity(this)" data-city="Indore" style="display:inline-block;font-size:11px;padding:4px 10px;border-radius:20px;border:1px solid var(--border);background:var(--card);color:var(--text2);cursor:pointer;margin:3px;transition:all 0.15s">Indore</span><span class="city-tag" onclick="toggleCoordCity(this)" data-city="Jaipur" style="display:inline-block;font-size:11px;padding:4px 10px;border-radius:20px;border:1px solid var(--border);background:var(--card);color:var(--text2);cursor:pointer;margin:3px;transition:all 0.15s">Jaipur</span><span class="city-tag" onclick="toggleCoordCity(this)" data-city="Kolkata" style="display:inline-block;font-size:11px;padding:4px 10px;border-radius:20px;border:1px solid var(--border);background:var(--card);color:var(--text2);cursor:pointer;margin:3px;transition:all 0.15s">Kolkata</span><span class="city-tag" onclick="toggleCoordCity(this)" data-city="Lucknow" style="display:inline-block;font-size:11px;padding:4px 10px;border-radius:20px;border:1px solid var(--border);background:var(--card);color:var(--text2);cursor:pointer;margin:3px;transition:all 0.15s">Lucknow</span><span class="city-tag" onclick="toggleCoordCity(this)" data-city="Madurai" style="display:inline-block;font-size:11px;padding:4px 10px;border-radius:20px;border:1px solid var(--border);background:var(--card);color:var(--text2);cursor:pointer;margin:3px;transition:all 0.15s">Madurai</span><span class="city-tag" onclick="toggleCoordCity(this)" data-city="Mumbai - East" style="display:inline-block;font-size:11px;padding:4px 10px;border-radius:20px;border:1px solid var(--border);background:var(--card);color:var(--text2);cursor:pointer;margin:3px;transition:all 0.15s">Mumbai - East</span><span class="city-tag" onclick="toggleCoordCity(this)" data-city="Mumbai - West" style="display:inline-block;font-size:11px;padding:4px 10px;border-radius:20px;border:1px solid var(--border);background:var(--card);color:var(--text2);cursor:pointer;margin:3px;transition:all 0.15s">Mumbai - West</span><span class="city-tag" onclick="toggleCoordCity(this)" data-city="Nagpur" style="display:inline-block;font-size:11px;padding:4px 10px;border-radius:20px;border:1px solid var(--border);background:var(--card);color:var(--text2);cursor:pointer;margin:3px;transition:all 0.15s">Nagpur</span><span class="city-tag" onclick="toggleCoordCity(this)" data-city="Noida" style="display:inline-block;font-size:11px;padding:4px 10px;border-radius:20px;border:1px solid var(--border);background:var(--card);color:var(--text2);cursor:pointer;margin:3px;transition:all 0.15s">Noida</span><span class="city-tag" onclick="toggleCoordCity(this)" data-city="Patna" style="display:inline-block;font-size:11px;padding:4px 10px;border-radius:20px;border:1px solid var(--border);background:var(--card);color:var(--text2);cursor:pointer;margin:3px;transition:all 0.15s">Patna</span><span class="city-tag" onclick="toggleCoordCity(this)" data-city="Pondicherry" style="display:inline-block;font-size:11px;padding:4px 10px;border-radius:20px;border:1px solid var(--border);background:var(--card);color:var(--text2);cursor:pointer;margin:3px;transition:all 0.15s">Pondicherry</span><span class="city-tag" onclick="toggleCoordCity(this)" data-city="Pune" style="display:inline-block;font-size:11px;padding:4px 10px;border-radius:20px;border:1px solid var(--border);background:var(--card);color:var(--text2);cursor:pointer;margin:3px;transition:all 0.15s">Pune</span><span class="city-tag" onclick="toggleCoordCity(this)" data-city="Salem" style="display:inline-block;font-size:11px;padding:4px 10px;border-radius:20px;border:1px solid var(--border);background:var(--card);color:var(--text2);cursor:pointer;margin:3px;transition:all 0.15s">Salem</span><span class="city-tag" onclick="toggleCoordCity(this)" data-city="Thiruvananthapuram" style="display:inline-block;font-size:11px;padding:4px 10px;border-radius:20px;border:1px solid var(--border);background:var(--card);color:var(--text2);cursor:pointer;margin:3px;transition:all 0.15s">Thiruvananthapuram</span><span class="city-tag" onclick="toggleCoordCity(this)" data-city="Tirupati" style="display:inline-block;font-size:11px;padding:4px 10px;border-radius:20px;border:1px solid var(--border);background:var(--card);color:var(--text2);cursor:pointer;margin:3px;transition:all 0.15s">Tirupati</span><span class="city-tag" onclick="toggleCoordCity(this)" data-city="Vijayawada" style="display:inline-block;font-size:11px;padding:4px 10px;border-radius:20px;border:1px solid var(--border);background:var(--card);color:var(--text2);cursor:pointer;margin:3px;transition:all 0.15s">Vijayawada</span><span class="city-tag" onclick="toggleCoordCity(this)" data-city="Visakhapatnam" style="display:inline-block;font-size:11px;padding:4px 10px;border-radius:20px;border:1px solid var(--border);background:var(--card);color:var(--text2);cursor:pointer;margin:3px;transition:all 0.15s">Visakhapatnam</span><span class="city-tag" onclick="toggleCoordCity(this)" data-city="VIT Chennai" style="display:inline-block;font-size:11px;padding:4px 10px;border-radius:20px;border:1px solid var(--border);background:var(--card);color:var(--text2);cursor:pointer;margin:3px;transition:all 0.15s">VIT Chennai</span><span class="city-tag" onclick="toggleCoordCity(this)" data-city="VIT Vellore" style="display:inline-block;font-size:11px;padding:4px 10px;border-radius:20px;border:1px solid var(--border);background:var(--card);color:var(--text2);cursor:pointer;margin:3px;transition:all 0.15s">VIT Vellore</span>
+                </div>
+                <div id="coord-city-display" style="font-size:11px;color:var(--muted);margin-top:4px">No cities selected</div>
               </div>
               <div style="display:flex;align-items:flex-end">
                 <button onclick="addCoordinator()" id="add-coord-btn" style="height:42px;padding:0 20px;border-radius:8px;border:none;background:var(--accent);color:#fff;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap">Add Coordinator</button>
@@ -1402,32 +1402,32 @@ async function loadCoordinators() {
   const emptyEl = document.getElementById('coord-empty');
   if(loadingEl) loadingEl.style.display = 'block';
   if(listEl) listEl.style.display = 'none';
+  if(emptyEl) emptyEl.style.display = 'none';
 
   const url = SCRIPT_URL + '?action=getCoordinators';
+  let result = null;
 
-  // Use JSONP - most reliable for Apps Script
-  const result = await new Promise((resolve) => {
-    const cbName = 'coordCB_' + Date.now();
-    const script = document.createElement('script');
-    window[cbName] = function(r) {
-      delete window[cbName];
-      if(document.head.contains(script)) document.head.removeChild(script);
-      resolve(r);
-    };
-    script.onerror = function() {
-      delete window[cbName];
-      resolve(null);
-    };
-    script.src = url + '&callback=' + cbName;
-    document.head.appendChild(script);
-    // Timeout after 15 seconds
-    setTimeout(() => {
-      if(window[cbName]) {
+  // Try fetch first
+  try {
+    const res = await fetch(url, {redirect:'follow'});
+    const text = await res.text();
+    result = JSON.parse(text);
+  } catch(e) {
+    // Try JSONP fallback
+    result = await new Promise((resolve) => {
+      const cbName = 'coordCB_' + Date.now();
+      const script = document.createElement('script');
+      window[cbName] = function(r) {
         delete window[cbName];
-        resolve(null);
-      }
-    }, 15000);
-  });
+        if(document.head.contains(script)) document.head.removeChild(script);
+        resolve(r);
+      };
+      script.onerror = function() { delete window[cbName]; resolve(null); };
+      script.src = url + '&callback=' + cbName;
+      document.head.appendChild(script);
+      setTimeout(() => { if(window[cbName]) { delete window[cbName]; resolve(null); } }, 15000);
+    });
+  }
 
   if(loadingEl) loadingEl.style.display = 'none';
   if(listEl) listEl.style.display = 'block';
@@ -1436,7 +1436,7 @@ async function loadCoordinators() {
     renderCoordinators(result.data || []);
   } else {
     if(emptyEl) {
-      emptyEl.textContent = 'Could not load coordinators. Please click Refresh.';
+      emptyEl.textContent = '⚠️ Could not load. Please click Refresh button.';
       emptyEl.style.display = 'block';
     }
   }
@@ -1480,9 +1480,9 @@ function renderCoordinators(data) {
 function addCoordinator() {
   const name = document.getElementById('new-coord-name').value.trim();
   const email = document.getElementById('new-coord-email').value.trim();
-  const citySelect = document.getElementById('new-coord-city');
-  const cities = citySelect ? [citySelect.value] : [];
-  const city = citySelect ? citySelect.value : '';
+  const selectedTags = document.querySelectorAll('#coord-city-tags .city-tag.selected');
+  const cities = Array.from(selectedTags).map(t => t.dataset.city);
+  const city = cities.join(', ');
   const msg = document.getElementById('add-coord-msg');
 
   if(!name || !email || cities.length === 0) {
@@ -1511,7 +1511,7 @@ function addCoordinator() {
       msg.style.color = '#065f46';
       document.getElementById('new-coord-name').value = '';
       document.getElementById('new-coord-email').value = '';
-          const cs = document.getElementById('new-coord-city'); if(cs) cs.value = '';
+          clearCoordCities();
       loadCoordinators();
     } else {
       msg.textContent = '❌ ' + (result.message || 'Failed to add. Please try again.');
@@ -1522,6 +1522,43 @@ function addCoordinator() {
     msg.textContent = '❌ Connection error. Please try again.';
     msg.style.color = '#b91c1c';
   });
+}
+
+function toggleCoordCity(el) {
+  el.classList.toggle('selected');
+  if(el.classList.contains('selected')) {
+    el.style.background = 'var(--accent)';
+    el.style.color = '#fff';
+    el.style.borderColor = 'var(--accent)';
+  } else {
+    el.style.background = 'var(--card)';
+    el.style.color = 'var(--text2)';
+    el.style.borderColor = 'var(--border)';
+  }
+  updateCoordCityDisplay();
+}
+
+function updateCoordCityDisplay() {
+  const selected = document.querySelectorAll('#coord-city-tags .city-tag.selected');
+  const display = document.getElementById('coord-city-display');
+  if(!display) return;
+  if(selected.length === 0) {
+    display.textContent = 'No cities selected';
+  } else {
+    display.textContent = selected.length + ' city selected: ' + Array.from(selected).map(t=>t.dataset.city).join(', ');
+    display.style.color = 'var(--accent)';
+  }
+}
+
+function clearCoordCities() {
+  document.querySelectorAll('#coord-city-tags .city-tag').forEach(t => {
+    t.classList.remove('selected');
+    t.style.background = 'var(--card)';
+    t.style.color = 'var(--text2)';
+    t.style.borderColor = 'var(--border)';
+  });
+  const display = document.getElementById('coord-city-display');
+  if(display) { display.textContent = 'No cities selected'; display.style.color = 'var(--muted)'; }
 }
 
 function toggleCoordinator(email, newStatus, rowIdx) {
