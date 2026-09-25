@@ -998,6 +998,18 @@ tr:hover td{background:var(--input-bg)}
 </div>
 
 <script>
+window.onerror = function(msg, src, line, col, err) {
+  document.body.style.background = 'white';
+  document.body.innerHTML = '<div style="font-family:monospace;padding:20px;color:red">' +
+    '<h2>JS Error (please screenshot and share)</h2>' +
+    '<p><b>Message:</b> ' + msg + '</p>' +
+    '<p><b>Line:</b> ' + line + '</p>' +
+    '<p><b>Error:</b> ' + (err ? err.stack : 'none') + '</p>' +
+    '</div>';
+  return false;
+};
+</script>
+<script>
 // ===== GLOBAL VARIABLES (declared first to prevent ReferenceError) =====
 var slots = {att:'',umc:'',photo:''};
 var files = {att:[],umc1:[],umc2:[]};
