@@ -991,21 +991,30 @@ function getCourseRowsData() {
 
 function loadActiveCourses() {
   const date = document.getElementById('active-course-date') ? document.getElementById('active-course-date').value : '';
-  const slot = document.getElementById('active-course-slot') ? document.getElementById('active-course-slot').value : '';
-  if(!date || !slot) return;
+  const slotRaw = document.getElementById('active-course-slot') ? document.getElementById('active-course-slot').value : '';
+  const slot = slotRaw === 'CUSTOM' ? getActiveSlotKey() : slotRaw;
 
+  // Always show selector and render tags
   const selector = document.getElementById('active-course-selector');
   if(selector) selector.style.display = 'block';
 
   const tagsEl = document.getElementById('active-course-tags');
   if(!tagsEl) return;
 
-  tagsEl.innerHTML = COURSE_CODES.map(c =>
-    '<span onclick="toggleActiveCourse(\'' + c + '\',this)" data-code="' + c + '" style="display:inline-block;font-size:11px;padding:4px 10px;border-radius:20px;border:1px solid var(--border);background:var(--card);color:var(--text2);cursor:pointer;margin:3px">' + c + '</span>'
-  ).join('');
+  // Render course code tags
+  if(COURSE_CODES.length === 0) {
+    tagsEl.innerHTML = '<span style="color:var(--muted);font-size:12px">No course codes added yet. Add them in Manage Course Codes section.</span>';
+  } else {
+    tagsEl.innerHTML = COURSE_CODES.map(c =>
+      '<span onclick="toggleActiveCourse('' + c + '',this)" data-code="' + c + '" style="display:inline-block;font-size:11px;padding:4px 10px;border-radius:20px;border:1px solid var(--border);background:var(--card);color:var(--text2);cursor:pointer;margin:3px;transition:all 0.15s">' + c + '</span>'
+    ).join('');
+  }
 
   selectedActiveCourses = [];
   updateActiveCourseCount();
+
+  // Load saved courses only if date and slot are selected
+  if(!date || !slot) return;
 
   const key = date + '_' + slot;
   const xhr = new XMLHttpRequest();
@@ -1023,12 +1032,37 @@ function loadActiveCourses() {
         updateActiveCourseCount();
         showSavedActiveCourses(res.courses);
       }
-    } catch(e) {}
+    } catch(e) { console.log('getActiveCourses error:', e); }
   };
+  xhr.onerror = function() { console.log('getActiveCourses network error'); };
   xhr.send();
 }
 
 let selectedActiveCourses = [];
+
+function toggleCustomSlot() {
+  const slot = document.getElementById('active-course-slot').value;
+  const panel = document.getElementById('custom-slot-panel');
+  if(panel) panel.style.display = slot === 'CUSTOM' ? 'block' : 'none';
+  updateCustomSlotKey();
+}
+
+function updateCustomSlotKey() {
+  const name = document.getElementById('custom-slot-name').value.trim() || 'Custom';
+  const start = document.getElementById('custom-slot-start').value || '09:30';
+  const end = document.getElementById('custom-slot-end').value || '12:00';
+  const preview = document.getElementById('custom-slot-preview');
+  if(preview) preview.textContent = 'Session key: ' + name.toUpperCase() + ' (' + start + ' - ' + end + ')';
+}
+
+function getActiveSlotKey() {
+  const slot = document.getElementById('active-course-slot').value;
+  if(slot === 'CUSTOM') {
+    const name = document.getElementById('custom-slot-name').value.trim() || 'Custom';
+    return name.toUpperCase();
+  }
+  return slot;
+}
 
 function toggleActiveCourse(code, el) {
   const idx = selectedActiveCourses.indexOf(code);
@@ -1055,7 +1089,8 @@ function showSavedActiveCourses(courses) {
 
 async function saveActiveCourses() {
   const date = document.getElementById('active-course-date').value;
-  const slot = document.getElementById('active-course-slot').value;
+  const slotRaw = document.getElementById('active-course-slot').value;
+  const slot = slotRaw === 'CUSTOM' ? getActiveSlotKey() : slotRaw;
   const msg = document.getElementById('active-course-msg');
   if(!date || !slot) { if(msg){msg.textContent='⚠️ Select date and session first.'; msg.style.color='#b91c1c'; msg.style.display='block';} return; }
   if(selectedActiveCourses.length === 0) { if(msg){msg.textContent='⚠️ Select at least one course.'; msg.style.color='#b91c1c'; msg.style.display='block';} return; }
