@@ -209,7 +209,7 @@ tr:hover td{background:var(--input-bg)}
 <body>
 
 <!-- Google Sign-In Script -->
-<script src="https://accounts.google.com/gsi/client" async defer></script>
+<script src="https://accounts.google.com/gsi/client" async defer onload="initGoogleSignIn()"></script>
 
 <!-- Login -->
 <div class="login-screen" id="loginScreen">
@@ -1181,9 +1181,7 @@ function bulkAddCourseCodes() {
   if(!raw) { msg.textContent = '⚠️ Please paste some course codes first.'; msg.style.color = '#b91c1c'; msg.style.display = 'block'; return; }
 
   // Split by newline, comma, semicolon or space
-  const codes = raw.replace(/[,; ]+/g, '\n').split('\n').map(c => c.trim().toUpperCase()).filter(c => c.length > 0); ]+/)
-    .map(c => c.trim().toUpperCase())
-    .filter(c => c.length > 0);
+  const codes = raw.replace(/[,; ]+/g, '\n').split('\n').map(c => c.trim().toUpperCase()).filter(c => c.length > 0);
 
   let added = 0, skipped = 0;
   codes.forEach(code => {
@@ -2252,6 +2250,52 @@ const ADMIN_EMAILS_LOCAL = [
   "vashistm.art@gmail.com",
   // "sonu@gmail.com",  // Add more admins here
 ];
+
+// Initialize Google Sign-In properly
+function initGoogleSignIn() {
+  if(window.google && google.accounts && google.accounts.id) {
+    google.accounts.id.initialize({
+      client_id: '172163076942-b8g2tnp2ahrsmvt8331g484imnnrnfrd.apps.googleusercontent.com',
+      callback: handleGoogleLogin,
+      auto_prompt: false
+    });
+    google.accounts.id.renderButton(
+      document.querySelector('.g_id_signin') || document.createElement('div'),
+      { theme: 'filled_blue', size: 'large', shape: 'pill', width: 280, text: 'signin_with' }
+    );
+    // Hide fallback if GSI loaded
+    setTimeout(() => {
+      const gsiBtn = document.querySelector('.g_id_signin iframe');
+      const fallback = document.getElementById('fallback-btn-wrap');
+      if(!gsiBtn && fallback) fallback.style.display = 'flex';
+    }, 2000);
+  } else {
+    // GSI failed to load - show fallback
+    const fallback = document.getElementById('fallback-btn-wrap');
+    if(fallback) fallback.style.display = 'flex';
+  }
+}
+
+function triggerGoogleLogin() {
+  if(window.google && google.accounts && google.accounts.id) {
+    google.accounts.id.prompt();
+  } else {
+    // Use OAuth2 popup as last resort
+    const clientId = '172163076942-b8g2tnp2ahrsmvt8331g484imnnrnfrd.apps.googleusercontent.com';
+    const redirectUri = encodeURIComponent(window.location.origin + window.location.pathname);
+    const scope = encodeURIComponent('email profile');
+    const url = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${clientId}&redirect_uri=${redirectUri}&response_type=token&scope=${scope}`;
+    window.open(url, '_blank', 'width=500,height=600');
+  }
+}
+
+// Call init when GSI script loads
+window.onGoogleLibraryLoad = initGoogleSignIn;
+
+// Also try after page load
+window.addEventListener('load', () => {
+  setTimeout(initGoogleSignIn, 1000);
+});
 
 function handleGoogleLogin(response) {
   try {
