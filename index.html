@@ -530,7 +530,7 @@ tr:hover td{background:var(--input-bg)}
         </div>
       </div>
 
-      <!-- Reports Page -->
+            <!-- Reports Page -->
       <div class="page" id="page-reports">
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px" id="charts-top">
           <!-- Donut chart -->
@@ -567,6 +567,78 @@ tr:hover td{background:var(--input-bg)}
           </div>
         </div>
         <div class="empty" id="reports-empty" style="margin-top:24px;display:none">No attendance data yet. Submit attendance sheets with counts to see reports.</div>
+
+      <!-- EOD Report Section inside Reports page -->
+      <div style="margin-top:24px">
+        <div class="table-card" style="padding:16px;margin-bottom:16px">
+          <h3 style="font-size:15px;font-weight:700;color:var(--text);margin-bottom:12px">📋 EOD Report</h3>
+          <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end">
+            <div style="flex:1;min-width:140px">
+              <label style="font-size:11px;font-weight:600;color:var(--muted);display:block;margin-bottom:4px">DATE</label>
+              <input type="date" id="eod-date" style="width:100%;height:36px;border-radius:7px;border:1px solid var(--input-border);background:var(--input-bg);color:var(--text);font-size:13px;padding:0 10px;outline:none">
+            </div>
+            <div style="flex:1;min-width:140px">
+              <label style="font-size:11px;font-weight:600;color:var(--muted);display:block;margin-bottom:4px">SESSION</label>
+              <select id="eod-slot" style="width:100%;height:36px;border-radius:7px;border:1px solid var(--input-border);background:var(--input-bg);color:var(--text);font-size:13px;padding:0 10px;outline:none;appearance:none">
+                <option value="">All sessions</option>
+                <option value="FN">Morning (FN)</option>
+                <option value="AN">Afternoon (AN)</option>
+              </select>
+            </div>
+            <div style="display:flex;gap:8px;flex-shrink:0">
+              <button onclick="generateEODReport()" style="height:36px;padding:0 16px;border-radius:7px;border:none;background:var(--accent);color:#fff;font-size:13px;font-weight:600;cursor:pointer">Generate</button>
+              <button onclick="exportEODExcel()" id="eod-export-btn" style="height:36px;padding:0 16px;border-radius:7px;border:none;background:#065f46;color:#fff;font-size:13px;font-weight:600;cursor:pointer;display:none">⬇ Export</button>
+            </div>
+          </div>
+        </div>
+
+        <div id="eod-loading" style="display:none;text-align:center;padding:1rem;color:var(--muted)"><span class="spinner"></span> Generating...</div>
+        <div id="eod-empty" style="display:none;text-align:center;padding:1rem;color:var(--muted);font-size:13px">No data found for selected filters.</div>
+
+        <div id="eod-report-content" style="display:none">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+            <span style="font-size:14px;font-weight:600;color:var(--text)" id="eod-report-title"></span>
+            <span style="font-size:12px;color:var(--muted)" id="eod-report-subtitle"></span>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px" id="eod-tables-grid">
+            <div class="table-card">
+              <div style="padding:10px 14px;border-bottom:1px solid var(--border);background:#166534;border-radius:10px 10px 0 0">
+                <span style="font-size:13px;font-weight:700;color:#fff">City-wise Attendance</span>
+              </div>
+              <div style="overflow-x:auto">
+                <table id="eod-city-table" style="width:100%;border-collapse:collapse;font-size:12px">
+                  <thead><tr style="background:#dcfce7">
+                    <th style="text-align:left;padding:8px 12px;color:#166534;font-weight:700;border-bottom:1px solid #86efac">City</th>
+                    <th style="text-align:right;padding:8px 12px;color:#166534;font-weight:700;border-bottom:1px solid #86efac">Attended</th>
+                    <th style="text-align:right;padding:8px 12px;color:#166534;font-weight:700;border-bottom:1px solid #86efac">Not Attended</th>
+                    <th style="text-align:right;padding:8px 12px;color:#166534;font-weight:700;border-bottom:1px solid #86efac">Grand Total</th>
+                  </tr></thead>
+                  <tbody id="eod-city-tbody"></tbody>
+                  <tfoot id="eod-city-tfoot"></tfoot>
+                </table>
+              </div>
+            </div>
+            <div class="table-card">
+              <div style="padding:10px 14px;border-bottom:1px solid var(--border);background:#166534;border-radius:10px 10px 0 0">
+                <span style="font-size:13px;font-weight:700;color:#fff">Course-wise Attendance</span>
+              </div>
+              <div style="overflow-x:auto">
+                <table id="eod-course-table" style="width:100%;border-collapse:collapse;font-size:12px">
+                  <thead><tr style="background:#dcfce7">
+                    <th style="text-align:left;padding:8px 12px;color:#166534;font-weight:700;border-bottom:1px solid #86efac">Course Code</th>
+                    <th style="text-align:right;padding:8px 12px;color:#166534;font-weight:700;border-bottom:1px solid #86efac">Attended</th>
+                    <th style="text-align:right;padding:8px 12px;color:#166534;font-weight:700;border-bottom:1px solid #86efac">Not Attended</th>
+                    <th style="text-align:right;padding:8px 12px;color:#166534;font-weight:700;border-bottom:1px solid #86efac">Grand Total</th>
+                    <th style="text-align:right;padding:8px 12px;color:#166534;font-weight:700;border-bottom:1px solid #86efac">%</th>
+                  </tr></thead>
+                  <tbody id="eod-course-tbody"></tbody>
+                  <tfoot id="eod-course-tfoot"></tfoot>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
 
       <!-- Pivot Report Tables -->
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:16px" id="pivot-section">
@@ -2201,6 +2273,182 @@ async function submitCentrePhoto() {
     btn.textContent = '📸 Submit Centre Photo';
     alert('Upload failed. Please try again.');
   }
+}
+
+// ===== EOD REPORT =====
+async function generateEODReport() {
+  const date = document.getElementById('eod-date').value;
+  const slot = document.getElementById('eod-slot').value;
+
+  document.getElementById('eod-empty').style.display = 'none';
+  document.getElementById('eod-report-content').style.display = 'none';
+  document.getElementById('eod-loading').style.display = 'block';
+
+  // Fetch fresh data
+  try {
+    const res = await fetch(SCRIPT_URL + '?action=getSubmissions', {redirect:'follow'});
+    const data = await res.json();
+    if(data && data.status === 'success') {
+      allDashData = data.data || [];
+    }
+  } catch(e) {
+    // Use cached data
+  }
+
+  // Also fetch course data
+  try {
+    const res2 = await fetch(SCRIPT_URL + '?action=getCourseReport', {redirect:'follow'});
+    const data2 = await res2.json();
+    if(data2 && data2.status === 'success') {
+      courseReportData = data2.data || [];
+    }
+  } catch(e) {}
+
+  document.getElementById('eod-loading').style.display = 'none';
+
+  // Filter by date and slot
+  let attData = allDashData.filter(r => r.type === 'Attendance');
+  let courseData = courseReportData;
+
+  if(date) {
+    attData = attData.filter(r => {
+      const d = (r.date||'').includes('T') ? r.date.split('T')[0] : r.date;
+      return d === date;
+    });
+    courseData = courseData.filter(r => {
+      const d = (r.date||'').includes('T') ? r.date.split('T')[0] : r.date;
+      return d === date;
+    });
+  }
+  if(slot) {
+    attData = attData.filter(r => r.slot === slot);
+    courseData = courseData.filter(r => r.slot === slot);
+  }
+
+  if(attData.length === 0 && courseData.length === 0) {
+    document.getElementById('eod-empty').textContent = 'No data found for the selected filters.';
+    document.getElementById('eod-empty').style.display = 'block';
+    return;
+  }
+
+  // Build city-wise table
+  const cityMap = {};
+  attData.forEach(r => {
+    if(!cityMap[r.city]) cityMap[r.city] = {attended:0, notAttended:0};
+    cityMap[r.city].attended += parseInt(r.present)||0;
+    cityMap[r.city].notAttended += parseInt(r.absent)||0;
+  });
+
+  const cities = Object.keys(cityMap).sort();
+  let cityTotalAtt=0, cityTotalNot=0;
+  const cityTbody = document.getElementById('eod-city-tbody');
+  cityTbody.innerHTML = cities.map(city => {
+    const d = cityMap[city];
+    cityTotalAtt += d.attended; cityTotalNot += d.notAttended;
+    return '<tr>' +
+      '<td style="padding:7px 12px;border-bottom:1px solid var(--border)">' + city + '</td>' +
+      '<td style="padding:7px 12px;border-bottom:1px solid var(--border);text-align:right">' + (d.attended||'') + '</td>' +
+      '<td style="padding:7px 12px;border-bottom:1px solid var(--border);text-align:right">' + (d.notAttended||'') + '</td>' +
+      '<td style="padding:7px 12px;border-bottom:1px solid var(--border);text-align:right;font-weight:600">' + (d.attended+d.notAttended) + '</td>' +
+      '</tr>';
+  }).join('');
+  document.getElementById('eod-city-tfoot').innerHTML =
+    '<tr style="background:#dcfce7;font-weight:700">' +
+    '<td style="padding:8px 12px">Grand Total</td>' +
+    '<td style="padding:8px 12px;text-align:right">' + cityTotalAtt + '</td>' +
+    '<td style="padding:8px 12px;text-align:right">' + cityTotalNot + '</td>' +
+    '<td style="padding:8px 12px;text-align:right">' + (cityTotalAtt+cityTotalNot) + '</td>' +
+    '</tr>';
+
+  // Build course-wise table
+  const courseMap = {};
+  courseData.forEach(r => {
+    if(!courseMap[r.code]) courseMap[r.code] = {attended:0, notAttended:0};
+    courseMap[r.code].attended += parseInt(r.attended)||0;
+    courseMap[r.code].notAttended += parseInt(r.notAttended)||0;
+  });
+
+  const courses = Object.keys(courseMap).sort();
+  let cTotalAtt=0, cTotalNot=0;
+  const courseTbody = document.getElementById('eod-course-tbody');
+  courseTbody.innerHTML = courses.map(code => {
+    const d = courseMap[code];
+    const total = d.attended + d.notAttended;
+    const pct = total > 0 ? ((d.attended/total)*100).toFixed(2)+'%' : 'N/A';
+    cTotalAtt += d.attended; cTotalNot += d.notAttended;
+    return '<tr>' +
+      '<td style="padding:7px 12px;border-bottom:1px solid var(--border);font-weight:500">' + code + '</td>' +
+      '<td style="padding:7px 12px;border-bottom:1px solid var(--border);text-align:right">' + d.attended + '</td>' +
+      '<td style="padding:7px 12px;border-bottom:1px solid var(--border);text-align:right">' + (d.notAttended||'') + '</td>' +
+      '<td style="padding:7px 12px;border-bottom:1px solid var(--border);text-align:right;font-weight:600">' + total + '</td>' +
+      '<td style="padding:7px 12px;border-bottom:1px solid var(--border);text-align:right">' + pct + '</td>' +
+      '</tr>';
+  }).join('');
+  const cGrandTotal = cTotalAtt+cTotalNot;
+  const cGrandPct = cGrandTotal > 0 ? ((cTotalAtt/cGrandTotal)*100).toFixed(2)+'%' : 'N/A';
+  document.getElementById('eod-course-tfoot').innerHTML =
+    '<tr style="background:#dcfce7;font-weight:700">' +
+    '<td style="padding:8px 12px">Grand Total</td>' +
+    '<td style="padding:8px 12px;text-align:right">' + cTotalAtt + '</td>' +
+    '<td style="padding:8px 12px;text-align:right">' + cTotalNot + '</td>' +
+    '<td style="padding:8px 12px;text-align:right">' + cGrandTotal + '</td>' +
+    '<td style="padding:8px 12px;text-align:right">' + cGrandPct + '</td>' +
+    '</tr>';
+
+  // Update title
+  document.getElementById('eod-report-title').textContent = 'EOD Report' + (date ? ' — ' + date : '');
+  document.getElementById('eod-report-subtitle').textContent = slot ? (slot === 'FN' ? 'Morning Session' : 'Afternoon Session') : 'All Sessions';
+  document.getElementById('eod-report-content').style.display = 'block';
+  document.getElementById('eod-export-btn').style.display = 'block';
+}
+
+function exportEODExcel() {
+  const date = document.getElementById('eod-date').value || 'All';
+  const slot = document.getElementById('eod-slot').value || 'All';
+
+  // City data
+  const cityRows = [];
+  document.querySelectorAll('#eod-city-tbody tr').forEach(tr => {
+    const cells = tr.querySelectorAll('td');
+    if(cells.length) cityRows.push([cells[0].textContent, cells[1].textContent||0, cells[2].textContent||0, cells[3].textContent||0]);
+  });
+
+  // Course data
+  const courseRows = [];
+  document.querySelectorAll('#eod-course-tbody tr').forEach(tr => {
+    const cells = tr.querySelectorAll('td');
+    if(cells.length) courseRows.push([cells[0].textContent, cells[1].textContent, cells[2].textContent||0, cells[3].textContent, cells[4].textContent]);
+  });
+
+  // Build CSV with both tables side by side
+  const maxRows = Math.max(cityRows.length, courseRows.length);
+  let csv = 'City,Attended,Not Attended,Grand Total,,Course Code,Attended,Not Attended,Grand Total,Percentage' + '\n';
+
+  // Header note
+  csv = 'EOD Report - Date: ' + date + ' | Session: ' + slot + '\n\n' + csv;
+
+  for(let i=0; i<maxRows+1; i++) {
+    const c = cityRows[i] || ['','','',''];
+    const k = courseRows[i] || ['','','','',''];
+    if(i === maxRows) {
+      // Grand total row
+      const cityFoot = document.querySelector('#eod-city-tfoot tr');
+      const courseFoot = document.querySelector('#eod-course-tfoot tr');
+      const cf = cityFoot ? Array.from(cityFoot.querySelectorAll('td')).map(t=>t.textContent) : ['','','',''];
+      const kf = courseFoot ? Array.from(courseFoot.querySelectorAll('td')).map(t=>t.textContent) : ['','','','',''];
+      csv += cf.join(',') + ',,' + kf.join(',') + '\n';
+    } else {
+      csv += c.join(',') + ',,' + k.join(',') + '\n';
+    }
+  }
+
+  const blob = new Blob([csv], {type:'text/csv'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'EOD_Report_' + date + '_' + slot + '.csv';
+  a.click();
+  URL.revokeObjectURL(url);
 }
 
 function exportAttReport() {
