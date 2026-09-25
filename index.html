@@ -52,6 +52,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 /* Pages */
 .page{display:none}
 .page.active{display:block;min-height:200px}
+#page-admin .form-card{max-width:100%}
+#page-admin{padding:0}
 
 /* Form */
 .form-card{background:var(--card);border-radius:14px;border:1px solid var(--border);padding:2rem;max-width:680px;width:100%;box-shadow:0 2px 12px var(--shadow)}
@@ -738,7 +740,7 @@ tr:hover td{background:var(--input-bg)}
       </div>
 
       <!-- Admin Page -->
-      <div class="page" id="page-admin">
+      <div class="page" id="page-admin" style="padding:0">
 
         <!-- Quick Links -->
         <div class="form-card" style="margin-bottom:16px">
@@ -998,6 +1000,7 @@ tr:hover td{background:var(--input-bg)}
 <script>
 // ===== COURSE-WISE ATTENDANCE =====
 let activeCoursesList = [];
+var selectedActiveCourses = []; // active courses selected by admin
 
 function checkFetchActiveCourses() {
   var date = document.getElementById('att-date') ? document.getElementById('att-date').value : '';
