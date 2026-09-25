@@ -2303,35 +2303,40 @@ async function submitCentrePhoto() {
   document.getElementById('photo-loading').style.display = 'block';
 
   try {
-    for(let i=0; i<centrePhotoFiles.length; i++) {
-      const f = centrePhotoFiles[i];
-      const loadingText = document.getElementById('photo-loading-text');
+    const loadingText = document.getElementById('photo-loading-text');
 
-      // Step 1: Compress
-      if(loadingText) loadingText.textContent = 'Compressing photo ' + (i+1) + '...';
-      let uploadFile = f;
-      if(f.type.startsWith('image/')) {
-        const compressed = await compressImage(f, 800, 0.6); // max 800px, 60% quality - faster upload
-        uploadFile = new File([compressed], f.name.replace(/\.[^.]+$/, '.jpg'), {type:'image/jpeg'});
+    // Step 1: Compress ALL photos in parallel (adaptive based on file size)
+    if(loadingText) loadingText.textContent = 'Optimising ' + centrePhotoFiles.length + ' photo(s)...';
+    const optimised = await Promise.all(centrePhotoFiles.map(async function(f) {
+      if(f.type && f.type.startsWith('image/')) {
+        const blob = await compressImage(f, 0, 0); // adaptive compression
+        const origKB = Math.round(f.size/1024);
+        const compKB = Math.round(blob.size/1024);
+        console.log('Photo compressed: ' + origKB + 'KB → ' + compKB + 'KB');
+        return new File([blob], f.name, {type:'image/jpeg'});
       }
+      return f;
+    }));
 
-      // Step 2: Convert to base64
-      if(loadingText) loadingText.textContent = 'Uploading photo ' + (i+1) + ' of ' + centrePhotoFiles.length + '...';
-      const base64 = await fileToBase64(uploadFile);
-
-      // Step 3: Upload
-      const originalSizeKB = Math.round(f.size/1024);
-      const compressedSizeKB = Math.round(uploadFile.size/1024);
-      console.log('Photo: ' + originalSizeKB + 'KB → ' + compressedSizeKB + 'KB compressed');
-
-      await postData({
-        city, date, slot,
-        type: 'CentrePhoto',
-        remarks,
-        geoTag: centrePhotoGeo || null,
-        files: [{name: uploadFile.name, mimeType: 'image/jpeg', base64}]
+    // Step 2: Convert ALL to base64 in parallel
+    if(loadingText) loadingText.textContent = 'Preparing upload...';
+    const filesPayload = await Promise.all(optimised.map(function(f) {
+      return fileToBase64(f).then(function(b64) {
+        return {name: f.name, mimeType: 'image/jpeg', base64: b64};
       });
-    }
+    }));
+
+    const totalKB = Math.round(optimised.reduce(function(s,f){return s+f.size;},0)/1024);
+    if(loadingText) loadingText.textContent = 'Uploading ' + optimised.length + ' photo(s) — ' + totalKB + ' KB...';
+
+    // Step 3: ONE single request with all files
+    await postData({
+      city, date, slot,
+      type: 'CentrePhoto',
+      remarks,
+      geoTag: centrePhotoGeo || null,
+      files: filesPayload
+    });
 
     document.getElementById('photo-loading').style.display = 'none';
     document.getElementById('photo-success').style.display = 'block';
