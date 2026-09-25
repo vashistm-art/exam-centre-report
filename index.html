@@ -1128,8 +1128,7 @@ async function bulkAddCoordinators() {
   const raw = document.getElementById('bulk-coord-input').value.trim();
   if(!raw) { msg.textContent='⚠️ Please paste coordinator data.'; msg.style.color='#b91c1c'; msg.style.display='block'; return; }
 
-  const lines = raw.split('
-').map(l=>l.trim()).filter(l=>l.length>0);
+  const lines = raw.split('\n').map(l=>l.trim()).filter(l=>l.length>0);
   msg.textContent='⏳ Adding '+lines.length+' coordinators...'; msg.style.color='var(--muted)'; msg.style.display='block';
 
   let added=0, failed=0, errors=[];
