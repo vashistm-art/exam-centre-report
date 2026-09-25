@@ -3067,11 +3067,45 @@ function renderCityChart(rows) {
 }
 
 function renderMissingCities(rows) {
-  const submitted = new Set(rows.map(r=>r.city));
-  const missing = TEST_CENTRES.filter(c=>!submitted.has(c));
+  // Set today's date by default in pending filter
+  const pendingDate = document.getElementById('pending-date');
+  if(pendingDate && !pendingDate.value) {
+    pendingDate.value = new Date().toISOString().split('T')[0];
+  }
+  updatePendingList();
+}
+
+function updatePendingList() {
+  const date = document.getElementById('pending-date') ? document.getElementById('pending-date').value : '';
+  const slot = document.getElementById('pending-slot') ? document.getElementById('pending-slot').value : '';
   const el = document.getElementById('missing-cities');
-  if(!missing.length){el.innerHTML='<span style="color:#4ade80;font-size:12px">✅ All cities have submitted!</span>';return;}
-  el.innerHTML = missing.map(c=>`<span class="missing-badge">${c}</span>`).join('');
+  const emptyEl = document.getElementById('pending-empty');
+  const badge = document.getElementById('missing-count-badge');
+  if(!el) return;
+
+  // Filter submissions by date and slot
+  let filtered = allDashData.filter(r => r.type === 'Attendance' || !r.type);
+  if(date) filtered = filtered.filter(r => {
+    const d = (r.date||'').includes('T') ? r.date.split('T')[0] : (r.date||'');
+    return d === date;
+  });
+  if(slot) filtered = filtered.filter(r => r.slot === slot);
+
+  const submitted = new Set(filtered.map(r => r.city));
+  const missing = TEST_CENTRES.filter(c => !submitted.has(c));
+
+  if(!missing.length) {
+    el.innerHTML = '';
+    if(emptyEl) emptyEl.style.display = 'block';
+    if(badge) badge.textContent = '';
+  } else {
+    if(emptyEl) emptyEl.style.display = 'none';
+    if(badge) badge.textContent = missing.length + ' pending';
+    el.innerHTML = missing.map(c =>
+      '<span style="display:inline-flex;align-items:center;gap:4px;font-size:11px;padding:3px 8px;border-radius:5px;background:#fee2e2;border:1px solid #fecaca;color:#b91c1c;margin:2px">' +
+      '<span style="width:6px;height:6px;border-radius:50%;background:#ef4444;flex-shrink:0"></span>' + c + '</span>'
+    ).join('');
+  }
 }
 
 function exportToExcel() {
