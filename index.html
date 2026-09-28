@@ -203,7 +203,56 @@ tr:hover td{background:var(--input-bg)}
 @media(min-width:769px){
   .bottom-nav{display:none!important}
 }
+/* Course-wise attendance entry */
+.cw-row{display:grid;grid-template-columns:minmax(90px,1.6fr) 1fr 1fr .8fr .7fr;gap:8px;align-items:center;padding:7px 10px;border-bottom:1px solid var(--border)}
+.cw-row:last-child{border-bottom:none}
+.cw-head{background:var(--input-bg);border-radius:6px;border-bottom:none;margin-bottom:4px;padding:5px 10px}
+.cw-head span{font-size:10.5px;font-weight:700;color:var(--muted);letter-spacing:.03em}
+.cw-code{font-size:13px;font-weight:600;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cw-row input{height:34px;width:100%;border-radius:6px;border:1px solid var(--input-border);background:var(--input-bg);color:var(--text);font-size:13px;padding:0 6px;outline:none;text-align:center}
+.cw-row input:focus{border-color:var(--accent)}
+.cw-row.bad input.cw-pre{border-color:#ef4444;background:rgba(239,68,68,.08)}
+.cw-cell{height:34px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;color:var(--text2);background:var(--input-bg)}
+.cw-abs{color:#b91c1c;background:rgba(185,28,28,.07)}
+.cw-pct{color:var(--accent);background:var(--accent-bg)}
+.cw-foot{background:var(--accent-bg);position:sticky;bottom:0}
+.cw-foot .cw-cell{background:transparent;font-weight:700}
+.cw-tool{height:28px;padding:0 10px;border-radius:6px;border:1px solid var(--border);background:var(--input-bg);color:var(--text2);font-size:12px;cursor:pointer}
+.cw-tool:hover{border-color:var(--accent);color:var(--accent)}
+input.cw-locked{background:var(--accent-bg)!important;color:var(--text);cursor:not-allowed}
+@media(max-width:520px){.cw-row{grid-template-columns:minmax(70px,1.3fr) 1fr 1fr .8fr .7fr;gap:5px;padding:6px}.cw-code{font-size:12px}.cw-row input,.cw-cell{font-size:12px}}
+/* Course-wise report */
+.cwr-filters{display:flex;flex-wrap:wrap;gap:10px;align-items:flex-end;padding:12px 16px;border-bottom:1px solid var(--border)}
+.cwr-filters label{display:flex;flex-direction:column;gap:4px;font-size:11px;font-weight:600;color:var(--muted)}
+.cwr-filters input,.cwr-filters select{height:32px;border-radius:6px;border:1px solid var(--input-border);background:var(--input-bg);color:var(--text);font-size:12px;padding:0 8px;outline:none}
+.cwr-filters input[type=date]{height:32px!important;min-height:32px!important;padding:0 8px!important;font-size:12px!important;width:auto}
+.cwr-chips{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:10px;padding:12px 16px}
+.cwr-chip{background:var(--input-bg);border:1px solid var(--border);border-radius:10px;padding:10px 12px}
+.cwr-chip .v{font-size:20px;font-weight:700;color:var(--text);line-height:1.2}
+.cwr-chip .l{font-size:11px;color:var(--muted);margin-top:2px}
+.cwr-table{width:100%;border-collapse:collapse;font-size:12px}
+.cwr-table th{text-align:right;padding:8px 12px;color:var(--text2);font-weight:600;border-bottom:1px solid var(--border);background:var(--input-bg);white-space:nowrap}
+.cwr-table th:first-child,.cwr-table td:first-child{text-align:left}
+.cwr-table td{padding:8px 12px;border-bottom:1px solid var(--border);text-align:right;color:var(--text)}
+.cwr-main{cursor:pointer}
+.cwr-main:hover td{background:var(--input-bg)}
+.cwr-low td{background:rgba(239,68,68,.06)}
+.cwr-sub td{background:var(--input-bg);font-size:11.5px;color:var(--text2)}
+.cwr-sub td:first-child{padding-left:32px}
+.cwr-pctcell{display:flex;align-items:center;gap:8px;justify-content:flex-end}
+.cwr-bar{height:6px;width:70px;background:var(--border);border-radius:4px;overflow:hidden}
+.cwr-bar i{display:block;height:100%;border-radius:4px}
+.cwr-caret{display:inline-block;width:14px;color:var(--muted);transition:transform .15s}
+.cwr-open .cwr-caret{transform:rotate(90deg)}
 </style>
+<script>
+// If already signed in (within 8 hours), don't flash the sign-in screen on refresh
+try {
+  var _r = localStorage.getItem('ctRole'), _t = parseInt(localStorage.getItem('ctLoginTime') || '0');
+  if (_r && (Date.now() - _t) < 8*60*60*1000) document.documentElement.classList.add('has-session');
+} catch(e) {}
+</script>
+<style>html.has-session #loginScreen{display:none}</style>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js"></script>
 </head>
 <body>
@@ -430,6 +479,7 @@ tr:hover td{background:var(--input-bg)}
               <div class="err" id="att-err-present">Please enter total present.</div>
             </div>
           </div>
+          <div id="cw-auto-note" style="display:none;font-size:12px;color:var(--muted);margin:-0.75rem 0 1rem">🔒 Totals are calculated from the course-wise numbers below.</div>
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:1.25rem">
             <div style="background:var(--accent-bg);border:1px solid var(--border);border-radius:8px;padding:10px 14px;display:flex;align-items:center;justify-content:space-between">
               <span style="font-size:13px;font-weight:600;color:var(--text2)">Total absent</span>
@@ -443,23 +493,24 @@ tr:hover td{background:var(--input-bg)}
 
           <!-- Course-wise attendance -->
           <div class="field">
-            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
-              <label class="field-label" style="margin-bottom:0">Course-wise attendance</label>
-              <button type="button" onclick="clearAllCourseInputs()" style="height:28px;padding:0 10px;border-radius:6px;border:1px solid var(--border);background:var(--input-bg);color:var(--muted);font-size:12px;cursor:pointer">Clear all</button>
+            <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:8px;flex-wrap:wrap">
+              <label class="field-label" style="margin-bottom:0">Course-wise attendance <span class="required">*</span></label>
+              <div id="course-list-tools" style="display:none;gap:6px">
+                <button type="button" class="cw-tool" onclick="markAllPresent()">✓ Mark all present</button>
+                <button type="button" class="cw-tool" onclick="clearAllCourseInputs()">Clear all</button>
+              </div>
             </div>
             <!-- Empty state -->
             <div id="course-list-empty" style="font-size:13px;color:var(--muted);padding:14px;text-align:center;background:var(--input-bg);border:1px dashed var(--border);border-radius:8px">
               📅 Select a date and session above to load active courses for that day.
             </div>
             <!-- Header -->
-            <div id="course-list-header" style="display:none;grid-template-columns:2fr 1fr 1fr 1fr;gap:8px;margin-bottom:4px;padding:4px 10px;background:var(--input-bg);border-radius:6px">
-              <span style="font-size:11px;font-weight:600;color:var(--muted)">COURSE CODE</span>
-              <span style="font-size:11px;font-weight:600;color:#065f46">ATTENDED</span>
-              <span style="font-size:11px;font-weight:600;color:#b91c1c">NOT ATTENDED</span>
-              <span style="font-size:11px;font-weight:600;color:var(--accent)">TOTAL</span>
+            <div id="course-list-header" class="cw-row cw-head" style="display:none">
+              <span>COURSE</span><span>REGISTERED</span><span>PRESENT</span><span>ABSENT</span><span>%</span>
             </div>
             <!-- Course list populated by fetchActiveCourses -->
-            <div id="course-list-container" style="display:none;border:1px solid var(--border);border-radius:8px;overflow:hidden;max-height:320px;overflow-y:auto"></div>
+            <div id="course-list-container" style="display:none;border:1px solid var(--border);border-radius:8px;overflow:hidden;max-height:360px;overflow-y:auto"></div>
+            <div class="err" id="att-err-courses"></div>
           </div>
 
           <div class="field">
@@ -631,30 +682,34 @@ tr:hover td{background:var(--input-bg)}
         </div>
       </div>
 
-      <!-- Pivot Report Tables -->
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:16px">
-      <!-- Course-wise table -->
-        <div class="table-card">
-          <div style="display:flex;justify-content:space-between;align-items:center;padding:14px 16px;border-bottom:1px solid var(--border)">
-            <h3 style="font-size:14px;font-weight:600;color:var(--text)">📚 Course-wise Report</h3>
-            <button onclick="exportPivotReport('course')" style="height:28px;padding:0 10px;border-radius:6px;border:none;background:var(--accent);color:#fff;font-size:11px;font-weight:600;cursor:pointer">⬇ Export</button>
+      <!-- Course-wise Attendance report -->
+      <div class="table-card" id="cwr-card" style="margin-top:16px;padding:0;overflow:hidden">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;padding:14px 16px;border-bottom:1px solid var(--border)">
+          <div>
+            <h3 style="font-size:14px;font-weight:600;color:var(--text);padding:0;border:none">📚 Course-wise Attendance</h3>
+            <div style="font-size:12px;color:var(--muted);margin-top:2px">Click a course to see each centre. Re-submissions replace earlier numbers.</div>
           </div>
-          <div style="overflow-x:auto">
-            <table id="course-pivot-table" style="width:100%;border-collapse:collapse;font-size:12px">
-              <thead>
-                <tr style="background:var(--input-bg)">
-                  <th style="text-align:left;padding:8px 12px;color:var(--text2);font-weight:600;border-bottom:1px solid var(--border)">Course Code</th>
-                  <th style="text-align:right;padding:8px 12px;color:#065f46;font-weight:600;border-bottom:1px solid var(--border)">Attended</th>
-                  <th style="text-align:right;padding:8px 12px;color:#b91c1c;font-weight:600;border-bottom:1px solid var(--border)">Not Attended</th>
-                  <th style="text-align:right;padding:8px 12px;color:var(--text2);font-weight:600;border-bottom:1px solid var(--border)">Grand Total</th>
-                  <th style="text-align:right;padding:8px 12px;color:var(--accent);font-weight:600;border-bottom:1px solid var(--border)">Percentage</th>
-                </tr>
-              </thead>
-              <tbody id="course-pivot-tbody"></tbody>
-              <tfoot id="course-pivot-tfoot"></tfoot>
-            </table>
-            <div class="empty" id="course-pivot-empty">No data yet. Submit attendance with course details.</div>
+          <div style="display:flex;gap:6px">
+            <button onclick="exportPivotReport('course')" style="height:28px;padding:0 10px;border-radius:6px;border:none;background:var(--accent);color:#fff;font-size:11px;font-weight:600;cursor:pointer">⬇ Summary</button>
+            <button onclick="exportPivotReport('course-detail')" style="height:28px;padding:0 10px;border-radius:6px;border:1px solid var(--accent);background:none;color:var(--accent);font-size:11px;font-weight:600;cursor:pointer">⬇ Detailed</button>
           </div>
+        </div>
+        <div class="cwr-filters">
+          <label>From<input type="date" id="cwr-from" onchange="renderCourseWise()"></label>
+          <label>To<input type="date" id="cwr-to" onchange="renderCourseWise()"></label>
+          <label>Session<select id="cwr-slot" onchange="renderCourseWise()"><option value="">All sessions</option></select></label>
+          <label>Centre<select id="cwr-city" onchange="renderCourseWise()"><option value="">All centres</option></select></label>
+          <label>Sort<select id="cwr-sort" onchange="renderCourseWise()"><option value="code">Course code</option><option value="low">Lowest attendance first</option><option value="reg">Most registered first</option></select></label>
+          <label>Flag below %<input type="number" id="cwr-low" value="75" min="0" max="100" style="width:70px" oninput="renderCourseWise()"></label>
+          <button onclick="cwResetFilters()" class="cw-tool" style="height:32px">Reset</button>
+        </div>
+        <div class="cwr-chips" id="cwr-chips"></div>
+        <div id="cwr-body" style="overflow-x:auto">
+          <table class="cwr-table" id="cwr-table" style="display:none">
+            <thead><tr><th>Course</th><th>Centres</th><th>Registered</th><th style="color:#065f46">Present</th><th style="color:#b91c1c">Absent</th><th style="color:var(--accent)">Attendance</th></tr></thead>
+            <tbody id="cwr-tbody"></tbody>
+          </table>
+          <div class="empty" id="cwr-empty" style="padding:24px">Loading…</div>
         </div>
       </div>
       </div>
@@ -980,9 +1035,9 @@ Rohan Das, rohan.das@example.com, Delhi, Mumbai - East" style="width:100%;height
   <div class="bottom-nav" id="bottomNav">
     <div class="bottom-nav-item" id="bnav-attendance" onclick="showPage('attendance');setBottomNav('attendance')"><span class="bnav-icon">📋</span><span class="bnav-label">Attendance</span></div>
     <div class="bottom-nav-item" id="bnav-umc" onclick="showPage('umc');setBottomNav('umc')"><span class="bnav-icon">⚠️</span><span class="bnav-label">UMC</span></div>
+    <div class="bottom-nav-item" id="bnav-centrephoto" onclick="showPage('centrephoto');setBottomNav('centrephoto')" style="display:none"><span class="bnav-icon">📸</span><span class="bnav-label">Centre Photo</span></div>
     <div class="bottom-nav-item" id="bnav-dashboard" style="display:none" onclick="showPage('dashboard');setBottomNav('dashboard')"><span class="bnav-icon">📊</span><span class="bnav-label">Dashboard</span></div>
     <div class="bottom-nav-item" id="bnav-reports" style="display:none" onclick="showPage('reports');setBottomNav('reports')"><span class="bnav-icon">📈</span><span class="bnav-label">Reports</span></div>
-    <div class="bottom-nav-item" id="bnav-centrephoto" onclick="showPage('centrephoto');setBottomNav('centrephoto')" style="display:none"><span class="bnav-icon">📸</span><span class="bnav-label">Centre Photo</span></div>
     <div class="bottom-nav-item" id="bnav-admin" style="display:none" onclick="showPage('admin');setBottomNav('admin')"><span class="bnav-icon">🔐</span><span class="bnav-label">Admin</span></div>
   </div>
 </div>
@@ -993,6 +1048,8 @@ var slots = {att:'',umc:'',photo:''};
 var files = {att:[],umc1:[],umc2:[]};
 var currentRole = null;
 var allDashData = [];
+var submissions = (function(){ try { return JSON.parse(localStorage.getItem('ctSubmissions') || '[]'); } catch(e) { return []; } })();
+var isDark = (function(){ try { return localStorage.getItem('ctTheme') === 'dark'; } catch(e) { return false; } })();
 var courseReportData = [];
 var centrePhotoFiles = [];
 var centrePhotoGeo = null;
@@ -1036,59 +1093,143 @@ async function fetchActiveCourses(date, slot) {
     renderCourseList(result.courses);
   } else {
     activeCoursesList = [];
+    var tools0 = document.getElementById('course-list-tools'); if(tools0) tools0.style.display = 'none';
+    updateCourseTotals();
     if(empty) { empty.style.display = 'block'; empty.textContent = 'No active courses set for ' + date + ' ' + slot + '. Ask admin to set active courses.'; }
     if(container) container.style.display = 'none';
     if(header) header.style.display = 'none';
   }
 }
 
+// ===== Course-wise attendance (coordinator entry) =====
+// Each course: Registered + Present entered; Absent and % are calculated.
+// Course totals fill the form's Total registered / Total present automatically.
+function cwEsc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function(c) { return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
+
 function renderCourseList(courses) {
-  activeCoursesList = courses;
+  activeCoursesList = courses.map(function(c) { return String(c).trim(); }).filter(Boolean);
   var container = document.getElementById('course-list-container');
   var header = document.getElementById('course-list-header');
   var empty = document.getElementById('course-list-empty');
+  var tools = document.getElementById('course-list-tools');
   if(empty) empty.style.display = 'none';
   if(header) header.style.display = 'grid';
+  if(tools) tools.style.display = 'flex';
   if(!container) return;
   container.style.display = 'block';
-  container.innerHTML = courses.map(function(code, i) {
-    return '<div style="display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:8px;align-items:center;padding:8px 10px;border-bottom:1px solid var(--border)">' +
-      '<span style="font-size:13px;font-weight:500;color:var(--text)">' + code + '</span>' +
-      '<input type="number" id="cl-att-' + i + '" min="0" placeholder="0" oninput="calcCourseRowTotal(' + i + ')" style="height:32px;border-radius:6px;border:1px solid var(--input-border);background:var(--input-bg);color:var(--text);font-size:13px;padding:0 8px;outline:none;width:100%">' +
-      '<input type="number" id="cl-abs-' + i + '" min="0" placeholder="0" oninput="calcCourseRowTotal(' + i + ')" style="height:32px;border-radius:6px;border:1px solid var(--input-border);background:var(--input-bg);color:var(--text);font-size:13px;padding:0 8px;outline:none;width:100%">' +
-      '<div id="cl-total-' + i + '" style="height:32px;border-radius:6px;background:var(--accent-bg);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:var(--accent)">—</div>' +
-      '</div>';
-  }).join('');
+  container.innerHTML = activeCoursesList.map(function(code, i) {
+    return '<div class="cw-row" id="cl-row-' + i + '">' +
+      '<span class="cw-code">' + cwEsc(code) + '</span>' +
+      '<input type="number" inputmode="numeric" min="0" id="cl-reg-' + i + '" placeholder="0" oninput="calcCourseRowTotal(' + i + ')" aria-label="Registered for ' + cwEsc(code) + '">' +
+      '<input type="number" inputmode="numeric" min="0" class="cw-pre" id="cl-att-' + i + '" placeholder="0" oninput="calcCourseRowTotal(' + i + ')" aria-label="Present for ' + cwEsc(code) + '">' +
+      '<div class="cw-cell cw-abs" id="cl-abs-' + i + '">—</div>' +
+      '<div class="cw-cell cw-pct" id="cl-pct-' + i + '">—</div>' +
+    '</div>';
+  }).join('') +
+  '<div class="cw-row cw-foot" id="cl-foot">' +
+    '<span class="cw-code">Total</span>' +
+    '<div class="cw-cell" id="cl-foot-reg">0</div>' +
+    '<div class="cw-cell" id="cl-foot-pre">0</div>' +
+    '<div class="cw-cell cw-abs" id="cl-foot-abs">0</div>' +
+    '<div class="cw-cell cw-pct" id="cl-foot-pct">—</div>' +
+  '</div>';
+  updateCourseTotals();
+}
+
+function readCourseRow(i) {
+  var regEl = document.getElementById('cl-reg-' + i), preEl = document.getElementById('cl-att-' + i);
+  var regRaw = regEl ? regEl.value.trim() : '', preRaw = preEl ? preEl.value.trim() : '';
+  var reg = Math.max(0, parseInt(regRaw) || 0), pre = Math.max(0, parseInt(preRaw) || 0);
+  var filled = regRaw !== '' || preRaw !== '';
+  var bad = filled && (pre > reg || (regRaw === '' && preRaw !== ''));
+  return { reg: reg, pre: pre, filled: filled, bad: bad };
 }
 
 function calcCourseRowTotal(i) {
-  var att = parseInt(document.getElementById('cl-att-' + i).value) || 0;
-  var abs = parseInt(document.getElementById('cl-abs-' + i).value) || 0;
-  var el = document.getElementById('cl-total-' + i);
-  if(el) el.textContent = att + abs > 0 ? att + abs : '—';
+  var r = readCourseRow(i);
+  var row = document.getElementById('cl-row-' + i);
+  var absEl = document.getElementById('cl-abs-' + i), pctEl = document.getElementById('cl-pct-' + i);
+  if(row) row.classList.toggle('bad', r.bad);
+  if(!r.filled || r.bad || r.reg === 0) {
+    if(absEl) absEl.textContent = r.bad ? '!' : '—';
+    if(pctEl) pctEl.textContent = '—';
+  } else {
+    if(absEl) absEl.textContent = r.reg - r.pre;
+    if(pctEl) pctEl.textContent = Math.round((r.pre / r.reg) * 100) + '%';
+  }
+  var err = document.getElementById('att-err-courses');
+  if(err && err.style.display === 'block' && !courseRowsProblem()) err.style.display = 'none';
+  updateCourseTotals();
+}
+
+function updateCourseTotals() {
+  var sumReg = 0, sumPre = 0, any = false;
+  activeCoursesList.forEach(function(code, i) {
+    var r = readCourseRow(i);
+    if(r.filled && !r.bad) { sumReg += r.reg; sumPre += r.pre; }
+    if(r.filled) any = true;
+  });
+  var set = function(id, v) { var el = document.getElementById(id); if(el) el.textContent = v; };
+  set('cl-foot-reg', sumReg); set('cl-foot-pre', sumPre); set('cl-foot-abs', Math.max(0, sumReg - sumPre));
+  set('cl-foot-pct', sumReg > 0 ? Math.round((sumPre / sumReg) * 100) + '%' : '—');
+
+  var regEl = document.getElementById('att-registered'), preEl = document.getElementById('att-present');
+  var note = document.getElementById('cw-auto-note');
+  if(!regEl || !preEl) return;
+  if(any) {
+    regEl.value = sumReg; preEl.value = sumPre;
+    regEl.readOnly = preEl.readOnly = true;
+    regEl.classList.add('cw-locked'); preEl.classList.add('cw-locked');
+    if(note) note.style.display = 'block';
+    if(typeof calcAbsent === 'function') calcAbsent();
+  } else if(regEl.readOnly) {
+    regEl.readOnly = preEl.readOnly = false;
+    regEl.classList.remove('cw-locked'); preEl.classList.remove('cw-locked');
+    regEl.value = ''; preEl.value = '';
+    if(note) note.style.display = 'none';
+    if(typeof calcAbsent === 'function') calcAbsent();
+  }
+}
+
+function markAllPresent() {
+  activeCoursesList.forEach(function(code, i) {
+    var r = readCourseRow(i);
+    var preEl = document.getElementById('cl-att-' + i);
+    if(r.reg > 0 && preEl) { preEl.value = r.reg; calcCourseRowTotal(i); }
+  });
 }
 
 function getCourseRowsData() {
   var data = [];
   activeCoursesList.forEach(function(code, i) {
-    var attEl = document.getElementById('cl-att-' + i);
-    var absEl = document.getElementById('cl-abs-' + i);
-    var att = parseInt(attEl ? attEl.value : 0) || 0;
-    var abs = parseInt(absEl ? absEl.value : 0) || 0;
-    if(att > 0 || abs > 0) data.push({ code: code, attended: att, notAttended: abs, total: att + abs });
+    var r = readCourseRow(i);
+    if(r.filled && !r.bad && r.reg > 0) data.push({ code: code, attended: r.pre, notAttended: r.reg - r.pre, total: r.reg });
   });
   return data;
 }
 
+// Returns an error message, or '' when the course table is fine
+function courseRowsProblem() {
+  if(!activeCoursesList.length) return '';
+  var badCodes = [], filled = 0;
+  activeCoursesList.forEach(function(code, i) {
+    var r = readCourseRow(i);
+    if(r.bad) badCodes.push(code);
+    if(r.filled && !r.bad && r.reg > 0) filled++;
+  });
+  if(badCodes.length) return 'Present is more than registered (or registered is empty) for: ' + badCodes.join(', ');
+  if(!filled) return 'Enter registered and present for at least one course.';
+  return '';
+}
+
 function clearAllCourseInputs() {
   activeCoursesList.forEach(function(code, i) {
-    var att = document.getElementById('cl-att-' + i);
-    var abs = document.getElementById('cl-abs-' + i);
-    var tot = document.getElementById('cl-total-' + i);
-    if(att) att.value = '';
-    if(abs) abs.value = '';
-    if(tot) tot.textContent = '—';
+    var reg = document.getElementById('cl-reg-' + i), pre = document.getElementById('cl-att-' + i);
+    if(reg) reg.value = '';
+    if(pre) pre.value = '';
+    calcCourseRowTotal(i);
   });
+  updateCourseTotals();
 }
 
 function clearCourseRows() {
@@ -1100,12 +1241,15 @@ function clearCourseRows() {
   if(container) { container.innerHTML = ''; container.style.display = 'none'; }
   if(header) header.style.display = 'none';
   if(empty) { empty.style.display = 'block'; empty.textContent = '📅 Select a date and session above to load active courses for that day.'; }
+  var tools = document.getElementById('course-list-tools'); if(tools) tools.style.display = 'none';
+  updateCourseTotals();
 }
 
 // ===== MISSING FUNCTIONS RESTORED =====
 
 // Sign out
 function signOut() {
+  localStorage.removeItem('ctLastPage');
   localStorage.removeItem('ctRole');
   localStorage.removeItem('ctUser');
   localStorage.removeItem('ctLoginTime');
@@ -2360,122 +2504,153 @@ async function fetchCourseReport() {
   }
 }
 
-function renderPivotReports() {
-  // Centre-wise pivot
-  const centreMap = {};
-  courseReportData.forEach(r => {
-    if(!centreMap[r.city]) centreMap[r.city] = {attended:0, notAttended:0};
-    centreMap[r.city].attended += parseInt(r.attended)||0;
-    centreMap[r.city].notAttended += parseInt(r.notAttended)||0;
+// ===== Course-wise report (Reports page) =====
+var cwOpen = {};
+function cwPad(n) { return (n < 10 ? '0' : '') + n; }
+function cwNormDate(d) {
+  if(!d) return '';
+  d = String(d);
+  if(/^\d{4}-\d{2}-\d{2}$/.test(d)) return d;
+  if(d.indexOf('T') > 0) { var x = new Date(d); if(!isNaN(x)) return x.getFullYear() + '-' + cwPad(x.getMonth()+1) + '-' + cwPad(x.getDate()); }
+  return d.slice(0, 10);
+}
+function cwSlotLabel(s) { return s === 'FN' ? 'Morning (FN)' : s === 'AN' ? 'Afternoon (AN)' : s; }
+function cwPctColor(p) { return p >= 90 ? '#059669' : p >= 75 ? '#d97706' : '#dc2626'; }
+
+// One record per centre + date + session + course (latest submission wins)
+function cwRecords() {
+  var map = {};
+  (courseReportData || []).forEach(function(r) {
+    var rec = { code: String(r.code || '').trim(), city: String(r.city || ''), date: cwNormDate(r.date), slot: String(r.slot || ''),
+                present: parseInt(r.attended) || 0, absent: parseInt(r.notAttended) || 0, reg: parseInt(r.total) || 0 };
+    if(!rec.code) return;
+    if(!rec.reg) rec.reg = rec.present + rec.absent;
+    map[[rec.city, rec.date, rec.slot, rec.code].join('|')] = rec;
   });
-
-  const centres = Object.keys(centreMap).sort();
-  const cTbody = document.getElementById('centre-pivot-tbody');
-  const cTfoot = document.getElementById('centre-pivot-tfoot');
-  const cEmpty = document.getElementById('centre-pivot-empty');
-
-  if(centres.length === 0) {
-    cEmpty.style.display = 'block';
-    document.getElementById('centre-pivot-table').style.display = 'none';
-  } else {
-    cEmpty.style.display = 'none';
-    document.getElementById('centre-pivot-table').style.display = 'table';
-    let totalAtt=0, totalNot=0;
-    cTbody.innerHTML = centres.map(c => {
-      const d = centreMap[c];
-      totalAtt += d.attended; totalNot += d.notAttended;
-      return `<tr onmouseover="this.style.background='var(--input-bg)'" onmouseout="this.style.background=''">
-        <td style="padding:7px 12px;border-bottom:1px solid var(--border);color:var(--text)">${c}</td>
-        <td style="padding:7px 12px;border-bottom:1px solid var(--border);text-align:right;color:#065f46;font-weight:500">${d.attended}</td>
-        <td style="padding:7px 12px;border-bottom:1px solid var(--border);text-align:right;color:#b91c1c;font-weight:500">${d.notAttended}</td>
-        <td style="padding:7px 12px;border-bottom:1px solid var(--border);text-align:right;color:var(--text);font-weight:600">${d.attended+d.notAttended}</td>
-      </tr>`;
-    }).join('');
-    cTfoot.innerHTML = `<tr style="background:var(--accent-bg);font-weight:700">
-      <td style="padding:8px 12px;color:var(--text)">Grand Total</td>
-      <td style="padding:8px 12px;text-align:right;color:#065f46">${totalAtt}</td>
-      <td style="padding:8px 12px;text-align:right;color:#b91c1c">${totalNot}</td>
-      <td style="padding:8px 12px;text-align:right;color:var(--accent)">${totalAtt+totalNot}</td>
-    </tr>`;
-  }
-
-  // Course-wise pivot
-  const courseMap = {};
-  courseReportData.forEach(r => {
-    if(!courseMap[r.code]) courseMap[r.code] = {attended:0, notAttended:0};
-    courseMap[r.code].attended += parseInt(r.attended)||0;
-    courseMap[r.code].notAttended += parseInt(r.notAttended)||0;
-  });
-
-  const courses = Object.keys(courseMap).sort();
-  const kTbody = document.getElementById('course-pivot-tbody');
-  const kTfoot = document.getElementById('course-pivot-tfoot');
-  const kEmpty = document.getElementById('course-pivot-empty');
-
-  if(courses.length === 0) {
-    kEmpty.style.display = 'block';
-    document.getElementById('course-pivot-table').style.display = 'none';
-  } else {
-    kEmpty.style.display = 'none';
-    document.getElementById('course-pivot-table').style.display = 'table';
-    let totalAtt=0, totalNot=0;
-    kTbody.innerHTML = courses.map(c => {
-      const d = courseMap[c];
-      const total = d.attended + d.notAttended;
-      const pct = total > 0 ? ((d.attended/total)*100).toFixed(2)+'%' : 'N/A';
-      totalAtt += d.attended; totalNot += d.notAttended;
-      return `<tr onmouseover="this.style.background='var(--input-bg)'" onmouseout="this.style.background=''">
-        <td style="padding:7px 12px;border-bottom:1px solid var(--border);color:var(--text);font-weight:500">${c}</td>
-        <td style="padding:7px 12px;border-bottom:1px solid var(--border);text-align:right;color:#065f46;font-weight:500">${d.attended}</td>
-        <td style="padding:7px 12px;border-bottom:1px solid var(--border);text-align:right;color:#b91c1c;font-weight:500">${d.notAttended}</td>
-        <td style="padding:7px 12px;border-bottom:1px solid var(--border);text-align:right;color:var(--text);font-weight:600">${total}</td>
-        <td style="padding:7px 12px;border-bottom:1px solid var(--border);text-align:right"><span style="background:var(--accent-bg);color:var(--accent);padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600">${pct}</span></td>
-      </tr>`;
-    }).join('');
-    const grandTotal = totalAtt + totalNot;
-    const grandPct = grandTotal > 0 ? ((totalAtt/grandTotal)*100).toFixed(2)+'%' : 'N/A';
-    kTfoot.innerHTML = `<tr style="background:var(--accent-bg);font-weight:700">
-      <td style="padding:8px 12px;color:var(--text)">Grand Total</td>
-      <td style="padding:8px 12px;text-align:right;color:#065f46">${totalAtt}</td>
-      <td style="padding:8px 12px;text-align:right;color:#b91c1c">${totalNot}</td>
-      <td style="padding:8px 12px;text-align:right;color:var(--accent)">${grandTotal}</td>
-      <td style="padding:8px 12px;text-align:right;color:var(--accent)">${grandPct}</td>
-    </tr>`;
-  }
+  return Object.keys(map).map(function(k) { return map[k]; });
 }
 
-function exportPivotReport(type) {
-  let headers, rows;
-  if(type === 'centre') {
-    const centreMap = {};
-    courseReportData.forEach(r => {
-      if(!centreMap[r.city]) centreMap[r.city] = {attended:0, notAttended:0};
-      centreMap[r.city].attended += parseInt(r.attended)||0;
-      centreMap[r.city].notAttended += parseInt(r.notAttended)||0;
-    });
-    headers = ['FAT Centre','Attended','Not Attended','Grand Total'];
-    rows = Object.keys(centreMap).sort().map(c => [c, centreMap[c].attended, centreMap[c].notAttended, centreMap[c].attended+centreMap[c].notAttended]);
-  } else {
-    const courseMap = {};
-    courseReportData.forEach(r => {
-      if(!courseMap[r.code]) courseMap[r.code] = {attended:0, notAttended:0};
-      courseMap[r.code].attended += parseInt(r.attended)||0;
-      courseMap[r.code].notAttended += parseInt(r.notAttended)||0;
-    });
-    headers = ['Course Code','Attended','Not Attended','Grand Total','Percentage'];
-    rows = Object.keys(courseMap).sort().map(c => {
-      const d = courseMap[c];
-      const total = d.attended+d.notAttended;
-      return [c, d.attended, d.notAttended, total, total>0?((d.attended/total)*100).toFixed(2)+'%':'N/A'];
-    });
+function cwFillSelect(id, values, allLabel, labelFn) {
+  var el = document.getElementById(id); if(!el) return;
+  var cur = el.value;
+  el.innerHTML = '<option value="">' + allLabel + '</option>' + values.map(function(v) {
+    return '<option value="' + cwEsc(v) + '">' + cwEsc(labelFn ? labelFn(v) : v) + '</option>';
+  }).join('');
+  if(values.indexOf(cur) !== -1) el.value = cur;
+}
+
+function cwFiltered() {
+  var all = cwRecords();
+  var uniq = function(key) { return all.map(function(r) { return r[key]; }).filter(function(v, i, a) { return v && a.indexOf(v) === i; }).sort(); };
+  cwFillSelect('cwr-slot', uniq('slot'), 'All sessions', cwSlotLabel);
+  cwFillSelect('cwr-city', uniq('city'), 'All centres');
+  var g = function(id) { var el = document.getElementById(id); return el ? el.value : ''; };
+  var from = g('cwr-from'), to = g('cwr-to'), slot = g('cwr-slot'), city = g('cwr-city');
+  return all.filter(function(r) {
+    return (!from || r.date >= from) && (!to || r.date <= to) && (!slot || r.slot === slot) && (!city || r.city === city);
+  });
+}
+
+function cwAggregate(recs) {
+  var by = {};
+  recs.forEach(function(r) {
+    var a = by[r.code] || (by[r.code] = { code: r.code, reg: 0, present: 0, absent: 0, centres: {}, rows: [] });
+    a.reg += r.reg; a.present += r.present; a.absent += r.absent; a.centres[r.city] = 1; a.rows.push(r);
+  });
+  return Object.keys(by).map(function(k) { var a = by[k]; a.pct = a.reg ? (a.present / a.reg) * 100 : 0; a.nCentres = Object.keys(a.centres).length; return a; });
+}
+
+function renderCourseWise() {
+  var body = document.getElementById('cwr-body'); if(!body) return;
+  var recs = cwFiltered();
+  var list = cwAggregate(recs);
+  var sort = (document.getElementById('cwr-sort') || {}).value || 'code';
+  var low = parseFloat((document.getElementById('cwr-low') || {}).value) || 75;
+  list.sort(function(a, b) {
+    if(sort === 'low') return a.pct - b.pct;
+    if(sort === 'reg') return b.reg - a.reg;
+    return a.code.localeCompare(b.code);
+  });
+
+  var tReg = 0, tPre = 0, tAbs = 0, centres = {};
+  recs.forEach(function(r) { tReg += r.reg; tPre += r.present; tAbs += r.absent; centres[r.city] = 1; });
+  var tPct = tReg ? (tPre / tReg) * 100 : 0;
+  var nLow = list.filter(function(a) { return a.reg && a.pct < low; }).length;
+  var chip = function(v, l, color) { return '<div class="cwr-chip"><div class="v"' + (color ? ' style="color:' + color + '"' : '') + '>' + v + '</div><div class="l">' + l + '</div></div>'; };
+  document.getElementById('cwr-chips').innerHTML =
+    chip(list.length, 'Courses') + chip(Object.keys(centres).length, 'Centres reported') +
+    chip(tReg.toLocaleString('en-IN'), 'Registered') + chip(tPre.toLocaleString('en-IN'), 'Present', '#065f46') +
+    chip(tAbs.toLocaleString('en-IN'), 'Absent', '#b91c1c') +
+    chip(tReg ? tPct.toFixed(1) + '%' : '—', 'Attendance', tReg ? cwPctColor(tPct) : '') +
+    chip(nLow, 'Courses below ' + low + '%', nLow ? '#dc2626' : '');
+
+  var empty = document.getElementById('cwr-empty'), table = document.getElementById('cwr-table');
+  if(!list.length) {
+    table.style.display = 'none'; empty.style.display = 'block';
+    empty.textContent = (courseReportData || []).length ? 'No course data matches these filters.' : 'No course-wise data yet. It appears here once coordinators submit attendance with course numbers.';
+    return;
   }
-  let csv = headers.join(',')+'\n';
-  rows.forEach(r => { csv += r.map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(',')+'\n'; });
-  const blob = new Blob([csv],{type:'text/csv'});
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
+  empty.style.display = 'none'; table.style.display = 'table';
+  var pctCell = function(p, reg) {
+    if(!reg) return '—';
+    return '<span class="cwr-pctcell"><span class="cwr-bar"><i style="width:' + Math.min(100, p).toFixed(1) + '%;background:' + cwPctColor(p) + '"></i></span><b style="color:' + cwPctColor(p) + ';min-width:44px">' + p.toFixed(1) + '%</b></span>';
+  };
+  var html = '';
+  list.forEach(function(a) {
+    var open = !!cwOpen[a.code];
+    html += '<tr class="cwr-main' + (a.reg && a.pct < low ? ' cwr-low' : '') + (open ? ' cwr-open' : '') + '" onclick="cwToggle(this)" data-code="' + cwEsc(a.code) + '">' +
+      '<td><span class="cwr-caret">▸</span><b>' + cwEsc(a.code) + '</b></td><td>' + a.nCentres + '</td><td>' + a.reg + '</td>' +
+      '<td style="color:#065f46;font-weight:600">' + a.present + '</td><td style="color:#b91c1c;font-weight:600">' + a.absent + '</td><td>' + pctCell(a.pct, a.reg) + '</td></tr>';
+    if(open) {
+      a.rows.slice().sort(function(x, y) { return (x.date + x.city).localeCompare(y.date + y.city); }).forEach(function(r) {
+        var p = r.reg ? (r.present / r.reg) * 100 : 0;
+        html += '<tr class="cwr-sub"><td>' + cwEsc(r.city) + ' · ' + cwEsc(r.date) + ' · ' + cwEsc(r.slot) + '</td><td></td><td>' + r.reg + '</td>' +
+          '<td>' + r.present + '</td><td>' + r.absent + '</td><td>' + pctCell(p, r.reg) + '</td></tr>';
+      });
+    }
+  });
+  html += '<tr style="background:var(--accent-bg);font-weight:700"><td>Grand total</td><td>' + Object.keys(centres).length + '</td><td>' + tReg + '</td>' +
+    '<td style="color:#065f46">' + tPre + '</td><td style="color:#b91c1c">' + tAbs + '</td><td>' + pctCell(tPct, tReg) + '</td></tr>';
+  document.getElementById('cwr-tbody').innerHTML = html;
+}
+
+function cwToggle(tr) {
+  var code = tr.getAttribute('data-code');
+  cwOpen[code] = !cwOpen[code];
+  renderCourseWise();
+}
+
+function cwResetFilters() {
+  ['cwr-from','cwr-to','cwr-slot','cwr-city'].forEach(function(id) { var el = document.getElementById(id); if(el) el.value = ''; });
+  renderCourseWise();
+}
+
+// Kept for compatibility with existing calls
+function renderPivotReports() { renderCourseWise(); }
+
+function exportPivotReport(type) {
+  var recs = cwFiltered(), headers, rows;
+  if(type === 'course-detail') {
+    headers = ['Course Code','Centre','Date','Session','Registered','Present','Absent','Attendance %'];
+    rows = recs.slice().sort(function(a, b) { return (a.code + a.date + a.city).localeCompare(b.code + b.date + b.city); })
+      .map(function(r) { return [r.code, r.city, r.date, r.slot, r.reg, r.present, r.absent, r.reg ? ((r.present / r.reg) * 100).toFixed(2) + '%' : 'N/A']; });
+  } else if(type === 'centre') {
+    var by = {};
+    recs.forEach(function(r) { var c = by[r.city] || (by[r.city] = { reg: 0, present: 0, absent: 0 }); c.reg += r.reg; c.present += r.present; c.absent += r.absent; });
+    headers = ['Centre','Registered','Present','Absent','Attendance %'];
+    rows = Object.keys(by).sort().map(function(c) { var d = by[c]; return [c, d.reg, d.present, d.absent, d.reg ? ((d.present / d.reg) * 100).toFixed(2) + '%' : 'N/A']; });
+  } else {
+    headers = ['Course Code','Centres','Registered','Present','Absent','Attendance %'];
+    rows = cwAggregate(recs).sort(function(a, b) { return a.code.localeCompare(b.code); })
+      .map(function(a) { return [a.code, a.nCentres, a.reg, a.present, a.absent, a.reg ? a.pct.toFixed(2) + '%' : 'N/A']; });
+  }
+  var csv = headers.join(',') + '\n';
+  rows.forEach(function(r) { csv += r.map(function(v) { return '"' + String(v).replace(/"/g, '""') + '"'; }).join(',') + '\n'; });
+  var blob = new Blob([csv], { type: 'text/csv' });
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a');
   a.href = url;
-  a.download = 'CT_Exam_Ops_'+type+'_report_'+new Date().toISOString().split('T')[0]+'.csv';
+  a.download = 'CT_Exam_Ops_' + type + '_report_' + new Date().toISOString().split('T')[0] + '.csv';
   a.click();
   URL.revokeObjectURL(url);
 }
@@ -3070,7 +3245,7 @@ function handleGoogleLogin(response) {
   }
 }
 
-function startApp(role, user) {
+function startApp(role, user, page) {
   currentRole = role;
   localStorage.setItem('ctRole', role);
   localStorage.setItem('ctLoginTime', Date.now().toString()); // save login time
@@ -3086,12 +3261,15 @@ function startApp(role, user) {
   buildSidebar(role);
   setupBottomNav(role);
   updateCityDropdowns(); // populate city dropdowns from TEST_CENTRES
-  if(role==='admin') showPage('dashboard');
-  else showPage('attendance');
+  var landing = role==='admin' ? 'dashboard' : 'attendance';
+  // On refresh, reopen the page you were on (only if your role can see it)
+  if(page && document.getElementById('nav-'+page)) landing = page;
+  showPage(landing);
 }
 
 function logout() {
   currentRole = null;
+  localStorage.removeItem('ctLastPage');
   localStorage.removeItem('ctRole');
   localStorage.removeItem('ctUser');
   localStorage.removeItem('ctLoginTime');
@@ -3114,7 +3292,7 @@ function buildSidebar(role) {
   if(!nav) return;
   nav.innerHTML='';
   const items = role==='admin'
-    ? [{id:'dashboard',icon:'📊',label:'Dashboard'},{id:'reports',icon:'📈',label:'Reports'},{id:'attendance',icon:'📋',label:'Attendance Sheet'},{id:'umc',icon:'⚠️',label:'UMC Form'},{id:'centrephoto',icon:'📸',label:'Centre Photo'},{id:'admin',icon:'🔐',label:'Admin Panel'}]
+    ? [{id:'attendance',icon:'📋',label:'Attendance Sheet'},{id:'umc',icon:'⚠️',label:'UMC Form'},{id:'centrephoto',icon:'📸',label:'Centre Photo'},{id:'dashboard',icon:'📊',label:'Dashboard'},{id:'reports',icon:'📈',label:'Reports'},{id:'admin',icon:'🔐',label:'Admin Panel'}]
     : [{id:'attendance',icon:'📋',label:'Attendance Sheet'},{id:'umc',icon:'⚠️',label:'UMC Form'},{id:'centrephoto',icon:'📸',label:'Centre Photo'}];
   items.forEach(item => {
     const div = document.createElement('div');
@@ -3127,12 +3305,11 @@ function buildSidebar(role) {
 }
 
 function setupBottomNav(role) {
-  if(role==='admin') {
-    var bd=document.getElementById('bnav-dashboard'); if(bd) bd.style.display='flex';
-    document.getElementById('bnav-reports').style.display='flex';
-    document.getElementById('bnav-admin').style.display='flex';
-  }
-  document.getElementById('bnav-centrephoto').style.display='flex';
+  var isAdmin = role==='admin';
+  ['dashboard','reports','admin'].forEach(function(id) {
+    var el = document.getElementById('bnav-'+id); if(el) el.style.display = isAdmin ? 'flex' : 'none';
+  });
+  var cp = document.getElementById('bnav-centrephoto'); if(cp) cp.style.display='flex';
 }
 
 // Pages
@@ -3151,6 +3328,7 @@ function showPage(id) {
   if(id==='admin') { setTimeout(function(){ loadCoordinators(); renderCourseCodeList(); renderCentreList(); loadActiveCourses(); loadAdminList(); }, 100); }
   if(id==='eodreport') { var today=new Date().toISOString().split('T')[0]; var el=document.getElementById('eod-date'); if(el && !el.value) el.value=today; }
   setBottomNav(id);
+  try { localStorage.setItem('ctLastPage', id); } catch(e) {}
 }
 
 function setBottomNav(id) {
@@ -3203,6 +3381,10 @@ function validate(form) {
     document.getElementById('att-err-registered').style.display=reg?'none':'block';
     document.getElementById('att-err-present').style.display=pre?'none':'block';
     if(!reg||!pre) ok=false;
+    var cwErr = courseRowsProblem();
+    var cwEl = document.getElementById('att-err-courses');
+    if(cwEl) { cwEl.textContent = cwErr; cwEl.style.display = cwErr ? 'block' : 'none'; }
+    if(cwErr) { ok=false; if(cwEl) cwEl.scrollIntoView({behavior:'smooth', block:'center'}); }
   }
   if(form==='umc'){
     const e=document.getElementById('umc-err-form');
@@ -3615,7 +3797,8 @@ function showConfirmModal(form) {
   const present = form==='att' ? parseInt(document.getElementById('att-present').value)||0 : 0;
   const absent = Math.max(0, registered - present);
   const remarks = form==='att' ? (document.getElementById('att-remarks').value||'') : '';
-  pendingData = { city, date, slot, type, formFiles, registered, present, absent, remarks };
+  const courseData = form==='att' ? getCourseRowsData() : [];
+  pendingData = { city, date, slot, type, formFiles, registered, present, absent, remarks, courseData };
 
   // Build summary
   document.getElementById('modal-title').textContent = type==='UMC' ? '⚠️ Confirm UMC Report' : '📋 Confirm Attendance Sheet';
@@ -3632,6 +3815,12 @@ function showConfirmModal(form) {
       <div class="modal-row"><span>Present</span><span style="color:#065f46;font-weight:600">${preStr}</span></div>
       <div class="modal-row"><span>Absent</span><span style="color:#b91c1c;font-weight:600">${abs}</span></div>
     `;
+    const cRows = getCourseRowsData();
+    if(cRows.length) {
+      extraRows += `<div class="modal-row"><span>Courses</span><span>${cRows.length}</span></div>` +
+        cRows.slice(0, 8).map(r => `<div class="modal-row" style="font-size:12px"><span style="padding-left:10px">${cwEsc(r.code)}</span><span>${r.attended} / ${r.total} present</span></div>`).join('') +
+        (cRows.length > 8 ? `<div class="modal-row" style="font-size:12px"><span style="padding-left:10px">…and ${cRows.length - 8} more</span><span></span></div>` : '');
+    }
   }
   document.getElementById('modal-details').innerHTML = `
     <div class="modal-row"><span>Type</span><span>${type}</span></div>
@@ -3667,7 +3856,7 @@ function confirmSubmit() {
     document.getElementById(form+'-loading').style.display = 'block';
     if(document.getElementById(form+'-progress')) document.getElementById(form+'-progress').style.display = 'block';
     setProgress(form, 5);
-    uploadFiles(form, data.city, data.date, data.slot, data.type, data.formFiles, data.registered, data.present, data.absent, data.remarks);
+    uploadFiles(form, data.city, data.date, data.slot, data.type, data.formFiles, data.registered, data.present, data.absent, data.remarks, data.courseData || []);
   }
 }
 
@@ -3686,8 +3875,8 @@ if(confirmModalEl) confirmModalEl.addEventListener('click', function(e) {
   dz.addEventListener('drop',e=>{e.preventDefault();dz.classList.remove('dragover');handleFiles(key,e.dataTransfer.files);});
 });
 
-// Auto restore session
-window.addEventListener('load',()=>{
+// Auto restore session — runs immediately (does not wait for Google's script)
+(function restoreSession(){
   const savedTheme=localStorage.getItem('ctTheme');
   if(savedTheme){
     isDark=savedTheme==='dark';
@@ -3703,7 +3892,7 @@ window.addEventListener('load',()=>{
   
   if(sessionValid) {
     const savedUser = JSON.parse(localStorage.getItem('ctUser') || '{}');
-    startApp(savedRole, savedUser);
+    startApp(savedRole, savedUser, localStorage.getItem('ctLastPage'));
   } else if(savedRole) {
     // Session expired - clear and show login
     localStorage.removeItem('ctRole');
@@ -3712,7 +3901,7 @@ window.addEventListener('load',()=>{
   }
   // Restore sidebar collapse state
   if(sidebarCollapsed) applySidebarCollapse();
-}); // end window load
+})(); // end restore session
 </script>
 </body>
 </html>
