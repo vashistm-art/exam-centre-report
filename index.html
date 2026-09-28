@@ -998,6 +998,13 @@ tr:hover td{background:var(--input-bg)}
 </div>
 
 <script>
+// Safe element getter
+function $(id) { 
+  var el = document.getElementById(id);
+  if(el) return el;
+  return {style:{display:'',color:'',background:''},classList:{add:function(){},remove:function(){},toggle:function(){},contains:function(){return false}},innerHTML:'',textContent:'',value:'',checked:false,disabled:false,src:'',href:'',addEventListener:function(){},appendChild:function(){},removeChild:function(){},querySelector:function(){return null},querySelectorAll:function(){return {forEach:function(){},length:0}},getContext:function(){return {clearRect:function(){},fillRect:function(){},drawImage:function(){}}},options:[{value:''}],children:[],parentNode:null};
+}
+
 // ===== GLOBAL VARIABLES (declared first to prevent ReferenceError) =====
 var slots = {att:'',umc:'',photo:''};
 var files = {att:[],umc1:[],umc2:[]};
