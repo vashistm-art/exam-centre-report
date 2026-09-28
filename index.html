@@ -203,6 +203,40 @@ tr:hover td{background:var(--input-bg)}
 @media(min-width:769px){
   .bottom-nav{display:none!important}
 }
+/* Geo-tagged photo preview */
+.geo-preview{position:relative;margin-top:10px;border-radius:10px;overflow:hidden;border:1px solid var(--border)}
+.geo-preview img{display:block;width:100%;height:auto}
+.geo-preview .file-remove{position:absolute;top:8px;right:8px;background:rgba(0,0,0,.6);color:#fff;border-radius:50%;width:28px;height:28px;display:flex;align-items:center;justify-content:center;cursor:pointer}
+#geo-status a{color:inherit;text-decoration:underline}
+/* Edit requests / My submissions */
+.ms-item{border:1px solid var(--border);border-radius:10px;padding:12px 14px;margin-bottom:10px;background:var(--card)}
+.ms-top{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;flex-wrap:wrap}
+.ms-top b{font-size:14px;color:var(--text)}
+.ms-meta{font-size:12px;color:var(--muted);margin-top:3px}
+.ms-nums{font-size:13px;color:var(--text2);margin-top:8px}
+.ms-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.ms-btn{height:32px;padding:0 12px;border-radius:7px;border:1px solid var(--border);background:var(--input-bg);color:var(--text2);font-size:12.5px;font-weight:600;cursor:pointer}
+.ms-btn:hover{border-color:var(--accent);color:var(--accent)}
+.ms-btn:disabled{opacity:.6;cursor:wait}
+.ms-primary{background:var(--accent);border-color:var(--accent);color:#fff}
+.ms-primary:hover{color:#fff;filter:brightness(1.05)}
+.ms-danger{color:#b91c1c}
+.ms-badge{font-size:11.5px;font-weight:600;padding:4px 10px;border-radius:20px;white-space:nowrap}
+.ms-pending{background:rgba(245,158,11,.15);color:#b45309}
+.ms-approved{background:rgba(16,185,129,.15);color:#047857}
+.ms-rejected{background:rgba(239,68,68,.12);color:#b91c1c;white-space:normal}
+.ms-done{background:var(--accent-bg);color:var(--accent)}
+.ms-req{margin-top:10px}
+.ms-req textarea{width:100%;min-height:64px;border-radius:8px;border:1px solid var(--input-border);background:var(--input-bg);color:var(--text);font-size:13px;padding:8px 10px;outline:none;resize:vertical;font-family:inherit}
+.ms-msg{font-size:12px;margin-top:6px}
+.ms-empty{font-size:13px;color:var(--muted);padding:14px;text-align:center;background:var(--input-bg);border:1px dashed var(--border);border-radius:8px}
+.ms-banner{display:flex;justify-content:space-between;align-items:center;gap:12px;background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.4);border-radius:10px;padding:10px 14px;margin-bottom:1.25rem}
+.ms-locked{pointer-events:none;opacity:.75}
+.er-recent{margin-top:6px}
+.er-recent summary{cursor:pointer;font-size:13px;font-weight:600;color:var(--text2);padding:6px 0}
+.er-row{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;padding:8px 0;border-bottom:1px solid var(--border);font-size:13px;color:var(--text)}
+.nav-badge{margin-left:auto;background:#f59e0b;color:#fff;font-size:11px;font-weight:700;border-radius:10px;padding:1px 7px}
+select:disabled,input:disabled{opacity:.75;cursor:not-allowed}
 /* Course-wise attendance entry */
 .cw-row{display:grid;grid-template-columns:minmax(90px,1.6fr) 1fr 1fr .8fr .7fr;gap:8px;align-items:center;padding:7px 10px;border-bottom:1px solid var(--border)}
 .cw-row:last-child{border-bottom:none}
@@ -211,7 +245,8 @@ tr:hover td{background:var(--input-bg)}
 .cw-code{font-size:13px;font-weight:600;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .cw-row input{height:34px;width:100%;border-radius:6px;border:1px solid var(--input-border);background:var(--input-bg);color:var(--text);font-size:13px;padding:0 6px;outline:none;text-align:center}
 .cw-row input:focus{border-color:var(--accent)}
-.cw-row.bad input.cw-pre{border-color:#ef4444;background:rgba(239,68,68,.08)}
+.cw-row input.cw-pre{color:#065f46;font-weight:600}
+.cw-row input.cw-absin{color:#b91c1c;font-weight:600}
 .cw-cell{height:34px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;color:var(--text2);background:var(--input-bg)}
 .cw-abs{color:#b91c1c;background:rgba(185,28,28,.07)}
 .cw-pct{color:var(--accent);background:var(--accent-bg)}
@@ -426,6 +461,10 @@ try {
         <div class="form-card">
           <h2>📋 Attendance Sheet</h2>
           <p class="sub">Submit attendance documents for your exam centre.</p>
+          <div id="att-edit-banner" class="ms-banner" style="display:none">
+            <div><b>✏️ Editing an approved submission</b><div id="att-edit-desc" class="ms-meta"></div></div>
+            <button type="button" class="ms-btn" onclick="cancelEdit()">Cancel edit</button>
+          </div>
           <div class="field">
             <label class="field-label" for="att-city">Test centre <span class="required">*</span></label>
             <select id="att-city"><option value="">— Select test centre —</option></select>
@@ -456,7 +495,6 @@ try {
               <div class="err" id="att-err-present">Please enter total present.</div>
             </div>
           </div>
-          <div id="cw-auto-note" style="display:none;font-size:12px;color:var(--muted);margin:-0.75rem 0 1rem">🔒 Totals are calculated from the course-wise numbers below.</div>
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:1.25rem">
             <div style="background:var(--accent-bg);border:1px solid var(--border);border-radius:8px;padding:10px 14px;display:flex;align-items:center;justify-content:space-between">
               <span style="font-size:13px;font-weight:600;color:var(--text2)">Total absent</span>
@@ -471,9 +509,8 @@ try {
           <!-- Course-wise attendance -->
           <div class="field">
             <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:8px;flex-wrap:wrap">
-              <label class="field-label" style="margin-bottom:0">Course-wise attendance <span class="required">*</span></label>
+              <label class="field-label" style="margin-bottom:0">Course-wise attendance <span style="font-weight:400;color:var(--muted)">(optional)</span></label>
               <div id="course-list-tools" style="display:none;gap:6px">
-                <button type="button" class="cw-tool" onclick="markAllPresent()">✓ Mark all present</button>
                 <button type="button" class="cw-tool" onclick="clearAllCourseInputs()">Clear all</button>
               </div>
             </div>
@@ -483,11 +520,12 @@ try {
             </div>
             <!-- Header -->
             <div id="course-list-header" class="cw-row cw-head" style="display:none">
-              <span>COURSE</span><span>REGISTERED</span><span>PRESENT</span><span>ABSENT</span><span>%</span>
+              <span>COURSE</span><span style="color:#065f46">PRESENT</span><span style="color:#b91c1c">ABSENT</span><span>TOTAL</span><span>%</span>
             </div>
             <!-- Course list populated by fetchActiveCourses -->
             <div id="course-list-container" style="display:none;border:1px solid var(--border);border-radius:8px;overflow:hidden;max-height:360px;overflow-y:auto"></div>
             <div class="err" id="att-err-courses"></div>
+            <div id="cw-mismatch" style="display:none;font-size:12px;color:#92400e;background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.35);border-radius:8px;padding:8px 10px;margin-top:8px"></div>
           </div>
 
           <div class="field">
@@ -500,6 +538,16 @@ try {
           <button class="btn-submit" id="att-submit" onclick="showConfirmModal('att')">Submit attendance sheet</button>
           <div class="loading" id="att-loading"><span class="spinner"></span><span id="att-loading-text">Uploading...</span><div style="font-size:11px;color:var(--muted);margin-top:6px" id="att-loading-sub">Please do not close or refresh</div></div>
           <div class="success-banner" id="att-success"><div style="font-size:28px;margin-bottom:6px">✅</div><h3>Submitted successfully!</h3><p id="att-success-detail"></p><p id="att-drive-p" style="display:none;margin-top:6px"><a id="att-drive-link" href="https://exam-centre-report.vercel.app/#" target="_blank" style="color:#4ade80">View in Google Drive →</a></p></div>
+        </div>
+
+        <!-- My submissions (edit requests) -->
+        <div class="form-card" id="my-subs-card" style="margin-top:16px">
+          <div style="display:flex;justify-content:space-between;align-items:center;gap:8px">
+            <h2>🕘 My submissions</h2>
+            <button type="button" class="ms-btn" onclick="loadMySubmissions()">↻ Refresh</button>
+          </div>
+          <p class="sub" style="margin-bottom:1rem">Need to change something already submitted (e.g. a student arrived late)? Tap <b>Request edit</b>. Once the admin approves, tap <b>Edit now</b> to update it.</p>
+          <div id="my-subs-list"><div class="ms-empty">Open this page after signing in to see your submissions.</div></div>
         </div>
       </div>
 
@@ -743,7 +791,7 @@ try {
               <input type="file" id="photo-file" accept="image/*" capture="environment" onchange="handleCentrePhoto(this.files)">
               <div class="upload-icon">📸</div>
               <div class="upload-text">Take photo or click to browse</div>
-              <div class="upload-hint">JPG, PNG — GPS location will be captured automatically</div>
+              <div class="upload-hint">📍 Location, address, map and date/time are stamped on the photo automatically — allow location when asked</div>
             </div>
             <div class="file-list" id="photo-file-list"></div>
             <div class="err" id="photo-err-file">Please upload a centre photograph.</div>
@@ -774,6 +822,16 @@ try {
 
       <!-- Admin Page -->
       <div class="page" id="page-admin" style="padding:0">
+
+        <!-- Edit requests -->
+        <div class="form-card" id="er-card" style="margin-bottom:16px">
+          <div style="display:flex;justify-content:space-between;align-items:center;gap:8px">
+            <h2>✏️ Edit requests <span id="er-count" style="font-size:13px;color:#b45309;font-weight:600"></span></h2>
+            <button type="button" class="ms-btn" onclick="loadEditRequests()">↻ Refresh</button>
+          </div>
+          <p class="sub" style="margin-bottom:1rem">Coordinators ask here to correct an attendance submission. Approve to let them edit it once; every change is saved in the "Edit History" sheet.</p>
+          <div id="er-list"><div class="ms-empty">⏳ Loading…</div></div>
+        </div>
 
         <!-- Quick Links -->
         <div class="form-card" style="margin-bottom:16px">
@@ -1045,6 +1103,7 @@ var files = {att:[],umc1:[],umc2:[]};
 var currentRole = null;
 var allDashData = [];
 var submissions = (function(){ try { return JSON.parse(localStorage.getItem('ctSubmissions') || '[]'); } catch(e) { return []; } })();
+document.addEventListener('input', function(e) { if(e.target && (e.target.id === 'att-registered' || e.target.id === 'att-present') && typeof updateCourseTotals === 'function') updateCourseTotals(); });
 var isDark = (function(){ try { return localStorage.getItem('ctTheme') === 'dark'; } catch(e) { return false; } })();
 var courseReportData = [];
 var centrePhotoFiles = [];
@@ -1097,9 +1156,231 @@ async function fetchActiveCourses(date, slot) {
   }
 }
 
-// ===== Course-wise attendance (coordinator entry) =====
-// Each course: Registered + Present entered; Absent and % are calculated.
-// Course totals fill the form's Total registered / Total present automatically.
+// ===== ✏️ Edit requests: coordinator requests, admin approves, coordinator edits once =====
+var EDIT_STATE = null;   // { requestId, item } while editing an approved submission
+var MY_SUBS = {};        // key -> submission
+
+function cwUser() { try { return JSON.parse(localStorage.getItem('ctUser') || '{}') || {}; } catch(e) { return {}; } }
+function cwSlotName(s) { return s === 'FN' ? 'Morning (FN)' : s === 'AN' ? 'Afternoon (AN)' : s; }
+
+// JSONP GET helper for the Apps Script API
+function cwJsonp(params) {
+  return new Promise(function(resolve) {
+    var cb = 'cwCB_' + Date.now() + '_' + Math.floor(Math.random() * 10000);
+    var sc = document.createElement('script'), done = false;
+    var fin = function(v) {
+      if(done) return; done = true;
+      window[cb] = function() {};
+      if(sc.parentNode) sc.parentNode.removeChild(sc);
+      resolve(v);
+    };
+    window[cb] = fin;
+    sc.onerror = function() { fin(null); };
+    setTimeout(function() { fin(null); }, 15000);
+    sc.src = SCRIPT_URL + '?' + Object.keys(params).map(function(k) { return k + '=' + encodeURIComponent(params[k]); }).join('&') + '&callback=' + cb;
+    document.head.appendChild(sc);
+  });
+}
+
+// ---------- Coordinator: My submissions ----------
+async function loadMySubmissions() {
+  var list = document.getElementById('my-subs-list'); if(!list) return;
+  var u = cwUser();
+  if(!u.email || u.email.indexOf('@') === -1) { list.innerHTML = '<div class="ms-empty">Sign in with Google to see your submissions.</div>'; return; }
+  list.innerHTML = '<div class="ms-empty">⏳ Loading your submissions…</div>';
+  var res = await cwJsonp({ action: 'getMySubmissions', email: u.email });
+  if(!res || res.status !== 'success') {
+    list.innerHTML = '<div class="ms-empty">Couldn\'t load your submissions. <a href="#" onclick="loadMySubmissions();return false">Try again</a></div>';
+    return;
+  }
+  MY_SUBS = {};
+  (res.data || []).forEach(function(it) { MY_SUBS[it.key] = it; });
+  list.innerHTML = (res.data || []).length ? res.data.map(renderMySubItem).join('') : '<div class="ms-empty">No attendance submissions yet.</div>';
+}
+
+function renderMySubItem(it) {
+  var r = it.request, st = r ? r.status : '';
+  var badge = '', actions = '';
+  var reqBtn = '<button type="button" class="ms-btn" onclick="toggleEditRequest(this)">✏️ Request edit</button>';
+  if(st === 'Pending') badge = '<span class="ms-badge ms-pending">⏳ Edit requested — awaiting admin</span>';
+  else if(st === 'Approved') { badge = '<span class="ms-badge ms-approved">✅ Edit approved</span>'; actions = '<button type="button" class="ms-btn ms-primary" onclick="startEdit(this)">✏️ Edit now</button>'; }
+  else {
+    if(st === 'Rejected') badge = '<span class="ms-badge ms-rejected">❌ Edit rejected' + (r.note ? ': ' + cwEsc(r.note) : '') + '</span>';
+    if(st === 'Completed') badge = '<span class="ms-badge ms-done">✔ Edited' + (r.completedAt ? ' · ' + cwEsc(r.completedAt) : '') + '</span>';
+    actions = reqBtn;
+  }
+  var nFiles = it.files && it.files !== 'No files uploaded' ? it.files.split(',').filter(function(f) { return f.trim(); }).length : 0;
+  var courses = (it.courses || []).map(function(c) { return cwEsc(c.code) + ' ' + c.present + 'P/' + c.absent + 'A'; }).join(', ');
+  return '<div class="ms-item" data-key="' + cwEsc(it.key) + '">' +
+    '<div class="ms-top"><div><b>' + cwEsc(it.city) + '</b><div class="ms-meta">' + cwEsc(it.date) + ' · ' + cwEsc(cwSlotName(it.slot)) + (it.time ? ' · submitted ' + cwEsc(it.time) : '') + '</div></div>' + badge + '</div>' +
+    '<div class="ms-nums">Registered <b>' + it.registered + '</b> · Present <b style="color:#065f46">' + it.present + '</b> · Absent <b style="color:#b91c1c">' + it.absent + '</b>' + (nFiles ? ' · ' + nFiles + ' file(s)' : '') + '</div>' +
+    (courses ? '<div class="ms-meta">Courses: ' + courses + '</div>' : '') +
+    (it.remarks ? '<div class="ms-meta">Remarks: ' + cwEsc(it.remarks) + '</div>' : '') +
+    (actions ? '<div class="ms-actions">' + actions + '</div>' : '') +
+    '<div class="ms-req" style="display:none">' +
+      '<textarea placeholder="Why do you need to edit? e.g. 1 student arrived late"></textarea>' +
+      '<div class="ms-actions"><button type="button" class="ms-btn ms-primary" onclick="sendEditRequest(this)">Send request to admin</button><button type="button" class="ms-btn" onclick="toggleEditRequest(this)">Cancel</button></div>' +
+      '<div class="ms-msg"></div>' +
+    '</div>' +
+  '</div>';
+}
+
+function toggleEditRequest(btn) {
+  var box = btn.closest('.ms-item').querySelector('.ms-req');
+  box.style.display = box.style.display === 'none' ? 'block' : 'none';
+  if(box.style.display === 'block') box.querySelector('textarea').focus();
+}
+
+async function sendEditRequest(btn) {
+  var itemEl = btn.closest('.ms-item'), it = MY_SUBS[itemEl.getAttribute('data-key')];
+  var ta = itemEl.querySelector('textarea'), msg = itemEl.querySelector('.ms-msg');
+  var reason = ta.value.trim();
+  if(!reason) { msg.textContent = 'Please write a reason.'; msg.style.color = '#b91c1c'; ta.focus(); return; }
+  var u = cwUser();
+  btn.disabled = true; btn.textContent = 'Sending…';
+  try {
+    var res = await postData({ action: 'requestEdit', email: u.email || '', name: u.name || '', city: it.city, date: it.date, slot: it.slot, reason: reason });
+    if(res && res.status === 'success') { loadMySubmissions(); return; }
+    msg.textContent = (res && res.message) || 'Could not send the request. Please try again.'; msg.style.color = '#b91c1c';
+  } catch(e) {
+    msg.textContent = 'Connection error. Please try again.'; msg.style.color = '#b91c1c';
+  }
+  btn.disabled = false; btn.textContent = 'Send request to admin';
+}
+
+// ---------- Coordinator: edit mode on the Attendance form ----------
+async function startEdit(btn) {
+  var it = MY_SUBS[btn.closest('.ms-item').getAttribute('data-key')];
+  if(!it || !it.request || it.request.status !== 'Approved') return;
+  if(typeof clearCourseRows === 'function') clearCourseRows();
+  EDIT_STATE = { requestId: it.request.id, item: it };
+  files['att'] = []; renderFiles('att');
+  document.getElementById('att-success').style.display = 'none';
+
+  var cs = document.getElementById('att-city');
+  if(![].some.call(cs.options, function(o) { return o.value === it.city; })) { var o = document.createElement('option'); o.value = o.textContent = it.city; cs.appendChild(o); }
+  cs.value = it.city; cs.disabled = true;
+  var d = document.getElementById('att-date'); d.value = it.date; d.disabled = true;
+
+  // Session cards: show this date's times, select the submitted session, lock them
+  var sessions = (typeof fetchSessionTimes === 'function') ? (await fetchSessionTimes(it.date)).slice() : [];
+  if(it.slot !== 'FN' && it.slot !== 'AN' && !sessions.some(function(s) { return s.slot === it.slot; })) sessions.push({ slot: it.slot, name: it.slot });
+  slots['att'] = it.slot;
+  if(typeof renderSessionCards === 'function') renderSessionCards('att', sessions);
+  slots['att'] = it.slot;
+  var grid = document.getElementById('att-card-fn').parentNode;
+  grid.querySelectorAll('.slot-card').forEach(function(c) { c.classList.toggle('selected', c.getAttribute('data-slot') === it.slot); });
+  grid.classList.add('ms-locked');
+
+  document.getElementById('att-registered').value = it.registered;
+  document.getElementById('att-present').value = it.present;
+  if(typeof calcAbsent === 'function') calcAbsent();
+  var rm = document.getElementById('att-remarks'); if(rm) rm.value = it.remarks || '';
+
+  // Course rows: today's timetable + anything already submitted, pre-filled
+  await fetchActiveCourses(it.date, it.slot);
+  var codes = activeCoursesList.slice();
+  (it.courses || []).forEach(function(c) { if(codes.indexOf(c.code) === -1) codes.push(c.code); });
+  if(codes.length) {
+    renderCourseList(codes);
+    (it.courses || []).forEach(function(c) {
+      var i = activeCoursesList.indexOf(c.code); if(i === -1) return;
+      document.getElementById('cl-att-' + i).value = c.present;
+      document.getElementById('cl-abs-' + i).value = c.absent;
+      calcCourseRowTotal(i);
+    });
+  }
+
+  var nFiles = it.files && it.files !== 'No files uploaded' ? it.files.split(',').filter(function(f) { return f.trim(); }).length : 0;
+  document.getElementById('att-edit-desc').textContent = it.city + ' · ' + it.date + ' · ' + cwSlotName(it.slot) +
+    ' — change the numbers or remarks, or add files, then click Save changes. ' +
+    (nFiles ? nFiles + ' file(s) already uploaded stay as they are; any files you add are kept alongside them.' : '');
+  document.getElementById('att-edit-banner').style.display = 'flex';
+  document.getElementById('att-submit').textContent = '💾 Save changes';
+  document.getElementById('page-attendance').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function exitEditMode() {
+  EDIT_STATE = null;
+  var cs = document.getElementById('att-city'), d = document.getElementById('att-date');
+  cs.disabled = false; cs.value = '';
+  d.disabled = false; d.value = '';
+  var grid = document.getElementById('att-card-fn').parentNode;
+  grid.classList.remove('ms-locked');
+  slots['att'] = '';
+  if(typeof renderSessionCards === 'function') renderSessionCards('att', []);
+  grid.querySelectorAll('.slot-card').forEach(function(c) { c.classList.remove('selected'); });
+  document.getElementById('att-registered').value = '';
+  document.getElementById('att-present').value = '';
+  if(typeof calcAbsent === 'function') calcAbsent();
+  var rm = document.getElementById('att-remarks'); if(rm) rm.value = '';
+  if(typeof clearCourseRows === 'function') clearCourseRows();
+  files['att'] = []; renderFiles('att');
+  document.getElementById('att-edit-banner').style.display = 'none';
+  document.getElementById('att-submit').textContent = 'Submit attendance sheet';
+}
+
+function cancelEdit() { exitEditMode(); }
+
+// Extra fields sent with an Attendance submission
+function submitExtras(form) {
+  var u = cwUser();
+  if(form === 'att' && EDIT_STATE) return { action: 'submitEdit', requestId: EDIT_STATE.requestId, email: u.email || '', submittedBy: u.email || '' };
+  return { submittedBy: u.email || '' };
+}
+
+// ---------- Admin: Edit requests ----------
+async function loadEditRequests() {
+  var box = document.getElementById('er-list'); 
+  var res = await cwJsonp({ action: 'getEditRequests' });
+  if(!res || res.status !== 'success') { if(box) box.innerHTML = '<div class="ms-empty">Couldn\'t load edit requests. <a href="#" onclick="loadEditRequests();return false">Try again</a></div>'; return; }
+  var all = res.data || [];
+  var pending = all.filter(function(r) { return r.status === 'Pending'; });
+  var recent = all.filter(function(r) { return r.status !== 'Pending'; }).slice(0, 15);
+  var nav = document.getElementById('nav-admin');
+  if(nav) {
+    var b = nav.querySelector('.nav-badge');
+    if(pending.length) { if(!b) { b = document.createElement('span'); b.className = 'nav-badge'; nav.appendChild(b); } b.textContent = pending.length; }
+    else if(b) b.remove();
+  }
+  var cnt = document.getElementById('er-count'); if(cnt) cnt.textContent = pending.length ? '(' + pending.length + ' pending)' : '';
+  if(!box) return;
+  var who = function(r) { return cwEsc(r.name ? r.name + ' (' + r.requestedBy + ')' : r.requestedBy); };
+  var html = pending.length ? pending.map(function(r) {
+    return '<div class="ms-item">' +
+      '<div class="ms-top"><div><b>' + cwEsc(r.city) + '</b><div class="ms-meta">' + cwEsc(r.date) + ' · ' + cwEsc(cwSlotName(r.slot)) + '</div></div><span class="ms-badge ms-pending">⏳ Pending</span></div>' +
+      '<div class="ms-meta">Requested by ' + who(r) + ' · ' + cwEsc(r.requestedAt) + '</div>' +
+      '<div class="ms-nums">Reason: ' + cwEsc(r.reason) + '</div>' +
+      '<div class="ms-actions"><button type="button" class="ms-btn ms-primary" onclick="decideEdit(\'' + cwEsc(r.id) + '\',\'Approved\',this)">✅ Approve</button>' +
+      '<button type="button" class="ms-btn ms-danger" onclick="decideEdit(\'' + cwEsc(r.id) + '\',\'Rejected\',this)">❌ Reject</button></div>' +
+    '</div>';
+  }).join('') : '<div class="ms-empty">No pending edit requests.</div>';
+  if(recent.length) {
+    html += '<details class="er-recent"><summary>Recent decisions (' + recent.length + ')</summary>' + recent.map(function(r) {
+      var cls = r.status === 'Rejected' ? 'ms-rejected' : r.status === 'Completed' ? 'ms-done' : 'ms-approved';
+      var label = r.status === 'Completed' ? '✔ Edited by coordinator' : r.status === 'Approved' ? '✅ Approved — waiting for coordinator' : '❌ Rejected';
+      return '<div class="er-row"><div><b>' + cwEsc(r.city) + '</b> · ' + cwEsc(r.date) + ' · ' + cwEsc(r.slot) + '<div class="ms-meta">' + who(r) + ' — ' + cwEsc(r.reason) + (r.note ? ' · Note: ' + cwEsc(r.note) : '') + (r.decidedBy ? ' · by ' + cwEsc(r.decidedBy) : '') + '</div></div><span class="ms-badge ' + cls + '">' + label + '</span></div>';
+    }).join('') + '</details>';
+  }
+  box.innerHTML = html;
+}
+
+async function decideEdit(id, decision, btn) {
+  var note = '';
+  if(decision === 'Rejected') { note = prompt('Reason for rejecting (optional, the coordinator will see it):', ''); if(note === null) return; }
+  var u = cwUser();
+  btn.disabled = true;
+  try {
+    var res = await postData({ action: 'decideEdit', id: id, decision: decision, adminEmail: u.email || '', note: note });
+    if(!res || res.status !== 'success') alert((res && res.message) || 'Could not update the request.');
+  } catch(e) { alert('Connection error. Please try again.'); }
+  loadEditRequests();
+}
+
+// ===== Course-wise attendance (coordinator entry) — OPTIONAL =====
+// Courses come from the admin's "Active Courses for the Day" timetable.
+// Coordinator enters Present + Absent per course; Total and % are calculated.
 function cwEsc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function(c) { return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
 
 function renderCourseList(courses) {
@@ -1116,113 +1397,77 @@ function renderCourseList(courses) {
   container.innerHTML = activeCoursesList.map(function(code, i) {
     return '<div class="cw-row" id="cl-row-' + i + '">' +
       '<span class="cw-code">' + cwEsc(code) + '</span>' +
-      '<input type="number" inputmode="numeric" min="0" id="cl-reg-' + i + '" placeholder="0" oninput="calcCourseRowTotal(' + i + ')" aria-label="Registered for ' + cwEsc(code) + '">' +
       '<input type="number" inputmode="numeric" min="0" class="cw-pre" id="cl-att-' + i + '" placeholder="0" oninput="calcCourseRowTotal(' + i + ')" aria-label="Present for ' + cwEsc(code) + '">' +
-      '<div class="cw-cell cw-abs" id="cl-abs-' + i + '">—</div>' +
+      '<input type="number" inputmode="numeric" min="0" class="cw-absin" id="cl-abs-' + i + '" placeholder="0" oninput="calcCourseRowTotal(' + i + ')" aria-label="Absent for ' + cwEsc(code) + '">' +
+      '<div class="cw-cell" id="cl-total-' + i + '">—</div>' +
       '<div class="cw-cell cw-pct" id="cl-pct-' + i + '">—</div>' +
     '</div>';
   }).join('') +
   '<div class="cw-row cw-foot" id="cl-foot">' +
     '<span class="cw-code">Total</span>' +
-    '<div class="cw-cell" id="cl-foot-reg">0</div>' +
-    '<div class="cw-cell" id="cl-foot-pre">0</div>' +
-    '<div class="cw-cell cw-abs" id="cl-foot-abs">0</div>' +
+    '<div class="cw-cell" id="cl-foot-pre" style="color:#065f46">0</div>' +
+    '<div class="cw-cell" id="cl-foot-abs" style="color:#b91c1c">0</div>' +
+    '<div class="cw-cell" id="cl-foot-tot">0</div>' +
     '<div class="cw-cell cw-pct" id="cl-foot-pct">—</div>' +
   '</div>';
   updateCourseTotals();
 }
 
 function readCourseRow(i) {
-  var regEl = document.getElementById('cl-reg-' + i), preEl = document.getElementById('cl-att-' + i);
-  var regRaw = regEl ? regEl.value.trim() : '', preRaw = preEl ? preEl.value.trim() : '';
-  var reg = Math.max(0, parseInt(regRaw) || 0), pre = Math.max(0, parseInt(preRaw) || 0);
-  var filled = regRaw !== '' || preRaw !== '';
-  var bad = filled && (pre > reg || (regRaw === '' && preRaw !== ''));
-  return { reg: reg, pre: pre, filled: filled, bad: bad };
+  var preEl = document.getElementById('cl-att-' + i), absEl = document.getElementById('cl-abs-' + i);
+  var preRaw = preEl ? preEl.value.trim() : '', absRaw = absEl ? absEl.value.trim() : '';
+  var pre = Math.max(0, parseInt(preRaw) || 0), abs = Math.max(0, parseInt(absRaw) || 0);
+  return { pre: pre, abs: abs, total: pre + abs, filled: preRaw !== '' || absRaw !== '' };
 }
 
 function calcCourseRowTotal(i) {
   var r = readCourseRow(i);
-  var row = document.getElementById('cl-row-' + i);
-  var absEl = document.getElementById('cl-abs-' + i), pctEl = document.getElementById('cl-pct-' + i);
-  if(row) row.classList.toggle('bad', r.bad);
-  if(!r.filled || r.bad || r.reg === 0) {
-    if(absEl) absEl.textContent = r.bad ? '!' : '—';
-    if(pctEl) pctEl.textContent = '—';
-  } else {
-    if(absEl) absEl.textContent = r.reg - r.pre;
-    if(pctEl) pctEl.textContent = Math.round((r.pre / r.reg) * 100) + '%';
-  }
-  var err = document.getElementById('att-err-courses');
-  if(err && err.style.display === 'block' && !courseRowsProblem()) err.style.display = 'none';
+  var totEl = document.getElementById('cl-total-' + i), pctEl = document.getElementById('cl-pct-' + i);
+  if(totEl) totEl.textContent = r.filled && r.total > 0 ? r.total : '—';
+  if(pctEl) pctEl.textContent = r.filled && r.total > 0 ? Math.round((r.pre / r.total) * 100) + '%' : '—';
   updateCourseTotals();
 }
 
 function updateCourseTotals() {
-  var sumReg = 0, sumPre = 0, any = false;
+  var sumPre = 0, sumAbs = 0, any = false;
   activeCoursesList.forEach(function(code, i) {
     var r = readCourseRow(i);
-    if(r.filled && !r.bad) { sumReg += r.reg; sumPre += r.pre; }
-    if(r.filled) any = true;
+    if(r.filled) { any = true; sumPre += r.pre; sumAbs += r.abs; }
   });
+  var sumTot = sumPre + sumAbs;
   var set = function(id, v) { var el = document.getElementById(id); if(el) el.textContent = v; };
-  set('cl-foot-reg', sumReg); set('cl-foot-pre', sumPre); set('cl-foot-abs', Math.max(0, sumReg - sumPre));
-  set('cl-foot-pct', sumReg > 0 ? Math.round((sumPre / sumReg) * 100) + '%' : '—');
+  set('cl-foot-pre', sumPre); set('cl-foot-abs', sumAbs); set('cl-foot-tot', sumTot);
+  set('cl-foot-pct', sumTot > 0 ? Math.round((sumPre / sumTot) * 100) + '%' : '—');
 
-  var regEl = document.getElementById('att-registered'), preEl = document.getElementById('att-present');
-  var note = document.getElementById('cw-auto-note');
-  if(!regEl || !preEl) return;
-  if(any) {
-    regEl.value = sumReg; preEl.value = sumPre;
-    regEl.readOnly = preEl.readOnly = true;
-    regEl.classList.add('cw-locked'); preEl.classList.add('cw-locked');
-    if(note) note.style.display = 'block';
-    if(typeof calcAbsent === 'function') calcAbsent();
-  } else if(regEl.readOnly) {
-    regEl.readOnly = preEl.readOnly = false;
-    regEl.classList.remove('cw-locked'); preEl.classList.remove('cw-locked');
-    regEl.value = ''; preEl.value = '';
-    if(note) note.style.display = 'none';
-    if(typeof calcAbsent === 'function') calcAbsent();
-  }
-}
-
-function markAllPresent() {
-  activeCoursesList.forEach(function(code, i) {
-    var r = readCourseRow(i);
-    var preEl = document.getElementById('cl-att-' + i);
-    if(r.reg > 0 && preEl) { preEl.value = r.reg; calcCourseRowTotal(i); }
-  });
+  // Gentle check against the overall totals (never blocks submission)
+  var note = document.getElementById('cw-mismatch');
+  if(!note) return;
+  var reg = parseInt((document.getElementById('att-registered') || {}).value);
+  var pre = parseInt((document.getElementById('att-present') || {}).value);
+  var msgs = [];
+  if(any && !isNaN(reg) && sumTot !== reg) msgs.push('course total ' + sumTot + ' vs total registered ' + reg);
+  if(any && !isNaN(pre) && sumPre !== pre) msgs.push('course present ' + sumPre + ' vs total present ' + pre);
+  note.textContent = msgs.length ? 'ℹ️ Course-wise numbers don\'t match the totals above (' + msgs.join('; ') + '). Please check — you can still submit.' : '';
+  note.style.display = msgs.length ? 'block' : 'none';
 }
 
 function getCourseRowsData() {
   var data = [];
   activeCoursesList.forEach(function(code, i) {
     var r = readCourseRow(i);
-    if(r.filled && !r.bad && r.reg > 0) data.push({ code: code, attended: r.pre, notAttended: r.reg - r.pre, total: r.reg });
+    if(r.filled && r.total > 0) data.push({ code: code, attended: r.pre, notAttended: r.abs, total: r.total });
   });
   return data;
 }
 
-// Returns an error message, or '' when the course table is fine
-function courseRowsProblem() {
-  if(!activeCoursesList.length) return '';
-  var badCodes = [], filled = 0;
-  activeCoursesList.forEach(function(code, i) {
-    var r = readCourseRow(i);
-    if(r.bad) badCodes.push(code);
-    if(r.filled && !r.bad && r.reg > 0) filled++;
-  });
-  if(badCodes.length) return 'Present is more than registered (or registered is empty) for: ' + badCodes.join(', ');
-  if(!filled) return 'Enter registered and present for at least one course.';
-  return '';
-}
+// Course-wise entry is optional — nothing blocks submission
+function courseRowsProblem() { return ''; }
 
 function clearAllCourseInputs() {
   activeCoursesList.forEach(function(code, i) {
-    var reg = document.getElementById('cl-reg-' + i), pre = document.getElementById('cl-att-' + i);
-    if(reg) reg.value = '';
+    var pre = document.getElementById('cl-att-' + i), abs = document.getElementById('cl-abs-' + i);
     if(pre) pre.value = '';
+    if(abs) abs.value = '';
     calcCourseRowTotal(i);
   });
   updateCourseTotals();
@@ -1999,69 +2244,222 @@ function renderReports() {
 // (global) // DEDUP let centrePhotoFiles = [];
 // (global) // DEDUP let centrePhotoGeo = null;
 
-function handleCentrePhoto(fileList) {
-  centrePhotoFiles = Array.from(fileList);
-  // Use correct element IDs for Centre Photo page
-  const list = document.getElementById('photo-file-list') || document.getElementById('umc3-file-list');
-  const status = document.getElementById('geo-status');
-  
-  // Show file preview
-  if(list) {
-    list.innerHTML = '';
-    centrePhotoFiles.forEach(function(f) {
-      const div = document.createElement('div');
-      div.className = 'file-item';
-      // Show image thumbnail if image
-      const isImg = f.type && f.type.startsWith('image/');
-      const thumbUrl = isImg ? URL.createObjectURL(f) : '';
-      div.innerHTML = (isImg ? '<img src="'+thumbUrl+'" style="width:40px;height:40px;object-fit:cover;border-radius:4px;margin-right:8px">' : '<span>📸</span>') +
-        '<span class="file-name">'+f.name+'</span>' +
-        '<span class="file-size">'+(f.size/1024).toFixed(0)+' KB</span>' +
-        '<span class="file-remove" onclick="removeCentrePhoto()">✕</span>';
-      list.appendChild(div);
-    });
-  }
+// ===== 📍 GEO-TAGGED CENTRE PHOTO (GPS Map Camera-style stamp burned into the photo) =====
+var centrePhotoRaw = [];        // original photos as picked/taken
+var centrePhotoWhen = null;     // when the photo was taken
+var centrePhotoMeta = null;     // { geo, address, map }
+var centrePhotoReady = null;    // promise that resolves when location + stamp are ready
 
-  // Capture geolocation
-  if(navigator.geolocation) {
-    status.style.display = 'block';
-    status.style.background = 'var(--input-bg)';
-    status.style.color = 'var(--muted)';
-    status.textContent = '📍 Capturing location...';
-    
-    navigator.geolocation.getCurrentPosition(
-      function(pos) {
-        centrePhotoGeo = {
-          lat: pos.coords.latitude.toFixed(6),
-          lng: pos.coords.longitude.toFixed(6),
-          accuracy: Math.round(pos.coords.accuracy)
-        };
-        status.style.background = '#dcfce7';
-        status.style.color = '#065f46';
-        status.textContent = '📍 Location captured: ' + centrePhotoGeo.lat + ', ' + centrePhotoGeo.lng + ' (±' + centrePhotoGeo.accuracy + 'm)';
-      },
-      function(err) {
-        centrePhotoGeo = null;
-        status.style.background = '#fef3c7';
-        status.style.color = '#92400e';
-        status.textContent = '⚠️ Could not capture location: ' + err.message;
-      },
-      { enableHighAccuracy: true, timeout: 10000 }
-    );
-  } else {
-    status.style.display = 'block';
-    status.style.background = '#fef3c7';
-    status.style.color = '#92400e';
-    status.textContent = '⚠️ Location not supported on this device.';
+function geoPosition(opts) { return new Promise(function(res, rej) { navigator.geolocation.getCurrentPosition(res, rej, opts); }); }
+
+async function captureGeo() {
+  if(!navigator.geolocation) throw new Error('Location is not supported on this device/browser.');
+  var pos;
+  try { pos = await geoPosition({ enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }); }
+  catch(e) {
+    if(e && e.code === 1) throw new Error('Location permission is blocked. Allow location for this site (tap the 🔒 icon in the address bar → Location → Allow), then tap Retry.');
+    pos = await geoPosition({ enableHighAccuracy: false, timeout: 15000, maximumAge: 60000 });
   }
+  return { lat: +pos.coords.latitude.toFixed(6), lng: +pos.coords.longitude.toFixed(6), accuracy: Math.round(pos.coords.accuracy) };
 }
 
+async function reverseGeocode(lat, lng) {
+  var uniq = function(a) { return a.filter(function(v, i) { return v && a.indexOf(v) === i; }); };
+  try {
+    var r = await fetch('https://nominatim.openstreetmap.org/reverse?format=jsonv2&addressdetails=1&zoom=18&accept-language=en&lat=' + lat + '&lon=' + lng);
+    if(r.ok) {
+      var j = await r.json();
+      if(j && j.display_name) {
+        var a = j.address || {};
+        var place = a.city || a.town || a.village || a.suburb || a.county || a.state_district || '';
+        return { title: uniq([place, a.state, a.country]).join(', '), line: j.display_name, cc: (a.country_code || '').toUpperCase() };
+      }
+    }
+  } catch(e) {}
+  try {
+    var r2 = await fetch('https://api.bigdatacloud.net/data/reverse-geocode-client?localityLanguage=en&latitude=' + lat + '&longitude=' + lng);
+    if(r2.ok) {
+      var k = await r2.json();
+      return { title: uniq([k.city || k.locality, k.principalSubdivision, k.countryName]).join(', '),
+               line: uniq([k.locality, k.city, (k.principalSubdivision || '') + (k.postcode ? ' ' + k.postcode : ''), k.countryName]).join(', '),
+               cc: (k.countryCode || '').toUpperCase() };
+    }
+  } catch(e) {}
+  return null;
+}
+
+function loadCorsImage(src) {
+  return new Promise(function(res, rej) { var i = new Image(); i.crossOrigin = 'anonymous'; i.onload = function() { res(i); }; i.onerror = rej; i.src = src; });
+}
+
+// Small satellite map with a red pin (Esri World Imagery tiles)
+async function buildMapThumb(lat, lng) {
+  var size = 256, z = 17, n = Math.pow(2, z);
+  var latR = lat * Math.PI / 180;
+  var px = (lng + 180) / 360 * n * 256;
+  var py = (1 - Math.log(Math.tan(latR) + 1 / Math.cos(latR)) / Math.PI) / 2 * n * 256;
+  var h = size / 2, c = document.createElement('canvas'); c.width = c.height = size;
+  var g = c.getContext('2d'), jobs = [];
+  for(var tx = Math.floor((px - h) / 256); tx <= Math.floor((px + h) / 256); tx++)
+    for(var ty = Math.floor((py - h) / 256); ty <= Math.floor((py + h) / 256); ty++)
+      (function(tx, ty) {
+        jobs.push(loadCorsImage('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/' + z + '/' + ty + '/' + tx)
+          .then(function(img) { g.drawImage(img, Math.round(tx * 256 - (px - h)), Math.round(ty * 256 - (py - h))); }));
+      })(tx, ty);
+  await Promise.all(jobs);
+  c.toDataURL(); // throws if the tiles are not allowed on canvas -> no map thumbnail
+  // pin
+  var cx = size / 2, cy = size / 2, r = 16;
+  g.fillStyle = 'rgba(0,0,0,.35)'; g.beginPath(); g.ellipse(cx, cy + 2, 8, 3, 0, 0, Math.PI * 2); g.fill();
+  g.fillStyle = '#ea4335'; g.beginPath(); g.moveTo(cx, cy);
+  g.bezierCurveTo(cx - 6, cy - r * 0.9, cx - r, cy - r * 1.3, cx - r, cy - r * 1.9);
+  g.arc(cx, cy - r * 1.9, r, Math.PI, 0);
+  g.bezierCurveTo(cx + r, cy - r * 1.3, cx + 6, cy - r * 0.9, cx, cy); g.fill();
+  g.fillStyle = '#7f1d1d'; g.beginPath(); g.arc(cx, cy - r * 1.9, r * 0.38, 0, Math.PI * 2); g.fill();
+  g.font = '10px sans-serif'; g.fillStyle = 'rgba(255,255,255,.85)'; g.fillText('© Esri', 4, size - 5);
+  return c;
+}
+
+function stampTime(d) {
+  var p = function(n) { return String(n).padStart(2, '0'); };
+  var days = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+  var hr = d.getHours(), ap = hr >= 12 ? 'PM' : 'AM'; hr = hr % 12 || 12;
+  var off = -d.getTimezoneOffset();
+  return days[d.getDay()] + ', ' + p(d.getDate()) + '/' + p(d.getMonth() + 1) + '/' + d.getFullYear() + ' ' + p(hr) + ':' + p(d.getMinutes()) + ' ' + ap +
+    ' GMT ' + (off >= 0 ? '+' : '-') + p(Math.floor(Math.abs(off) / 60)) + ':' + p(Math.abs(off) % 60);
+}
+
+function flagEmoji(cc) { return cc && cc.length === 2 ? String.fromCodePoint.apply(null, cc.split('').map(function(c) { return 127397 + c.charCodeAt(0); })) : ''; }
+
+function loadPhoto(file) {
+  return new Promise(function(res, rej) {
+    var url = URL.createObjectURL(file), img = new Image();
+    img.onload = function() { URL.revokeObjectURL(url); res(img); };
+    img.onerror = function() { URL.revokeObjectURL(url); rej(new Error('Could not read this photo.')); };
+    img.src = url;
+  });
+}
+
+function wrapText(g, text, maxW, maxLines) {
+  var words = String(text || '').split(/\s+/), lines = [], cur = '';
+  words.forEach(function(w) {
+    var t = cur ? cur + ' ' + w : w;
+    if(g.measureText(t).width > maxW && cur) { lines.push(cur); cur = w; } else cur = t;
+  });
+  if(cur) lines.push(cur);
+  if(lines.length > maxLines) { lines = lines.slice(0, maxLines); var l = lines[maxLines - 1]; while(g.measureText(l + '…').width > maxW && l.length) l = l.slice(0, -1); lines[maxLines - 1] = l + '…'; }
+  return lines;
+}
+
+function roundRect(g, x, y, w, h, r) { g.beginPath(); g.moveTo(x + r, y); g.arcTo(x + w, y, x + w, y + h, r); g.arcTo(x + w, y + h, x, y + h, r); g.arcTo(x, y + h, x, y, r); g.arcTo(x, y, x + w, y, r); g.closePath(); }
+
+// Draws the photo + geo-stamp and returns a JPEG File
+async function renderGeoStamp(file, meta) {
+  var img = await loadPhoto(file);
+  var scale = Math.min(1, 1600 / Math.max(img.naturalWidth, img.naturalHeight));
+  var W = Math.round(img.naturalWidth * scale), H = Math.round(img.naturalHeight * scale);
+  var c = document.createElement('canvas'); c.width = W; c.height = H;
+  var g = c.getContext('2d');
+  g.drawImage(img, 0, 0, W, H);
+
+  var base = Math.max(12, Math.round(Math.min(W, H) * 0.028));
+  var m = Math.round(base * 0.8), pad = Math.round(base * 0.7), gap = Math.round(base * 0.6);
+  var font = '-apple-system,"Segoe UI",Roboto,Arial,sans-serif';
+  var geo = meta.geo, addr = meta.address;
+  var mapSize = meta.map && geo ? Math.round(Math.min(base * 7.5, W * 0.3)) : 0;
+  var textX = m + (mapSize ? mapSize + gap : 0) + pad, textW = W - textX - m - pad;
+
+  var header = [meta.centre, meta.date, meta.session].filter(Boolean).join(' · ');
+  var title = geo ? ((addr && addr.title) || 'Location captured') + (addr && addr.cc ? ' ' + flagEmoji(addr.cc) : '') : '⚠️ Location unavailable';
+  g.font = 'bold ' + Math.round(base * 1.2) + 'px ' + font; var titleLines = wrapText(g, title, textW, 1);
+  g.font = Math.round(base * 0.85) + 'px ' + font;
+  var addrLines = geo && addr && addr.line ? wrapText(g, addr.line, textW, 3) : [];
+  var coords = geo ? 'Lat ' + geo.lat + '°  Long ' + geo.lng + '°  (±' + geo.accuracy + ' m)' : '';
+  var when = stampTime(meta.when || new Date());
+  var rows = (header ? [{ t: header, f: 'bold ' + Math.round(base * 0.75) + 'px ' + font, c: '#93c5fd', h: base * 1.05 }] : []).concat([
+              { t: titleLines[0], f: 'bold ' + Math.round(base * 1.2) + 'px ' + font, c: '#ffffff', h: base * 1.55 }])
+    .concat(addrLines.map(function(l) { return { t: l, f: Math.round(base * 0.85) + 'px ' + font, c: '#f1f5f9', h: base * 1.2 }; }))
+    .concat(coords ? [{ t: coords, f: Math.round(base * 0.85) + 'px ' + font, c: '#f1f5f9', h: base * 1.25 }] : [])
+    .concat([{ t: when, f: Math.round(base * 0.85) + 'px ' + font, c: '#f1f5f9', h: base * 1.25 }]);
+  var textH = rows.reduce(function(s, r) { return s + r.h; }, 0);
+  var panelH = Math.max(mapSize, Math.round(textH + pad * 2));
+  var y0 = H - m - panelH;
+
+  if(mapSize) {
+    g.save(); roundRect(g, m, y0 + panelH - mapSize, mapSize, mapSize, Math.round(base * 0.5)); g.clip();
+    g.drawImage(meta.map, m, y0 + panelH - mapSize, mapSize, mapSize); g.restore();
+  }
+  var px0 = m + (mapSize ? mapSize + gap : 0);
+  g.fillStyle = 'rgba(0,0,0,0.55)'; roundRect(g, px0, y0, W - px0 - m, panelH, Math.round(base * 0.5)); g.fill();
+  g.textBaseline = 'middle';
+  var y = y0 + (panelH - textH) / 2;
+  rows.forEach(function(r) { g.font = r.f; g.fillStyle = r.c; g.fillText(r.t, textX, y + r.h / 2); y += r.h; });
+
+  var blob = await new Promise(function(res) { c.toBlob(res, 'image/jpeg', 0.88); });
+  var safe = function(s) { return String(s || '').replace(/[^a-zA-Z0-9]+/g, '_'); };
+  var out = new File([blob], 'CentrePhoto_' + [safe(meta.centre), safe(meta.date), safe(meta.session)].filter(Boolean).join('_') + '_geotagged.jpg', { type: 'image/jpeg' });
+  out.ctStamped = true;
+  return out;
+}
+
+function setGeoStatus(kind, html) {
+  var st = document.getElementById('geo-status'); if(!st) return;
+  var colors = { wait: ['var(--input-bg)', 'var(--muted)'], ok: ['#dcfce7', '#065f46'], warn: ['#fef3c7', '#92400e'] }[kind];
+  st.style.display = 'block'; st.style.background = colors[0]; st.style.color = colors[1]; st.innerHTML = html;
+}
+
+function photoStampMeta() {
+  var slot = slots['photo'];
+  return { geo: centrePhotoMeta && centrePhotoMeta.geo, address: centrePhotoMeta && centrePhotoMeta.address, map: centrePhotoMeta && centrePhotoMeta.map,
+           when: centrePhotoWhen, centre: (document.getElementById('photo-city') || {}).value || '',
+           date: (document.getElementById('photo-date') || {}).value || '', session: slot ? getSessionLabel('photo', slot).split(' — ')[0] : '' };
+}
+
+function renderPhotoPreview() {
+  var list = document.getElementById('photo-file-list'); if(!list) return;
+  list.innerHTML = centrePhotoFiles.map(function(f, i) {
+    return '<div class="geo-preview"><img src="' + URL.createObjectURL(f) + '" alt="Geo-tagged centre photo ' + (i + 1) + '">' +
+      '<span class="file-remove" title="Remove photo" onclick="removeCentrePhoto()">✕</span></div>';
+  }).join('');
+}
+
+function handleCentrePhoto(fileList) {
+  centrePhotoRaw = Array.from(fileList || []).filter(function(f) { return f.type && f.type.indexOf('image/') === 0; });
+  var input = document.getElementById('photo-file'); if(input) input.value = '';
+  if(!centrePhotoRaw.length) { setGeoStatus('warn', '⚠️ Please choose a photo (JPG or PNG).'); return; }
+  centrePhotoFiles = []; centrePhotoGeo = null; centrePhotoMeta = null;
+  var taken = centrePhotoRaw[0].lastModified ? new Date(centrePhotoRaw[0].lastModified) : new Date();
+  centrePhotoWhen = (Date.now() - taken.getTime() > 60 * 1000 && taken.getTime() < Date.now()) ? taken : new Date();
+  var list = document.getElementById('photo-file-list'); if(list) list.innerHTML = '<div class="ms-empty">⏳ Adding geo-tag…</div>';
+  setGeoStatus('wait', '📍 Getting your location… keep this page open.');
+  centrePhotoReady = (async function() {
+    var geo = null, err = '';
+    try { geo = await captureGeo(); } catch(e) { err = e.message || 'Could not get location.'; }
+    var address = null, map = null;
+    if(geo) {
+      setGeoStatus('wait', '📍 Location found (±' + geo.accuracy + ' m) — adding address and map…');
+      var both = await Promise.all([reverseGeocode(geo.lat, geo.lng), buildMapThumb(geo.lat, geo.lng).catch(function() { return null; })]);
+      address = both[0]; map = both[1];
+      centrePhotoGeo = { lat: geo.lat, lng: geo.lng, accuracy: geo.accuracy, address: address ? address.line : '' };
+    }
+    centrePhotoMeta = { geo: geo, address: address, map: map };
+    try { centrePhotoFiles = await Promise.all(centrePhotoRaw.map(function(f) { return renderGeoStamp(f, photoStampMeta()); })); }
+    catch(e) { centrePhotoFiles = centrePhotoRaw.slice(); }
+    renderPhotoPreview();
+    var old = Date.now() - centrePhotoWhen.getTime() > 30 * 60 * 1000 ? '<br>⚠️ This photo was taken on ' + stampTime(centrePhotoWhen) + '. Please take a fresh photo at the centre if possible.' : '';
+    if(geo) setGeoStatus(geo.accuracy > 100 ? 'warn' : 'ok', '📍 Geo-tag added: <b>' + cwEsc(address ? address.title : geo.lat + ', ' + geo.lng) + '</b> · ' + geo.lat + ', ' + geo.lng + ' (±' + geo.accuracy + ' m)' +
+      (geo.accuracy > 100 ? '<br>Location is approximate — step near a window or outside and tap <a href="#" onclick="retryCentrePhotoGeo();return false">Retry</a> for better accuracy.' : '') + old);
+    else setGeoStatus('warn', '⚠️ ' + cwEsc(err) + ' <a href="#" onclick="retryCentrePhotoGeo();return false"><b>Retry</b></a>' + old);
+  })();
+}
+
+function retryCentrePhotoGeo() { if(centrePhotoRaw.length) handleCentrePhoto(centrePhotoRaw); }
+
 function removeCentrePhoto() {
-  centrePhotoFiles = [];
-  centrePhotoGeo = null;
-  document.getElementById('umc3-file-list').innerHTML = '';
-  document.getElementById('geo-status').style.display = 'none';
-  document.getElementById('umc-file3').value = '';
+  centrePhotoFiles = []; centrePhotoRaw = []; centrePhotoGeo = null; centrePhotoMeta = null; centrePhotoReady = null;
+  var list = document.getElementById('photo-file-list'); if(list) list.innerHTML = '';
+  var st = document.getElementById('geo-status'); if(st) st.style.display = 'none';
+  var input = document.getElementById('photo-file'); if(input) input.value = '';
 }
 
 // ===== MANAGE TEST CENTRES =====
@@ -2706,8 +3104,14 @@ async function submitCentrePhoto() {
   document.getElementById('photo-err-city').style.display = city ? 'none' : 'block'; if(!city) ok=false;
   document.getElementById('photo-err-date').style.display = date ? 'none' : 'block'; if(!date) ok=false;
   document.getElementById('photo-err-slot').style.display = slot ? 'none' : 'block'; if(!slot) ok=false;
-  document.getElementById('photo-err-file').style.display = centrePhotoFiles.length > 0 ? 'none' : 'block'; if(!centrePhotoFiles.length) ok=false;
+  document.getElementById('photo-err-file').style.display = centrePhotoRaw.length > 0 ? 'none' : 'block'; if(!centrePhotoRaw.length) ok=false;
   if(!ok) return;
+
+  const btn0 = document.getElementById('photo-submit');
+  if(centrePhotoReady) { btn0.disabled = true; btn0.textContent = '📍 Adding geo-tag…'; await centrePhotoReady; btn0.disabled = false; btn0.textContent = '📸 Submit Centre Photo'; }
+  if(!centrePhotoGeo && !confirm('Location could not be captured, so the photo will NOT have a geo-tag.\n\nTap Cancel to retry location, or OK to submit anyway.')) return;
+  // Final stamp includes the selected centre, date and session
+  try { centrePhotoFiles = await Promise.all(centrePhotoRaw.map(function(f) { return renderGeoStamp(f, photoStampMeta()); })); } catch(e) {}
 
   const btn = document.getElementById('photo-submit');
   btn.disabled = true;
@@ -2719,6 +3123,7 @@ async function submitCentrePhoto() {
     // Step 1: Compress ALL photos in parallel (adaptive based on file size)
     if(loadingText) loadingText.textContent = 'Optimising ' + centrePhotoFiles.length + ' photo(s)...';
     const optimised = await Promise.all(centrePhotoFiles.map(async function(f) {
+      if(f.ctStamped) return f; // already sized + stamped
       if(f.type && f.type.startsWith('image/')) {
         const blob = await compressImage(f, 0, 0); // adaptive compression
         const origKB = Math.round(f.size/1024);
@@ -2753,7 +3158,7 @@ async function submitCentrePhoto() {
     document.getElementById('photo-success').style.display = 'block';
     document.getElementById('photo-success-detail').textContent = city + ' | ' + date + ' | ' + getSessionLabel('photo', slot);
     if(centrePhotoGeo) {
-      document.getElementById('photo-geo-detail').textContent = '📍 ' + centrePhotoGeo.lat + ', ' + centrePhotoGeo.lng + ' (±' + centrePhotoGeo.accuracy + 'm)';
+      document.getElementById('photo-geo-detail').textContent = '📍 ' + (centrePhotoGeo.address ? centrePhotoGeo.address + ' · ' : '') + centrePhotoGeo.lat + ', ' + centrePhotoGeo.lng + ' (±' + centrePhotoGeo.accuracy + 'm)';
     }
 
     // Show photo previews
@@ -2771,6 +3176,9 @@ async function submitCentrePhoto() {
 
     // Reset files
     centrePhotoFiles = [];
+    centrePhotoRaw = [];
+    centrePhotoMeta = null;
+    centrePhotoReady = null;
     centrePhotoGeo = null;
     document.getElementById('photo-file-list').innerHTML = '';
     const geo = document.getElementById('geo-status');
@@ -3239,6 +3647,7 @@ function startApp(role, user, page) {
   buildSidebar(role);
   setupBottomNav(role);
   updateCityDropdowns(); // populate city dropdowns from TEST_CENTRES
+  if(role==='admin') setTimeout(loadEditRequests, 1500);
   var landing = role==='admin' ? 'dashboard' : 'attendance';
   // On refresh, reopen the page you were on (only if your role can see it)
   if(page && document.getElementById('nav-'+page)) landing = page;
@@ -3301,9 +3710,9 @@ function showPage(id) {
   if(navEl) navEl.classList.add('active');
   var ptEl=document.getElementById('pageTitle'); if(ptEl) ptEl.textContent=pageTitles[id]||id;
   if(id==='dashboard') fetchDashboard();
-  if(id==='attendance') { /* courses load when date+slot selected */ }
+  if(id==='attendance') { loadMySubmissions(); }
   if(id==='reports') { fetchDashboard(); fetchCourseReport(); setTimeout(renderReports, 800); }
-  if(id==='admin') { setTimeout(function(){ loadCoordinators(); renderCourseCodeList(); renderCentreList(); loadActiveCourses(); loadAdminList(); }, 100); }
+  if(id==='admin') { setTimeout(function(){ loadEditRequests(); loadCoordinators(); renderCourseCodeList(); renderCentreList(); loadActiveCourses(); loadAdminList(); }, 100); }
   if(id==='eodreport') { var today=new Date().toISOString().split('T')[0]; var el=document.getElementById('eod-date'); if(el && !el.value) el.value=today; }
   setBottomNav(id);
   try { localStorage.setItem('ctLastPage', id); } catch(e) {}
@@ -3432,7 +3841,8 @@ async function uploadFiles(form, city, date, slot, type, formFiles, registered=0
       setProgress(form, 40);
 
       // Step 3: Send ALL files in ONE request
-      const result = await postData({city, date, slot, type, registered, present, absent, remarks, courseData, files: filesPayload});
+      const result = await postData(Object.assign({city, date, slot, type, registered, present, absent, remarks, courseData, files: filesPayload}, submitExtras(form)));
+      checkSubmitResult(result);
       if(result && result.folderUrl) folderUrl = result.folderUrl;
       setProgress(form, 90);
 
@@ -3440,16 +3850,25 @@ async function uploadFiles(form, city, date, slot, type, formFiles, registered=0
       // No files - just log the submission
       if(loadingText) loadingText.textContent = 'Submitting...';
       setProgress(form, 40);
-      const result = await postData({city, date, slot, type, registered, present, absent, remarks, courseData, files:[]});
+      const result = await postData(Object.assign({city, date, slot, type, registered, present, absent, remarks, courseData, files:[]}, submitExtras(form)));
+      checkSubmitResult(result);
       if(result && result.folderUrl) folderUrl = result.folderUrl;
       setProgress(form, 90);
     }
 
     setProgress(form, 100);
     lastFolder[form] = folderUrl;
-    submissions.unshift({type, city, date, slot, files:formFiles.length, time:new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit',hour12:true})});
+    var wasEdit = form === 'att' && !!EDIT_STATE;
+    if(wasEdit) {
+      exitEditMode();
+      setTimeout(function() {
+        document.getElementById('att-success-detail').textContent = '✏️ Changes saved for ' + city + ' | ' + date + ' | ' + slot + (formFiles.length ? ' | ' + formFiles.length + ' file(s) added' : '');
+      }, 450);
+    }
+    if(form === 'att') setTimeout(loadMySubmissions, 800);
+    if(!wasEdit) submissions.unshift({type, city, date, slot, files:formFiles.length, time:new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit',hour12:true})});
     // Add to attendance report if it's an attendance submission
-    if(type === 'Attendance' && registered > 0) {
+    if(!wasEdit && type === 'Attendance' && registered > 0) {
       attReportData.unshift({city, date, slot, registered, present, absent, remarks});
       // Update date filter options
       const df = document.getElementById('report-date-filter');
@@ -3482,8 +3901,23 @@ async function uploadFiles(form, city, date, slot, type, formFiles, registered=0
     document.getElementById(form+'-loading').style.display = 'none';
     if(document.getElementById(form+'-progress')) document.getElementById(form+'-progress').style.display = 'none';
     const errBtn = document.getElementById(form+'-submit');
-    if(errBtn) { errBtn.disabled = false; errBtn.textContent = form==='umc'?'Submit UMC report':'Submit attendance sheet'; }
-    alert('Upload failed: ' + err.message + '. Please check your connection and try again.');
+    if(errBtn) { errBtn.disabled = false; errBtn.textContent = (form==='att' && EDIT_STATE) ? '💾 Save changes' : form==='umc'?'Submit UMC report':'Submit attendance sheet'; }
+    if(err.kind === 'duplicate') {
+      alert(err.message);
+      loadMySubmissions();
+      var ms = document.getElementById('my-subs-card'); if(ms) ms.scrollIntoView({behavior:'smooth', block:'start'});
+    } else if(err.kind === 'error') {
+      alert((form==='att' && EDIT_STATE ? 'Could not save changes: ' : 'Submission failed: ') + err.message);
+      if(form==='att' && EDIT_STATE) loadMySubmissions();
+    } else {
+      alert('Upload failed: ' + err.message + '. Please check your connection and try again.');
+    }
+  }
+}
+
+function checkSubmitResult(result) {
+  if(result && (result.status === 'duplicate' || result.status === 'error')) {
+    var e = new Error(result.message || 'Something went wrong.'); e.kind = result.status; throw e;
   }
 }
 
@@ -3779,7 +4213,7 @@ function showConfirmModal(form) {
   pendingData = { city, date, slot, type, formFiles, registered, present, absent, remarks, courseData };
 
   // Build summary
-  document.getElementById('modal-title').textContent = type==='UMC' ? '⚠️ Confirm UMC Report' : '📋 Confirm Attendance Sheet';
+  document.getElementById('modal-title').textContent = type==='UMC' ? '⚠️ Confirm UMC Report' : (EDIT_STATE ? '✏️ Confirm changes' : '📋 Confirm Attendance Sheet');
   let extraRows = '';
   if(form === 'att') {
     const reg = parseInt(document.getElementById('att-registered').value) || 0;
@@ -3796,7 +4230,7 @@ function showConfirmModal(form) {
     const cRows = getCourseRowsData();
     if(cRows.length) {
       extraRows += `<div class="modal-row"><span>Courses</span><span>${cRows.length}</span></div>` +
-        cRows.slice(0, 8).map(r => `<div class="modal-row" style="font-size:12px"><span style="padding-left:10px">${cwEsc(r.code)}</span><span>${r.attended} / ${r.total} present</span></div>`).join('') +
+        cRows.slice(0, 8).map(r => `<div class="modal-row" style="font-size:12px"><span style="padding-left:10px">${cwEsc(r.code)}</span><span>${r.attended} present · ${r.notAttended} absent</span></div>`).join('') +
         (cRows.length > 8 ? `<div class="modal-row" style="font-size:12px"><span style="padding-left:10px">…and ${cRows.length - 8} more</span><span></span></div>` : '');
     }
   }
@@ -3811,7 +4245,7 @@ function showConfirmModal(form) {
 
   // Show duplicate warning if needed
   const dupWarn = document.getElementById('modal-dup-warning');
-  dupWarn.style.display = (isDuplicate || isDupLocal) ? 'block' : 'none';
+  dupWarn.style.display = (!(form==='att' && EDIT_STATE) && (isDuplicate || isDupLocal)) ? 'block' : 'none';
 
   document.getElementById('confirmModal').classList.add('open');
 }
