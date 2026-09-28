@@ -413,8 +413,8 @@ tr:hover td{background:var(--input-bg)}
           <div class="field">
             <label class="field-label">Session <span class="required">*</span></label>
             <div class="slot-grid">
-              <label class="slot-card" id="att-card-fn" onclick="selectSlot('att','FN')"><input type="radio" name="att-slot"><div class="slot-icon">🌅</div><div class="slot-name">Morning session</div><span class="slot-code">FN</span><div class="slot-time">09:30 – 12:00 Hrs</div></label>
-              <label class="slot-card" id="att-card-an" onclick="selectSlot('att','AN')"><input type="radio" name="att-slot"><div class="slot-icon">☀️</div><div class="slot-name">Afternoon session</div><span class="slot-code">AN</span><div class="slot-time">14:00 – 17:00 Hrs</div></label>
+              <label class="slot-card" id="att-card-fn" data-slot="FN" onclick="selectSlot('att','FN')"><input type="radio" name="att-slot"><div class="slot-icon">🌅</div><div class="slot-name">Morning session</div><span class="slot-code">FN</span><div class="slot-time">09:30 – 12:00 Hrs</div></label>
+              <label class="slot-card" id="att-card-an" data-slot="AN" onclick="selectSlot('att','AN')"><input type="radio" name="att-slot"><div class="slot-icon">☀️</div><div class="slot-name">Afternoon session</div><span class="slot-code">AN</span><div class="slot-time">14:00 – 17:00 Hrs</div></label>
             </div>
             <div class="err" id="att-err-slot">Please select a session.</div>
           </div>
@@ -493,8 +493,8 @@ tr:hover td{background:var(--input-bg)}
           <div class="field">
             <label class="field-label">Session <span class="required">*</span></label>
             <div class="slot-grid">
-              <label class="slot-card" id="umc-card-fn" onclick="selectSlot('umc','FN')"><input type="radio" name="umc-slot"><div class="slot-icon">🌅</div><div class="slot-name">Morning session</div><span class="slot-code">FN</span><div class="slot-time">09:30 – 12:00 Hrs</div></label>
-              <label class="slot-card" id="umc-card-an" onclick="selectSlot('umc','AN')"><input type="radio" name="umc-slot"><div class="slot-icon">☀️</div><div class="slot-name">Afternoon session</div><span class="slot-code">AN</span><div class="slot-time">14:00 – 17:00 Hrs</div></label>
+              <label class="slot-card" id="umc-card-fn" data-slot="FN" onclick="selectSlot('umc','FN')"><input type="radio" name="umc-slot"><div class="slot-icon">🌅</div><div class="slot-name">Morning session</div><span class="slot-code">FN</span><div class="slot-time">09:30 – 12:00 Hrs</div></label>
+              <label class="slot-card" id="umc-card-an" data-slot="AN" onclick="selectSlot('umc','AN')"><input type="radio" name="umc-slot"><div class="slot-icon">☀️</div><div class="slot-name">Afternoon session</div><span class="slot-code">AN</span><div class="slot-time">14:00 – 17:00 Hrs</div></label>
             </div>
             <div class="err" id="umc-err-slot">Please select a session.</div>
           </div>
@@ -680,8 +680,8 @@ tr:hover td{background:var(--input-bg)}
           <div class="field">
             <label class="field-label">Session <span class="required">*</span></label>
             <div class="slot-grid">
-              <label class="slot-card" id="photo-card-fn" onclick="selectSlot('photo','FN')"><input type="radio" name="photo-slot"><div class="slot-icon">🌅</div><div class="slot-name">Morning session</div><span class="slot-code">FN</span><div class="slot-time">09:30 – 12:00 Hrs</div></label>
-              <label class="slot-card" id="photo-card-an" onclick="selectSlot('photo','AN')"><input type="radio" name="photo-slot"><div class="slot-icon">☀️</div><div class="slot-name">Afternoon session</div><span class="slot-code">AN</span><div class="slot-time">14:00 – 17:00 Hrs</div></label>
+              <label class="slot-card" id="photo-card-fn" data-slot="FN" onclick="selectSlot('photo','FN')"><input type="radio" name="photo-slot"><div class="slot-icon">🌅</div><div class="slot-name">Morning session</div><span class="slot-code">FN</span><div class="slot-time">09:30 – 12:00 Hrs</div></label>
+              <label class="slot-card" id="photo-card-an" data-slot="AN" onclick="selectSlot('photo','AN')"><input type="radio" name="photo-slot"><div class="slot-icon">☀️</div><div class="slot-name">Afternoon session</div><span class="slot-code">AN</span><div class="slot-time">14:00 – 17:00 Hrs</div></label>
             </div>
             <div class="err" id="photo-err-slot">Please select a session.</div>
           </div>
@@ -757,11 +757,11 @@ tr:hover td{background:var(--input-bg)}
           <div style="display:grid;grid-template-columns:1fr 1fr auto;gap:10px;align-items:end;margin-bottom:12px">
             <div>
               <label class="field-label">Full name</label>
-              <input type="text" id="new-admin-name" placeholder="e.g. Sonu Kumar" style="width:100%;height:42px;border-radius:8px;border:1px solid var(--input-border);background:var(--input-bg);color:var(--text);font-size:14px;padding:0 12px;outline:none">
+              <input type="text" id="new-admin-name" placeholder="e.g. Ananya Rao" style="width:100%;height:42px;border-radius:8px;border:1px solid var(--input-border);background:var(--input-bg);color:var(--text);font-size:14px;padding:0 12px;outline:none">
             </div>
             <div>
               <label class="field-label">Email</label>
-              <input type="email" id="new-admin-email" placeholder="e.g. sonu@gmail.com" style="width:100%;height:42px;border-radius:8px;border:1px solid var(--input-border);background:var(--input-bg);color:var(--text);font-size:14px;padding:0 12px;outline:none" onkeydown="if(event.key==='Enter')addAdmin()">
+              <input type="email" id="new-admin-email" placeholder="e.g. ananya.rao@example.com" style="width:100%;height:42px;border-radius:8px;border:1px solid var(--input-border);background:var(--input-bg);color:var(--text);font-size:14px;padding:0 12px;outline:none" onkeydown="if(event.key==='Enter')addAdmin()">
             </div>
             <button onclick="addAdmin()" style="height:42px;padding:0 16px;border-radius:8px;border:none;background:var(--accent);color:#fff;font-size:13px;font-weight:600;cursor:pointer">Add Admin</button>
           </div>
@@ -897,11 +897,11 @@ OLMBA503
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;align-items:end">
               <div>
                 <label style="font-size:13px;font-weight:600;color:var(--text2);display:block;margin-bottom:6px">Full name</label>
-                <input type="text" id="new-coord-name" placeholder="e.g. Vashist Mamidi" style="width:100%;height:42px;border-radius:8px;border:1px solid var(--input-border);background:var(--input-bg);color:var(--text);font-size:14px;padding:0 12px;outline:none">
+                <input type="text" id="new-coord-name" placeholder="e.g. Karan Mehta" style="width:100%;height:42px;border-radius:8px;border:1px solid var(--input-border);background:var(--input-bg);color:var(--text);font-size:14px;padding:0 12px;outline:none">
               </div>
               <div>
                 <label style="font-size:13px;font-weight:600;color:var(--text2);display:block;margin-bottom:6px">Email</label>
-                <input type="email" id="new-coord-email" placeholder="e.g. vashistm@codetantra.in" style="width:100%;height:42px;border-radius:8px;border:1px solid var(--input-border);background:var(--input-bg);color:var(--text);font-size:14px;padding:0 12px;outline:none">
+                <input type="email" id="new-coord-email" placeholder="e.g. karan.mehta@example.com" style="width:100%;height:42px;border-radius:8px;border:1px solid var(--input-border);background:var(--input-bg);color:var(--text);font-size:14px;padding:0 12px;outline:none">
               </div>
 
               <div style="grid-column:1/-1;margin-top:4px">
@@ -919,9 +919,9 @@ OLMBA503
           <!-- Bulk add coordinators -->
           <div id="coord-bulk-tab" style="display:none">
             <p style="font-size:13px;color:var(--muted);margin-bottom:10px">Paste coordinator data — one per line in format: <code style="background:var(--input-bg);padding:2px 6px;border-radius:4px">Name, Email, City</code></p>
-            <textarea id="bulk-coord-input" placeholder="Ravi Kumar, ravi@gmail.com, Hyderabad
-Priya S, priya@gmail.com, Pune
-Sonu M, sonu@gmail.com, Delhi, Mumbai - East" style="width:100%;height:120px;border-radius:8px;border:1px solid var(--input-border);background:var(--input-bg);color:var(--text);font-size:13px;padding:10px 12px;outline:none;resize:vertical;font-family:monospace"></textarea>
+            <textarea id="bulk-coord-input" placeholder="Arjun Nair, arjun.nair@example.com, Hyderabad
+Meera Joshi, meera.joshi@example.com, Pune
+Rohan Das, rohan.das@example.com, Delhi, Mumbai - East" style="width:100%;height:120px;border-radius:8px;border:1px solid var(--input-border);background:var(--input-bg);color:var(--text);font-size:13px;padding:10px 12px;outline:none;resize:vertical;font-family:monospace"></textarea>
             <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:8px">
               <button onclick="document.getElementById('bulk-coord-input').value=''" style="height:36px;padding:0 14px;border-radius:8px;border:1px solid var(--border);background:var(--input-bg);color:var(--muted);font-size:13px;cursor:pointer">Clear</button>
               <button onclick="bulkAddCoordinators()" style="height:36px;padding:0 16px;border-radius:8px;border:none;background:var(--accent);color:#fff;font-size:13px;font-weight:600;cursor:pointer">Add All →</button>
@@ -1120,6 +1120,117 @@ function signOut() {
 }
 
 // Load active courses for admin panel
+// ===== Session times per date (set by admin in "Active Courses for the Day") =====
+var DEFAULT_SESSIONS = { FN: {start:'09:30', end:'12:00'}, AN: {start:'14:00', end:'17:00'} };
+var SESSION_TIMES_CACHE = {};   // date -> [{slot,name,start,end}]
+var FORM_SESSIONS = {};         // form -> {slotKey: {name,start,end}}
+
+function fetchSessionTimes(date) {
+  if(!date) return Promise.resolve([]);
+  if(SESSION_TIMES_CACHE[date]) return Promise.resolve(SESSION_TIMES_CACHE[date]);
+  return new Promise(function(resolve) {
+    var cbName = 'sessCB_' + Date.now() + '_' + Math.floor(Math.random()*1000);
+    var script = document.createElement('script');
+    var finish = function(list) {
+      if(window[cbName]) delete window[cbName];
+      if(document.head.contains(script)) document.head.removeChild(script);
+      resolve(list);
+    };
+    window[cbName] = function(res) {
+      var list = (res && res.status === 'success' && Array.isArray(res.sessions)) ? res.sessions : [];
+      SESSION_TIMES_CACHE[date] = list;
+      finish(list);
+    };
+    script.onerror = function() { finish([]); };
+    setTimeout(function() { if(window[cbName]) finish([]); }, 10000);
+    script.src = SCRIPT_URL + '?action=getSessionTimes&date=' + encodeURIComponent(date) + '&callback=' + cbName;
+    document.head.appendChild(script);
+  });
+}
+
+function formatSessionTime(s) {
+  return (s && s.start && s.end) ? (s.start + ' – ' + s.end + ' Hrs') : '';
+}
+
+function getSessionLabel(form, slot) {
+  var s = (FORM_SESSIONS[form] || {})[slot];
+  var times = s && s.start && s.end ? (s.start + '-' + s.end) : '';
+  var name = slot === 'FN' ? 'Morning (FN)' : slot === 'AN' ? 'Afternoon (AN)' : ((s && s.name) || slot);
+  if(!times && DEFAULT_SESSIONS[slot]) times = DEFAULT_SESSIONS[slot].start + '-' + DEFAULT_SESSIONS[slot].end;
+  return times ? (name + ' — ' + times) : name;
+}
+
+function renderSessionCards(form, list) {
+  var fnCard = document.getElementById(form + '-card-fn');
+  var anCard = document.getElementById(form + '-card-an');
+  if(!fnCard || !anCard) return;
+  var grid = fnCard.parentNode;
+  var map = { FN: DEFAULT_SESSIONS.FN, AN: DEFAULT_SESSIONS.AN };
+  var customs = [];
+  (list || []).forEach(function(s) {
+    if(!s || !s.slot) return;
+    if(s.slot === 'FN' || s.slot === 'AN') { if(s.start && s.end) map[s.slot] = {start:s.start, end:s.end}; }
+    else customs.push(s);
+  });
+  FORM_SESSIONS[form] = { FN: map.FN, AN: map.AN };
+  fnCard.querySelector('.slot-time').textContent = formatSessionTime(map.FN);
+  anCard.querySelector('.slot-time').textContent = formatSessionTime(map.AN);
+
+  grid.querySelectorAll('.slot-card.custom-slot').forEach(function(c) { c.remove(); });
+  customs.forEach(function(s) {
+    FORM_SESSIONS[form][s.slot] = { name: s.name || s.slot, start: s.start, end: s.end };
+    var card = document.createElement('label');
+    card.className = 'slot-card custom-slot';
+    card.setAttribute('data-slot', s.slot);
+    card.onclick = function() { selectSlot(form, s.slot); };
+    card.innerHTML = '<input type="radio" name="' + form + '-slot"><div class="slot-icon">🕒</div>' +
+      '<div class="slot-name"></div><span class="slot-code">Custom</span><div class="slot-time"></div>';
+    card.querySelector('.slot-name').textContent = (s.name || s.slot) + ' session';
+    card.querySelector('.slot-time').textContent = formatSessionTime(s);
+    grid.appendChild(card);
+  });
+
+  // If the chosen session no longer exists for this date, clear the choice
+  var cur = slots[form];
+  if(cur && cur !== 'FN' && cur !== 'AN' && !FORM_SESSIONS[form][cur]) slots[form] = '';
+  grid.querySelectorAll('.slot-card').forEach(function(c) {
+    c.classList.toggle('selected', !!slots[form] && c.getAttribute('data-slot') === slots[form]);
+  });
+}
+
+function refreshSessionCards(form) {
+  var dateEl = document.getElementById(form + '-date');
+  var date = dateEl ? dateEl.value : '';
+  if(!date) { renderSessionCards(form, []); return; }
+  fetchSessionTimes(date).then(function(list) {
+    if(dateEl.value === date) renderSessionCards(form, list);
+  });
+}
+
+// Admin: when choosing a date/session, show the times already saved for it
+function applySavedTimesForAdmin() {
+  var date = (document.getElementById('active-course-date') || {}).value || '';
+  var slot = (document.getElementById('active-course-slot') || {}).value || '';
+  if(!date || (slot !== 'FN' && slot !== 'AN')) return;
+  fetchSessionTimes(date).then(function(list) {
+    var s = list.filter(function(x) { return x.slot === slot; })[0];
+    var stEl = document.getElementById('active-start-time'), etEl = document.getElementById('active-end-time');
+    if(!stEl || !etEl) return;
+    if(s && s.start && s.end) { stEl.value = s.start; etEl.value = s.end; }
+    else { stEl.value = DEFAULT_SESSIONS[slot].start; etEl.value = DEFAULT_SESSIONS[slot].end; }
+  });
+}
+
+['att','umc','photo'].forEach(function(form) {
+  FORM_SESSIONS[form] = { FN: DEFAULT_SESSIONS.FN, AN: DEFAULT_SESSIONS.AN };
+  var el = document.getElementById(form + '-date');
+  if(el) el.addEventListener('change', function() { refreshSessionCards(form); });
+});
+(function() {
+  var d = document.getElementById('active-course-date');
+  if(d) d.addEventListener('change', applySavedTimesForAdmin);
+})();
+
 // ===== Active Courses helpers (restored — these were missing) =====
 function toggleActiveCourse(el) {
   var code = el.getAttribute('data-code');
@@ -1178,6 +1289,7 @@ function onActiveSlotChange() {
   if(v === 'FN' && stEl && etEl) { stEl.value = '09:30'; etEl.value = '12:00'; }
   if(v === 'AN' && stEl && etEl) { stEl.value = '14:00'; etEl.value = '17:00'; }
   if(v === 'CUSTOM') updateActiveCustomPreview();
+  applySavedTimesForAdmin();
   loadActiveCourses();
 }
 
@@ -1246,7 +1358,10 @@ async function saveActiveCourses() {
 
   if(msg) { msg.textContent = '⏳ Saving...'; msg.style.color = 'var(--muted)'; msg.style.display = 'block'; }
 
-  var result = await postData({ action:'saveActiveCourses', key: date+'_'+slot, date, slot, courses: selectedActiveCourses });
+  var result = await postData({ action:'saveActiveCourses', key: date+'_'+slot, date, slot, courses: selectedActiveCourses,
+    start: (document.getElementById('active-start-time')||{}).value || '', end: (document.getElementById('active-end-time')||{}).value || '',
+    name: slotRaw === 'CUSTOM' ? ((document.getElementById('active-custom-name')||{}).value || '').trim() : slotRaw });
+  delete SESSION_TIMES_CACHE[date];
   if(result && result.status === 'success') {
     if(msg) { msg.textContent = '✅ Saved ' + selectedActiveCourses.length + ' courses for ' + date + ' ' + slot; msg.style.color = '#065f46'; }
     showSavedActiveCourses(selectedActiveCourses);
@@ -2483,7 +2598,7 @@ async function submitCentrePhoto() {
 
     document.getElementById('photo-loading').style.display = 'none';
     document.getElementById('photo-success').style.display = 'block';
-    document.getElementById('photo-success-detail').textContent = city + ' | ' + date + ' | ' + (slot === 'FN' ? 'Morning FN' : 'Afternoon AN');
+    document.getElementById('photo-success-detail').textContent = city + ' | ' + date + ' | ' + getSessionLabel('photo', slot);
     if(centrePhotoGeo) {
       document.getElementById('photo-geo-detail').textContent = '📍 ' + centrePhotoGeo.lat + ', ' + centrePhotoGeo.lng + ' (±' + centrePhotoGeo.accuracy + 'm)';
     }
@@ -3048,8 +3163,8 @@ function setBottomNav(id) {
 function selectSlot(form,val) {
   slots[form]=val;
   if(form==='att') checkFetchActiveCourses();
-  document.getElementById(form+'-card-fn').classList.toggle('selected',val==='FN');
-  document.getElementById(form+'-card-an').classList.toggle('selected',val==='AN');
+  var grid = document.getElementById(form+'-card-fn').parentNode;
+  grid.querySelectorAll('.slot-card').forEach(function(c){ c.classList.toggle('selected', c.getAttribute('data-slot')===val); });
   document.getElementById(form+'-err-slot').style.display='none';
 }
 
@@ -3522,7 +3637,7 @@ function showConfirmModal(form) {
     <div class="modal-row"><span>Type</span><span>${type}</span></div>
     <div class="modal-row"><span>Test Centre</span><span>${city}</span></div>
     <div class="modal-row"><span>Date</span><span>${date}</span></div>
-    <div class="modal-row"><span>Session</span><span>${slot==='FN'?'Morning (FN) — 09:30-12:00':'Afternoon (AN) — 14:00-17:00'}</span></div>
+    <div class="modal-row"><span>Session</span><span>${getSessionLabel(form, slot)}</span></div>
     ${extraRows}
     <div class="modal-row"><span>Files</span><span>${formFiles.length} file(s) selected</span></div>
   `;
