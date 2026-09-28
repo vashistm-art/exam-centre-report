@@ -1526,8 +1526,8 @@ function renderAttReport() {
 function renderReports() {
   // If no data yet, fetch first then render
   if(!allDashData || allDashData.length === 0) {
-    document.getElementById('reports-empty').style.display = 'block';
-    document.getElementById('charts-top').style.display = 'none';
+    const reEl = document.getElementById('reports-empty'); if(reEl) reEl.style.display = 'block';
+    const ctEl = document.getElementById('charts-top'); if(ctEl) ctEl.style.display = 'none';
     fetchDashboard();
     return;
   }
@@ -1544,7 +1544,7 @@ function renderReports() {
   // --- Donut Chart ---
   const totalPresent = filtered.reduce((s,r) => s + (r.present||0), 0);
   const totalAbsent = filtered.reduce((s,r) => s + (r.absent||0), 0);
-  const donutCtx = document.getElementById('donutChart').getContext('2d');
+  const donutEl = document.getElementById('donutChart'); if(!donutEl) return; const donutCtx = donutEl.getContext('2d');
   if(donutChartInst) donutChartInst.destroy();
 
   if(totalPresent === 0 && totalAbsent === 0) {
@@ -1588,7 +1588,7 @@ function renderReports() {
     if(s.date) dateCounts[s.date] = (dateCounts[s.date]||0);
   });
   const sortedDates = Object.keys(dateCounts).sort();
-  const lineCtx = document.getElementById('lineChart').getContext('2d');
+  const lineEl = document.getElementById('lineChart'); if(!lineEl) return; const lineCtx = lineEl.getContext('2d');
   if(lineChartInst) lineChartInst.destroy();
 
   if(sortedDates.length === 0) {
@@ -1637,7 +1637,7 @@ function renderReports() {
   const pcts = cities.map(c => cityData[c].registered > 0 ? Math.round((cityData[c].present/cityData[c].registered)*100) : 0);
   const barColors = pcts.map(p => p >= 80 ? '#10b981' : p >= 60 ? '#f59e0b' : '#f43f5e');
 
-  const barCtx = document.getElementById('barChart').getContext('2d');
+  const barEl = document.getElementById('barChart'); if(!barEl) return; const barCtx = barEl.getContext('2d');
   if(barChartInst) barChartInst.destroy();
 
   if(cities.length === 0) {
