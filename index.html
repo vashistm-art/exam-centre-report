@@ -998,18 +998,6 @@ tr:hover td{background:var(--input-bg)}
 </div>
 
 <script>
-window.onerror = function(msg, src, line, col, err) {
-  document.body.style.background = 'white';
-  document.body.innerHTML = '<div style="font-family:monospace;padding:20px;color:red">' +
-    '<h2>JS Error (please screenshot and share)</h2>' +
-    '<p><b>Message:</b> ' + msg + '</p>' +
-    '<p><b>Line:</b> ' + line + '</p>' +
-    '<p><b>Error:</b> ' + (err ? err.stack : 'none') + '</p>' +
-    '</div>';
-  return false;
-};
-</script>
-<script>
 // ===== GLOBAL VARIABLES (declared first to prevent ReferenceError) =====
 var slots = {att:'',umc:'',photo:''};
 var files = {att:[],umc1:[],umc2:[]};
@@ -2745,8 +2733,10 @@ lastFolder = {att:'',umc:''};  // initialized at top
 // Clock
 function updateClock() {
   const now = new Date();
-  document.getElementById('liveDate').textContent = now.toLocaleDateString('en-IN',{weekday:'short',day:'2-digit',month:'short',year:'numeric'});
-  document.getElementById('liveTime').textContent = now.toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:true});
+  const dateEl = document.getElementById('liveDate');
+  const timeEl = document.getElementById('liveTime');
+  if(dateEl) dateEl.textContent = now.toLocaleDateString('en-IN',{weekday:'short',day:'2-digit',month:'short',year:'numeric'});
+  if(timeEl) timeEl.textContent = now.toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:true});
 }
 updateClock(); setInterval(updateClock,1000);
 
