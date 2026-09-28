@@ -2774,8 +2774,6 @@ function postData(payload) {
 
 // DEDUP: SCRIPT_URL
 
-const ADMIN_PASSWORD = "CT@Admin2026";
-const PASSWORDS = {coord:"CT@Coord2026", admin:"CT@Admin2026"};
 
 // (global) // DEDUP let currentRole = localStorage.getItem('ctRole') || null;
 // (global) // DEDUP let isDark = localStorage.getItem('ctTheme') === 'dark';
@@ -2957,21 +2955,6 @@ function handleGoogleLogin(response) {
   }
 }
 
-function toggleAdminLogin() {
-  const panel = document.getElementById('step-admin');
-  panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
-}
-
-function doAdminLogin() {
-  const pass = document.getElementById('adminPassInput').value;
-  if(pass === ADMIN_PASSWORD) {
-    document.getElementById('adminErr').style.display='none';
-    startApp('admin', {email:'admin', name:'Admin', picture:''});
-  } else {
-    document.getElementById('adminErr').style.display='block';
-  }
-}
-
 function startApp(role, user) {
   currentRole = role;
   localStorage.setItem('ctRole', role);
@@ -3004,7 +2987,8 @@ function logout() {
   document.getElementById('loginScreen').style.display='flex';
   document.getElementById('app').style.display='none';
   document.getElementById('loginErr').style.display='none';
-  document.getElementById('step-admin').style.display='none';
+  var stepAdmin = document.getElementById('step-admin');
+  if(stepAdmin) stepAdmin.style.display='none';
   const adminPassInput = document.getElementById('adminPassInput');
   if(adminPassInput) adminPassInput.value='';
 }
